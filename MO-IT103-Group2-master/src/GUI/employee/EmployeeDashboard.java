@@ -11,8 +11,14 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollBar;
+import javax.swing.JTextField;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -31,6 +37,7 @@ public class EmployeeDashboard extends JFrame {
 	private javax.swing.JLabel addressValue;
 	private javax.swing.JLabel allowancesLabel;
 	private javax.swing.JButton submitLeaveRequestButton;
+	private javax.swing.JButton submitOvertimeButton;
 	private javax.swing.JLabel birthday;
 	private javax.swing.JLabel birthdayValue;
 	private javax.swing.JLabel clothingAllowanceLabel;
@@ -88,6 +95,8 @@ public class EmployeeDashboard extends JFrame {
 	private javax.swing.JLabel salaryAfterTaxValue;
 	private javax.swing.JLabel sssDeductionsLabel;
 	private javax.swing.JLabel sssDeductionsValue;
+	private javax.swing.JLabel overtimeLabel;
+	private javax.swing.JLabel overtimeValue;
 	private javax.swing.JLabel sssNumber;
 	private javax.swing.JLabel sssNumberValue;
 	private javax.swing.JLabel status;
@@ -114,6 +123,7 @@ public class EmployeeDashboard extends JFrame {
 	private AtomicInteger latesNum = new AtomicInteger(0);
 	private AtomicInteger presentsNum = new AtomicInteger(0);
 	private DecimalFormat numberFormat = new DecimalFormat("#.00");
+	private double overtimeHours;
 	// End of variables declaration
 
 	public EmployeeDashboard(GovernmentIdentification employeeGI, Compensation employeeComp) {
@@ -156,6 +166,8 @@ public class EmployeeDashboard extends JFrame {
 		netSalaryComputationLabel = new javax.swing.JLabel();
 		sssDeductionsLabel = new javax.swing.JLabel();
 		sssDeductionsValue = new javax.swing.JLabel();
+		overtimeLabel = new javax.swing.JLabel();
+		overtimeValue = new javax.swing.JLabel();
 		philhealthDeductionsLabel = new javax.swing.JLabel();
 		philhealthDeductionsValue = new javax.swing.JLabel();
 		totalDeductionsLabel = new javax.swing.JLabel();
@@ -215,6 +227,7 @@ public class EmployeeDashboard extends JFrame {
 		monthDropdown = new javax.swing.JComboBox<>();
 		computeButton = new javax.swing.JButton();
 		submitLeaveRequestButton = new javax.swing.JButton();
+		submitOvertimeButton = new javax.swing.JButton();
 		logoutButton = new javax.swing.JButton();
 
 		setTitle("MotorPH Payroll System | Full Details of " + employeeGI.getLastName());
@@ -308,7 +321,13 @@ public class EmployeeDashboard extends JFrame {
 
 		netSalaryComputationLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
 		netSalaryComputationLabel.setText("Net Salary Computation");
-
+		
+		overtimeLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		overtimeLabel.setText("Overtime");
+		
+		overtimeValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		overtimeValue.setText(" ");
+		
 		sssDeductionsLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 		sssDeductionsLabel.setText("SSS Deduction");
 
@@ -377,13 +396,21 @@ public class EmployeeDashboard extends JFrame {
 						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 				.addGroup(jPanel32Layout.createSequentialGroup().addGap(48, 48, 48)
 						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(philhealthDeductionsLabel).addComponent(sssDeductionsLabel)
-								.addComponent(totalDeductionsLabel).addComponent(grossSalaryLabel1)
-								.addComponent(taxableSalaryLabel).addComponent(withHoldingTaxLabel)
-								.addComponent(salaryAfterTaxLabel).addComponent(netSalaryLabel)
-								.addComponent(totalAllowancesLabel1).addComponent(pagibigDeductionsLabel))
+								.addComponent(overtimeLabel)
+								.addComponent(philhealthDeductionsLabel)
+								.addComponent(sssDeductionsLabel)
+								.addComponent(totalDeductionsLabel)
+								.addComponent(grossSalaryLabel1)
+								.addComponent(taxableSalaryLabel)
+								.addComponent(withHoldingTaxLabel)
+								.addComponent(salaryAfterTaxLabel)
+								.addComponent(netSalaryLabel)
+								.addComponent(totalAllowancesLabel1)
+								.addComponent(pagibigDeductionsLabel))
 						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
 						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+								.addComponent(overtimeValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
+										javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addComponent(netSalaryValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addComponent(totalAllowancesValue1, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
@@ -409,6 +436,9 @@ public class EmployeeDashboard extends JFrame {
 		jPanel32Layout.setVerticalGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 				.addGroup(jPanel32Layout.createSequentialGroup().addGap(14, 14, 14)
 						.addComponent(netSalaryComputationLabel).addGap(18, 18, 18)
+						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+								.addComponent(overtimeLabel).addComponent(overtimeValue))
+						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
 								.addComponent(sssDeductionsLabel).addComponent(sssDeductionsValue))
 						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -772,6 +802,15 @@ public class EmployeeDashboard extends JFrame {
 				backToEmployeeListButtonActionPerformed(evt);
 			}
 		});
+		
+		submitOvertimeButton = new javax.swing.JButton();
+		submitOvertimeButton.setText("Submit Overtime");
+		submitOvertimeButton.addActionListener(new java.awt.event.ActionListener() {
+		    public void actionPerformed(java.awt.event.ActionEvent evt) {
+		        submitOvertimeButtonActionPerformed(evt);
+		    }
+		});
+		
 
 		welcomeLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 		welcomeLabel.setText("Welcome, " + employeeGI.getLastName() + ".");
@@ -848,6 +887,8 @@ public class EmployeeDashboard extends JFrame {
 														javax.swing.GroupLayout.PREFERRED_SIZE)
 												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
 														javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+												.addComponent(submitOvertimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
+												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 												.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE,
 														179, javax.swing.GroupLayout.PREFERRED_SIZE)
 												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -872,6 +913,8 @@ public class EmployeeDashboard extends JFrame {
 								.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addComponent(submitLeaveRequestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
+										javax.swing.GroupLayout.PREFERRED_SIZE)
+								.addComponent(submitOvertimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
 										javax.swing.GroupLayout.PREFERRED_SIZE))
 						.addGap(12, 12, 12).addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 438,
 								javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -892,7 +935,56 @@ public class EmployeeDashboard extends JFrame {
 		// Must be called after setting pack
 		setLocationRelativeTo(null);
 	}// </editor-fold>
+	
+	private void submitOvertimeButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		OvertimeDialog dialog = new OvertimeDialog(this);
+	    dialog.setVisible(true); // Show the dialog
 
+	    // Get the overtime hours from the dialog
+	    overtimeHours = dialog.getOvertimeHours();
+	    overtimeValue.setText(Double.toString(overtimeHours));
+	    
+	    // Optionally, you can display the entered overtime hours or process it further
+	    System.out.println("Overtime submitted: " + overtimeHours + " hours");
+	}
+
+	public class OvertimeDialog extends JDialog {
+	    private JTextField overtimeField;
+	    private JButton submitButton;
+	    private double overtimeHours;
+
+	    public OvertimeDialog(JFrame parent) {
+	        super(parent, "Submit Overtime", true);
+	        setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+
+	        overtimeField = new JTextField(10);
+	        submitButton = new JButton("Submit");
+
+	        add(new JLabel("Overtime in Hours:"));
+	        add(overtimeField);
+	        add(submitButton);
+
+	        submitButton.addActionListener(new ActionListener() {
+	            @Override
+	            public void actionPerformed(ActionEvent e) {
+	                try {
+	                    overtimeHours = Double.parseDouble(overtimeField.getText());
+	                    dispose(); // Close the dialog
+	                } catch (NumberFormatException ex) {
+	                    JOptionPane.showMessageDialog(OvertimeDialog.this, "Please enter a valid number.", "Error", JOptionPane.ERROR_MESSAGE);
+	                }
+	            }
+	        });
+
+	        pack();
+	        setLocationRelativeTo(parent); // Center the dialog
+	    }
+
+	    public double getOvertimeHours() {
+	        return overtimeHours;
+	    }
+	}
+	
 	private void computeButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
 
 		// Reset values for hours rendered
@@ -934,12 +1026,16 @@ public class EmployeeDashboard extends JFrame {
 		salaryAfterTaxValue.setText(numberFormat.format(salaryAfterTax));
 
 		// Compute for Net Salary
-		Double netSalary = salaryAfterTax + totalAllowance;
+		
+		Double totalOvertimeCost = grossSalary * overtimeHours;
+		
+		Double netSalary = salaryAfterTax + totalAllowance + totalOvertimeCost;
 
 		netSalaryValue.setText(numberFormat.format(netSalary));
-
+		
+		overtimeValue.setText(Double.toString(overtimeHours));
 	}
-
+	
 	private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -1016,5 +1112,5 @@ public class EmployeeDashboard extends JFrame {
 		this.hoursRenderedNum = new AtomicInteger(0);
 		this.latesNum = new AtomicInteger(0);
 		this.presentsNum = new AtomicInteger(0);
-	}
+	}	
 }
