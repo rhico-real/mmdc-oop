@@ -506,7 +506,7 @@ public class ViewPayslipPage extends javax.swing.JFrame {
 
         lblTitle.setFont(new java.awt.Font("Segoe UI", 1, 12)); 
         lblTitle.setForeground(new java.awt.Color(255, 255, 255));
-        lblTitle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/motorcycleWhite.png"))); 
+//        lblTitle.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/motorcycleWhite.png"))); 
         lblTitle.setText("MotorPH");
 
         javax.swing.GroupLayout gl_titlePane = new javax.swing.GroupLayout(titlePane);

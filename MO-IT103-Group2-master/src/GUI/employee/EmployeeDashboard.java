@@ -38,6 +38,7 @@ public class EmployeeDashboard extends JFrame {
 	private javax.swing.JLabel allowancesLabel;
 	private javax.swing.JButton submitLeaveRequestButton;
 	private javax.swing.JButton submitOvertimeButton;
+	private javax.swing.JButton submitPayslipButton;
 	private javax.swing.JLabel birthday;
 	private javax.swing.JLabel birthdayValue;
 	private javax.swing.JLabel clothingAllowanceLabel;
@@ -228,6 +229,7 @@ public class EmployeeDashboard extends JFrame {
 		computeButton = new javax.swing.JButton();
 		submitLeaveRequestButton = new javax.swing.JButton();
 		submitOvertimeButton = new javax.swing.JButton();
+		submitPayslipButton = new javax.swing.JButton();
 		logoutButton = new javax.swing.JButton();
 
 		setTitle("MotorPH Payroll System | Full Details of " + employeeGI.getLastName());
@@ -811,6 +813,13 @@ public class EmployeeDashboard extends JFrame {
 		    }
 		});
 		
+		submitPayslipButton.setText("View Payslip");
+		submitPayslipButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				viewPayslipButtonActionPerformed(evt);
+			}
+		});
+		
 
 		welcomeLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 		welcomeLabel.setText("Welcome, " + employeeGI.getLastName() + ".");
@@ -889,6 +898,8 @@ public class EmployeeDashboard extends JFrame {
 														javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 												.addComponent(submitOvertimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
 												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+												.addComponent(submitPayslipButton, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
+												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 												.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE,
 														179, javax.swing.GroupLayout.PREFERRED_SIZE)
 												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -915,6 +926,8 @@ public class EmployeeDashboard extends JFrame {
 								.addComponent(submitLeaveRequestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addComponent(submitOvertimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
+										javax.swing.GroupLayout.PREFERRED_SIZE)
+								.addComponent(submitPayslipButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
 										javax.swing.GroupLayout.PREFERRED_SIZE))
 						.addGap(12, 12, 12).addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 438,
 								javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1055,6 +1068,18 @@ public class EmployeeDashboard extends JFrame {
 				dispose();
 
 				new LeaveRequestPage(employeeGI, employeeComp).setVisible(true);
+			}
+		});
+	}
+	
+	private void viewPayslipButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		// Go back to the employee list page
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				// Remove the EmployeesPage Window
+				dispose();
+
+				new ViewPayslipPage().setVisible(true);
 			}
 		});
 	}
