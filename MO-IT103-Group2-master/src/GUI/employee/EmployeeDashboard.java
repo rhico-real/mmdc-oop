@@ -1079,7 +1079,31 @@ public class EmployeeDashboard extends JFrame {
 				// Remove the EmployeesPage Window
 				dispose();
 
-				new ViewPayslipPage().setVisible(true);
+				 new ViewPayslipPage(
+			        employeeGI.getEmployeeNumber(),
+			        employeeGI.getFirstName() + " " + employeeGI.getLastName(),
+			        employeeGI.getAddress(),
+			        employeeGI.getImmediateSupervisor(),
+			        employeeGI.getSSSNumber(),
+			        employeeGI.getPhilHealthNumber(),
+			        employeeGI.getPhoneNumber(),
+			        employeeGI.getPosition(),
+			        employeeGI.getTinNumber(),
+			        employeeGI.getPagibigNumber(),
+			        numberFormat.format(employeeComp.getHourlyRate()),
+			        hoursRenderedNum.toString(), // Days worked
+			        Double.toString(overtimeHours), // Overtime
+			        numberFormat.format(employeeComp.getRiceSubsidy()),
+			        numberFormat.format(employeeComp.getPhoneAllowance()),
+			        numberFormat.format(employeeComp.getClothingAllowance()),
+			        sssDeductionsValue.getText(),
+			        philhealthDeductionsValue.getText(),
+			        pagibigDeductionsValue.getText(),
+			        withHoldingTaxValue.getText(),
+			        totalDeductionsValue.getText(),
+			        grossSalaryValue.getText(),
+			        netSalaryValue.getText()
+			    ).setVisible(true);
 			}
 		});
 	}
