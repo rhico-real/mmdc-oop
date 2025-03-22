@@ -28,6 +28,12 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
 
 import javax.swing.*;
 
@@ -192,12 +198,40 @@ public class LeaveRequestListPage extends JFrame {
 				LeaveRequest leaveRequests = gson.fromJson(jsonObject, LeaveRequest.class);
 
 				// Format the start date so it doesn't show the time
-				String formattedStartDate = new SimpleDateFormat("EEE MMM dd, yyyy").format(
-						new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(leaveRequests.getStartDate()));
+				String startDateString = leaveRequests.getStartDate();
+				String endDateString = leaveRequests.getEndDate();
 
-				String formattedEndDate = new SimpleDateFormat("EEE MMM dd, yyyy")
-						.format(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(leaveRequests.getEndDate()));
+				// Replace "ULAT" with "+08:00" if necessary
+				startDateString = startDateString.replace("ULAT", "+08:00").replace("GMT", "");
+				endDateString = endDateString.replace("ULAT", "+08:00").replace("GMT", "");
 
+				// Define the formatter
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss XXX yyyy");
+
+				// Parse the date strings
+				String formattedStartDate;
+				String formattedEndDate;
+
+				try {
+				    // Parse the date strings using OffsetDateTime
+				    OffsetDateTime startDateTime = OffsetDateTime.parse(startDateString, formatter);
+				    OffsetDateTime endDateTime = OffsetDateTime.parse(endDateString, formatter);
+
+				    // Format the dates to the desired output
+				    formattedStartDate = startDateTime.toLocalDate().toString(); // or use a different format
+				    formattedEndDate = endDateTime.toLocalDate().toString(); // or use a different format
+
+				    // Print the formatted dates for debugging
+				    System.out.println("Formatted Start Date: " + formattedStartDate);
+				    System.out.println("Formatted End Date: " + formattedEndDate);
+				} catch (Exception e) {
+				    e.printStackTrace(); // Handle the exception as needed
+				    // Set to today's date if parsing fails
+				    formattedStartDate = LocalDate.now().toString(); // Get today's date
+				    formattedEndDate = LocalDate.now().toString();   // Get today's date
+				}
+
+				
 				// Add the data to the table model
 				model.addRow(new Object[] { leaveRequests.getId(), leaveRequests.getEmployeeNum(),
 						leaveRequests.getLast_name(), leaveRequests.getFirst_name(), formattedStartDate,
