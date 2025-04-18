@@ -3,8 +3,6 @@ package GUI.admin;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -14,18 +12,17 @@ import javax.swing.JTextField;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import Classes.Compensation;
-import Classes.GovernmentIdentification;
 import UtilityClasses.CustomTooltip;
 import UtilityClasses.DataValidators;
 import UtilityClasses.JsonFileHandler;
+import java.awt.Font;
+import javax.swing.GroupLayout.Alignment;
+import javax.swing.GroupLayout;
+import javax.swing.LayoutStyle.ComponentPlacement;
 
+@SuppressWarnings("serial")
 public class AddEmployeeDetailsPage extends JFrame {
 
 	// Variables declaration - do not modify
@@ -81,43 +78,62 @@ public class AddEmployeeDetailsPage extends JFrame {
 		goBackToEmployeeListButton = new javax.swing.JButton();
 		jPanel3 = new javax.swing.JPanel();
 		grossSemiMonthlyRateField = new javax.swing.JTextField();
+		grossSemiMonthlyRateField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		hourlyRateLabel = new javax.swing.JLabel();
 		basicSalaryLabel = new javax.swing.JLabel();
 		tinLabel = new javax.swing.JLabel();
 		birthdayField = new javax.swing.JTextField();
+		birthdayField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		positionField = new javax.swing.JTextField();
+		positionField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		firstNameField = new javax.swing.JTextField();
+		firstNameField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		phoneAllowanceLabel = new javax.swing.JLabel();
 		statusField = new javax.swing.JTextField();
+		statusField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		confirmButton = new javax.swing.JButton();
 		immediateSupervisorField = new javax.swing.JTextField();
+		immediateSupervisorField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		positionLabel = new javax.swing.JLabel();
 		basicSalaryField = new javax.swing.JTextField();
+		basicSalaryField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		addressLabel = new javax.swing.JLabel();
 		pagibigField = new javax.swing.JTextField();
+		pagibigField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		immediateSupervisorLabel = new javax.swing.JLabel();
 		employeeNumberLabel = new javax.swing.JLabel();
 		grossSemiMonthlyRateLabel = new javax.swing.JLabel();
 		hourlyRateField = new javax.swing.JTextField();
+		hourlyRateField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		phoneNumberField = new javax.swing.JTextField();
+		phoneNumberField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		philhealthField = new javax.swing.JTextField();
+		philhealthField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		sssLabel = new javax.swing.JLabel();
 		riceSubsidyField = new javax.swing.JTextField();
+		riceSubsidyField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		statusLabel = new javax.swing.JLabel();
 		riceSubsidyLabel = new javax.swing.JLabel();
 		sssField = new javax.swing.JTextField();
+		sssField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		lastNameField = new javax.swing.JTextField();
+		lastNameField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		birthdayLabel = new javax.swing.JLabel();
 		firstNameLabel = new javax.swing.JLabel();
 		phoneAllowanceField = new javax.swing.JTextField();
+		phoneAllowanceField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		pagibigLabel = new javax.swing.JLabel();
 		phoneNumberLabel = new javax.swing.JLabel();
 		employeeNumberField = new javax.swing.JTextField();
+		employeeNumberField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		addressField = new javax.swing.JTextField();
+		addressField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		philhealthLabel = new javax.swing.JLabel();
 		lastNameLabel = new javax.swing.JLabel();
 		tinField = new javax.swing.JTextField();
+		tinField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		clothingAllowanceField = new javax.swing.JTextField();
+		clothingAllowanceField.setFont(new Font("Dialog", Font.PLAIN, 14));
 		clothingAllowanceLabel = new javax.swing.JLabel();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -130,7 +146,6 @@ public class AddEmployeeDetailsPage extends JFrame {
 				try {
 					goBackToEmployeeListButtonActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -166,7 +181,6 @@ public class AddEmployeeDetailsPage extends JFrame {
 				try {
 					confirmButtonActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -366,138 +380,147 @@ public class AddEmployeeDetailsPage extends JFrame {
 		});
 
 		javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-		jPanel3.setLayout(jPanel3Layout);
-		jPanel3Layout.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel3Layout.createSequentialGroup().addGap(36, 36, 36).addGroup(jPanel3Layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(firstNameField)
-						.addComponent(employeeNumberField).addComponent(birthdayField).addComponent(addressField)
+		jPanel3Layout.setHorizontalGroup(
+			jPanel3Layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(jPanel3Layout.createSequentialGroup()
+					.addGap(36)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.LEADING)
+						.addComponent(firstNameField, 164, 164, 164)
+						.addComponent(employeeNumberField, 164, 164, 164)
+						.addComponent(birthdayField, 164, 164, 164)
+						.addComponent(addressField)
 						.addGroup(jPanel3Layout.createSequentialGroup()
-								.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-										.addComponent(addressLabel).addComponent(birthdayLabel)
-										.addComponent(lastNameLabel).addComponent(firstNameLabel)
-										.addComponent(employeeNumberLabel))
-								.addGap(0, 49, Short.MAX_VALUE))
-						.addComponent(lastNameField)).addGap(44, 44, 44)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-								.addComponent(phoneNumberLabel).addComponent(sssLabel).addComponent(sssField)
-								.addComponent(philhealthLabel).addComponent(philhealthField).addComponent(tinLabel)
-								.addComponent(tinField).addComponent(pagibigLabel).addComponent(pagibigField)
-								.addComponent(phoneNumberField, javax.swing.GroupLayout.PREFERRED_SIZE, 163,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(44, 44, 44)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-								.addComponent(statusLabel).addComponent(positionLabel).addComponent(positionField)
-								.addComponent(immediateSupervisorLabel).addComponent(immediateSupervisorField)
-								.addComponent(basicSalaryLabel).addComponent(basicSalaryField)
-								.addComponent(riceSubsidyLabel).addComponent(riceSubsidyField).addComponent(statusField,
-										javax.swing.GroupLayout.PREFERRED_SIZE, 163,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(44, 44, 44)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-								.addComponent(phoneAllowanceLabel).addComponent(clothingAllowanceLabel)
-								.addComponent(clothingAllowanceField).addComponent(hourlyRateLabel)
-								.addComponent(hourlyRateField)
-								.addComponent(confirmButton, javax.swing.GroupLayout.DEFAULT_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(phoneAllowanceField, javax.swing.GroupLayout.PREFERRED_SIZE, 163,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addGroup(jPanel3Layout
-										.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-										.addComponent(grossSemiMonthlyRateField,
-												javax.swing.GroupLayout.Alignment.LEADING)
-										.addComponent(grossSemiMonthlyRateLabel,
-												javax.swing.GroupLayout.Alignment.LEADING,
-												javax.swing.GroupLayout.DEFAULT_SIZE,
-												javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-						.addGap(36, 36, 36)));
-		jPanel3Layout.setVerticalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel3Layout.createSequentialGroup().addContainerGap()
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(employeeNumberLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 29,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(phoneNumberLabel).addComponent(statusLabel)
-								.addComponent(phoneAllowanceLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(employeeNumberField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(phoneNumberField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(statusField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(phoneAllowanceField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(firstNameLabel).addComponent(sssLabel).addComponent(positionLabel)
-								.addComponent(clothingAllowanceLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(firstNameField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(sssField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(positionField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(clothingAllowanceField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(lastNameLabel).addComponent(philhealthLabel)
-								.addComponent(immediateSupervisorLabel).addComponent(grossSemiMonthlyRateLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(lastNameField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(philhealthField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(immediateSupervisorField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(grossSemiMonthlyRateField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(birthdayLabel).addComponent(tinLabel).addComponent(basicSalaryLabel)
-								.addComponent(hourlyRateLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(birthdayField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(tinField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(basicSalaryField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(hourlyRateField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(addressLabel).addComponent(pagibigLabel).addComponent(riceSubsidyLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(addressField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(pagibigField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(riceSubsidyField, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(confirmButton))
-						.addContainerGap(19, Short.MAX_VALUE)));
+							.addGroup(jPanel3Layout.createParallelGroup(Alignment.LEADING)
+								.addComponent(addressLabel)
+								.addComponent(birthdayLabel)
+								.addComponent(lastNameLabel)
+								.addComponent(firstNameLabel)
+								.addComponent(employeeNumberLabel))
+							.addGap(0, 49, Short.MAX_VALUE))
+						.addComponent(lastNameField, 164, 164, 164))
+					.addGap(44)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.LEADING, false)
+						.addComponent(phoneNumberLabel)
+						.addComponent(sssLabel)
+						.addComponent(sssField)
+						.addComponent(philhealthLabel)
+						.addComponent(philhealthField)
+						.addComponent(tinLabel)
+						.addComponent(tinField)
+						.addComponent(pagibigLabel)
+						.addComponent(pagibigField)
+						.addComponent(phoneNumberField, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE))
+					.addGap(44)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.LEADING, false)
+						.addComponent(statusLabel)
+						.addComponent(positionLabel)
+						.addComponent(positionField)
+						.addComponent(immediateSupervisorLabel)
+						.addComponent(immediateSupervisorField)
+						.addComponent(basicSalaryLabel)
+						.addComponent(basicSalaryField)
+						.addComponent(riceSubsidyLabel)
+						.addComponent(riceSubsidyField)
+						.addComponent(statusField, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.LEADING, false)
+						.addComponent(phoneAllowanceLabel)
+						.addComponent(clothingAllowanceLabel)
+						.addComponent(clothingAllowanceField)
+						.addComponent(hourlyRateLabel)
+						.addComponent(hourlyRateField)
+						.addComponent(confirmButton, GroupLayout.DEFAULT_SIZE, 160, Short.MAX_VALUE)
+						.addComponent(phoneAllowanceField, GroupLayout.PREFERRED_SIZE, 163, GroupLayout.PREFERRED_SIZE)
+						.addComponent(grossSemiMonthlyRateField)
+						.addComponent(grossSemiMonthlyRateLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+					.addGap(36))
+		);
+		jPanel3Layout.setVerticalGroup(
+			jPanel3Layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(jPanel3Layout.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(employeeNumberLabel, GroupLayout.PREFERRED_SIZE, 29, GroupLayout.PREFERRED_SIZE)
+						.addComponent(phoneNumberLabel)
+						.addComponent(statusLabel)
+						.addComponent(phoneAllowanceLabel))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(employeeNumberField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(phoneNumberField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(statusField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(phoneAllowanceField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(18)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(firstNameLabel)
+						.addComponent(sssLabel)
+						.addComponent(positionLabel)
+						.addComponent(clothingAllowanceLabel))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(firstNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(sssField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(positionField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(clothingAllowanceField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(18)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lastNameLabel)
+						.addComponent(philhealthLabel)
+						.addComponent(immediateSupervisorLabel)
+						.addComponent(grossSemiMonthlyRateLabel))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lastNameField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(philhealthField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(immediateSupervisorField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(grossSemiMonthlyRateField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(18)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(birthdayLabel)
+						.addComponent(tinLabel)
+						.addComponent(basicSalaryLabel)
+						.addComponent(hourlyRateLabel))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(birthdayField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(tinField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(basicSalaryField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(hourlyRateField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addGap(18)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(addressLabel)
+						.addComponent(pagibigLabel)
+						.addComponent(riceSubsidyLabel))
+					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addGroup(jPanel3Layout.createParallelGroup(Alignment.BASELINE)
+						.addComponent(addressField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(pagibigField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(riceSubsidyField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(confirmButton, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(20, Short.MAX_VALUE))
+		);
+		jPanel3.setLayout(jPanel3Layout);
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+		layout.setHorizontalGroup(
+			layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(layout.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(layout.createParallelGroup(Alignment.LEADING)
+						.addComponent(goBackToEmployeeListButton, GroupLayout.PREFERRED_SIZE, 180, GroupLayout.PREFERRED_SIZE)
+						.addComponent(jPanel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addContainerGap(29, Short.MAX_VALUE))
+		);
+		layout.setVerticalGroup(
+			layout.createParallelGroup(Alignment.LEADING)
+				.addGroup(layout.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(goBackToEmployeeListButton, GroupLayout.PREFERRED_SIZE, 26, GroupLayout.PREFERRED_SIZE)
+					.addGap(12)
+					.addComponent(jPanel3, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(43, Short.MAX_VALUE))
+		);
 		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addGap(28, 28, 28)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(goBackToEmployeeListButton).addComponent(jPanel3,
-										javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addContainerGap(29, Short.MAX_VALUE)));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addGap(46, 46, 46).addComponent(goBackToEmployeeListButton)
-						.addGap(18, 18, 18)
-						.addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addContainerGap(43, Short.MAX_VALUE)));
 
 		pack();
 
@@ -647,6 +670,7 @@ public class AddEmployeeDetailsPage extends JFrame {
 
 	}
 
+	@SuppressWarnings("unused") 
 	private static boolean isNumeric(String str) {
 		try {
 			// Attempt to parse the input as a number

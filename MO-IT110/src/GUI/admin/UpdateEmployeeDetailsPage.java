@@ -1,42 +1,26 @@
 package GUI.admin;
 
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.regex.Pattern;
-
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.JToolTip;
-import javax.swing.Popup;
-import javax.swing.PopupFactory;
-import javax.swing.Timer;
-import javax.swing.ToolTipManager;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import UtilityClasses.CustomTooltip;
 import UtilityClasses.DataValidators;
 import UtilityClasses.JsonFileHandler;
 
+@SuppressWarnings("serial")
 public class UpdateEmployeeDetailsPage extends JFrame {
 
 	// Variables declaration - do not modify
@@ -145,7 +129,7 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 				try {
 					goBackToEmployeeListButtonActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -160,7 +144,7 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 		firstNameField.setText(employeeGI.getFirstName());
 		grossSemiMonthlyRateField.setText(Double.toString(employeeComp.getGrossSemiMonthlyRate()));
 		hourlyRateField.setText(Double.toString(employeeComp.getHourlyRate()));
-		immediateSupervisorField.setText(employeeGI.getImmediateSupervisor());
+		immediateSupervisorField.setText(employeeGI.getSupervisor());
 		lastNameField.setText(employeeGI.getLastName());
 		pagibigField.setText(employeeGI.getPagibigNumber());
 		philhealthField.setText(employeeGI.getPhilHealthNumber());
@@ -200,7 +184,7 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 				try {
 					confirmButtonActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -588,6 +572,7 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 		JTextField[] stringOnlyFields = { lastNameField, firstNameField, positionField, immediateSupervisorField,
 				statusField };
 
+		@SuppressWarnings("unused") 
 		JTextField[] numericOnlyFields = { basicSalaryField, riceSubsidyField, clothingAllowanceField,
 				grossSemiMonthlyRateField, hourlyRateField };
 

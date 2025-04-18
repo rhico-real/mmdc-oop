@@ -73,31 +73,26 @@ public class SalaryCalculator {
 	}
 
 	public static String getAttendance(JsonObject json, Month currentMonth, AtomicInteger presentsNum,
-			AtomicInteger latesNum, AtomicInteger absentsNum, AtomicInteger hoursRenderedNum) {
+		AtomicInteger latesNum, AtomicInteger absentsNum, AtomicInteger hoursRenderedNum) {
+		
+		LocalDateTime timeIn  = SalaryCalculator.getTimeInOrOut(json, "time_in");
+		LocalDateTime timeOut = SalaryCalculator.getTimeInOrOut(json, "time_out");
+		long duration = java.time.Duration.between(timeIn, timeOut).toHours();
+		long minutes  = java.time.Duration.between(timeIn, timeOut).toMinutes();
 		long attendance = 0;
-		LocalDateTime dateTime1 = SalaryCalculator.getTimeInOrOut(json, "time_in");
-		LocalDateTime dateTime2 = SalaryCalculator.getTimeInOrOut(json, "time_out");
 
-		long duration = java.time.Duration.between(dateTime1, dateTime2).toHours();
-		long mins = java.time.Duration.between(dateTime1, dateTime2).toMinutes();
-
-		if (dateTime1.getMonth().equals(currentMonth)) {
-			if (mins > 529 && mins < 540) {
+		if (timeIn.getMonth().equals(currentMonth)) {
+			if (minutes > 529 && minutes < 540) {
 				presentsNum.incrementAndGet();
 				attendance = duration + 1;
 			} else {
-				checkIfPresent(mins, presentsNum);
+				checkIfPresent(minutes, presentsNum);
 				attendance = duration;
 			}
 		}
 
-		if (mins < 530 && mins > 0) {
-			latesNum.incrementAndGet();
-		}
-
-		if (mins == 0) {
-			absentsNum.incrementAndGet();
-		}
+		if (minutes < 530 && minutes > 0) { latesNum.incrementAndGet(); }
+		if (minutes == 0) { absentsNum.incrementAndGet(); }
 
 		hoursRenderedNum.addAndGet((int) attendance);
 
@@ -108,14 +103,13 @@ public class SalaryCalculator {
 			Month currentMonth, long[] attendance, AtomicInteger index) {
 		if (json.get(i).getAsJsonObject().get(ENKey).getAsString().equals(employeeNumber)) {
 
-			LocalDateTime dateTime1 = getTimeIn(json, i);
-			LocalDateTime dateTime2 = getTimeOut(json, i);
+			LocalDateTime timeIn  = getTimeIn (json, i);
+			LocalDateTime timeOut = getTimeOut(json, i);
+			long duration = java.time.Duration.between(timeIn, timeOut).toHours();
+			long minutes  = java.time.Duration.between(timeIn, timeOut).toMinutes();
 
-			long duration = java.time.Duration.between(dateTime1, dateTime2).toHours();
-			long mins = java.time.Duration.between(dateTime1, dateTime2).toMinutes();
-
-			if (dateTime1.getMonth().equals(currentMonth)) {
-				if (mins > 529 && mins < 540) {
+			if (timeIn.getMonth().equals(currentMonth)) {
+				if (minutes > 529 && minutes < 540) {
 					attendance[index.getAndIncrement()] = duration + 1;
 				} else {
 					attendance[index.getAndIncrement()] = duration;
@@ -137,16 +131,14 @@ public class SalaryCalculator {
 	 *****************************/
 
 	public static double getPhilHealth(double salary) {
-		if (salary > 60000)
-			return 1800 / 2;
+		if (salary > 60000) return 1800 / 2;
 
 		if ((salary < 60000) && (salary > 10000)) {
 			double result = (salary * 0.03) / 2;
 			return result;
 		}
 
-		if ((salary <= 10000) && (salary > 0))
-			return 300 / 2;
+		if ((salary <= 10000) && (salary > 0)) return 300 / 2;
 
 		return 0;
 	}
@@ -176,35 +168,20 @@ public class SalaryCalculator {
 	}
 
 	public static double getPagibig(double salary) {
-		if (salary > 1500)
-			return 100;
-
-		if ((salary < 1500) && (salary > 1000))
-			return 50;
-
+		if ( salary > 1500) return 100;
+		if ((salary < 1500) && (salary > 1000)) return 50;
 		return 0;
 	}
 
 	public static double getWithholding(double salary) {
+		@SuppressWarnings("unused")
 		double result = 0;
-		if (salary >= 666667)
-			return result = ((salary - 666667) * 0.35) + 200833.33;
-
-		if ((salary < 666667) && (salary >= 166667))
-			return result = ((salary - 166667) * 0.32) + 40833.33;
-
-		if ((salary < 166667) && (salary >= 66667))
-			return result = ((salary - 66667) * 0.30) + 10833;
-
-		if ((salary < 66667) && (salary >= 33333))
-			return result = ((salary - 33333) * 0.25) + 2500;
-
-		if ((salary < 33333) && (salary >= 20833))
-			return result = ((salary - 20833) * 0.20);
-
-		if (salary <= 20832)
-			return 0;
-
+		if (salary >= 666667) return result = ((salary - 666667) * 0.35) + 200833.33;
+		if ((salary < 666667) && (salary >= 166667)) return result = ((salary - 166667) * 0.32) + 40833.33;
+		if ((salary < 166667) && (salary >=  66667)) return result = ((salary -  66667) * 0.30) + 10833;
+		if ((salary <  66667) && (salary >=  33333)) return result = ((salary -  33333) * 0.25) + 2500;
+		if ((salary <  33333) && (salary >=  20833)) return result = ((salary -  20833) * 0.20);
+		if (salary <=  20832) return 0;
 		return 0;
 	}
 
@@ -213,8 +190,7 @@ public class SalaryCalculator {
 	 ***********************************************/
 
 	private static void checkIfPresent(long mins, AtomicInteger presentsNum) {
-		if (mins != 0)
-			presentsNum.incrementAndGet();
+		if (mins != 0) presentsNum.incrementAndGet();
 	}
 
 }

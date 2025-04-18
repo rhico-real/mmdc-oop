@@ -10,109 +10,39 @@ import UtilityClasses.JsonFileHandler;
 
 public class EmployeeInformation extends User {
 
-	@SerializedName("last_name")
-	private String lastName;
-
-	@SerializedName("first_name")
-	private String firstName;
-
+	@SerializedName("last_name")			private String lastName;
+	@SerializedName("first_name")			private String firstName;
 	private String birthday;
 	private String address;
+	@SerializedName("phone_number")			private String phoneNumber;
+	@SerializedName("Status")				private String status;
+	@SerializedName("Position")				private String position;
+	@SerializedName("immediate_supervisor")	private String supervisor;
+	@SerializedName("hourly_rate")			private double hourlyRate;
 
-	@SerializedName("phone_number")
-	private String phoneNumber;
+	public EmployeeInformation(String userId, String password) throws IOException { super(userId, password); }
+	public EmployeeInformation(String employeeNumber) {super(employeeNumber);}
 
-	@SerializedName("Position")
-	private String position;
-
-	@SerializedName("immediate_supervisor")
-	private String immediateSupervisor;
-
-	@SerializedName("hourly_rate")
-	private double hourlyRate;
-
-	@SerializedName("Status")
-	private String status;
-
-	public EmployeeInformation(String userId, String password) throws IOException {
-		super(userId, password);
-	}
-
-	public EmployeeInformation(String employeeNumber) {
-		super(employeeNumber);
-	}
-
-	public void setHourlyRate(double value) {
-		this.hourlyRate = value;
-	}
-
-	public double getHourlyRate() {
-		return hourlyRate;
-	}
-
-	public void setLastName(String lastName) {
-		this.lastName = lastName;
-	}
-
-	public String getLastName() {
-		return lastName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
-	}
-
-	public String getFirstName() {
-		return firstName;
-	}
-
-	public String getBirthday() {
-		return birthday;
-	}
-
-	public void setBirthday(String birthday) {
-		this.birthday = birthday;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getPhoneNumber() {
-		return phoneNumber;
-	}
-
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
-	}
-
-	public String getPosition() {
-		return position;
-	}
-
-	public void setPosition(String position) {
-		this.position = position;
-	}
-
-	public String getImmediateSupervisor() {
-		return immediateSupervisor;
-	}
-
-	public void setImmediateSupervisor(String immediateSupervisor) {
-		this.immediateSupervisor = immediateSupervisor;
-	}
-
-	public String getStatus() {
-		return status;
-	}
-
-	public void setStatus(String status) {
-		this.status = status;
-	}
+	
+	public String getLastName			() { return lastName; 	}
+	public String getFirstName			() { return firstName;	}
+	public String getBirthday			() { return birthday;	}
+	public String getAddress			() { return address;	}
+	public String getPhoneNumber		() { return phoneNumber;}
+	public String getStatus				() { return status;		}
+	public String getPosition			() { return position;	}
+	public String getSupervisor			() { return supervisor; }
+	public double getHourlyRate			() { return hourlyRate; }
+	
+	public void setLastName				(String lastName	) { this.lastName 	= lastName;		}
+	public void setFirstName			(String firstName	) { this.firstName 	= firstName; 	}
+	public void setBirthday				(String birthday	) {	this.birthday 	= birthday;		}
+	public void setAddress				(String address		) {	this.address 	= address;		}
+	public void setPhoneNumber			(String phoneNumber	) {	this.phoneNumber= phoneNumber; 	}
+	public void setStatus				(String status		) {	this.status 	= status;	 	}
+	public void setPosition				(String position	) {	this.position 	= position; 	}
+	public void setSupervisor			(String supervisor	) { this.supervisor = supervisor; 	}
+	public void setHourlyRate			(double value		) { this.hourlyRate = value; 		}
 
 	public static void setEmployeeInformationObject(String employeeNumber, GovernmentIdentification employeeGI,
 			Compensation employeeComp) throws IOException {
@@ -132,7 +62,7 @@ public class EmployeeInformation extends User {
 		employeeGI.setBirthday(employeeGovInfo.getBirthday());
 		employeeGI.setAddress(employeeGovInfo.getAddress());
 		employeeGI.setPhoneNumber(employeeGovInfo.getPhoneNumber());
-		employeeGI.setImmediateSupervisor(employeeGovInfo.getImmediateSupervisor());
+		employeeGI.setSupervisor(employeeGovInfo.getSupervisor());
 		employeeGI.setStatus(employeeGovInfo.getStatus());
 		employeeGI.setPosition(employeeGovInfo.getPosition());
 
