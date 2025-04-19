@@ -8,9 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonWriter;
-
 import Classes.Compensation;
 import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
@@ -22,12 +19,9 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Iterator;
-
 import javax.swing.*;
 
 @SuppressWarnings("serial")
@@ -36,11 +30,11 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 	private JScrollPane jScrollPane1;
 	private JButton goBackButton;
 	private JTable jTable1;
-	private int numberOfColumns = 5;
-	private JButton addEmployeeButton;
-	private JButton deleteEmployeeButton;
+	private int numberOfColumns = 5;	
+	@SuppressWarnings("unused") private JButton addEmployeeButton;
+	@SuppressWarnings("unused") private JButton deleteEmployeeButton;
 	private int selectedRow;
-	private String employeeNum;
+	@SuppressWarnings("unused") private String employeeNum;
 
 	// Instantiate two of the user's important information
 	GovernmentIdentification employeeGI;
@@ -194,7 +188,7 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 					// Add the data to the table model
 					model.addRow(new Object[] { leaveRequests.getId(), leaveRequests.getEmployeeNum(),
 							formattedStartDate, formattedEndDate, leaveRequests.isApproved(),
-							leaveRequests.getLeave_type(), "View", "View" });
+							leaveRequests.getLeaveType(), "View", "View" });
 				}
 
 			}
@@ -312,7 +306,7 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 				LeaveRequest.setLeaveRequestInformationObject(jTable1.getValueAt(row, targetColumn - 1).toString(),
 						leaveRequest);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
 

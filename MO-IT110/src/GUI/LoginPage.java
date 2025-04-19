@@ -7,17 +7,14 @@ import java.io.IOException;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
 import Classes.Compensation;
 import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
 import Classes.User;
 import GUI.admin.DashboardPage;
 import GUI.employee.EmployeeDashboard;
-import UtilityClasses.JsonFileHandler;
 
+@SuppressWarnings("serial")
 public class LoginPage extends JFrame {
 	private JTextField usernameField = new JTextField();
 	private JPasswordField passwordField = new JPasswordField();
@@ -31,75 +28,68 @@ public class LoginPage extends JFrame {
 
 		// Set up the JFrame
 		setTitle("MotorPH Portal");
-		setSize(400, 200);
-		setResizable(false);
+		setSize(400, 200); setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setLocationRelativeTo(null);
-
-		// Set up layout with GridBagLayout
-		setLayout(new GridBagLayout());
+		setLocationRelativeTo(null);		
 
 		// Create a JPanel with EmptyBorder for padding
 		JPanel mainPanel = new JPanel();
 		mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20)); // Adjust the padding values as needed
-		mainPanel.setLayout(new GridBagLayout());
-
+		GridBagLayout gbl_mainPanel = new GridBagLayout();
+		gbl_mainPanel.columnWidths = new int[] {80, 220, 20};
+		gbl_mainPanel.rowHeights = new int[] {36, 36, 36};
+		mainPanel.setLayout(gbl_mainPanel);
+		setContentPane(mainPanel);
+		
 		// Set preferred size for JTextField and JLabel
 		Dimension labelSize = new Dimension(75, 30);
 		Dimension fieldSize = new Dimension(200, 30);
 
 		// Increase font size of JLabels
-		Font labelFont = usernameLabel.getFont();
-		usernameLabel.setFont(new Font(labelFont.getName(), Font.PLAIN, 14));
-		passwordLabel.setFont(new Font(labelFont.getName(), Font.PLAIN, 14));
+		Font myFont = new Font("Tahoma", Font.PLAIN, 14);
+		usernameLabel.setFont(myFont); usernameField.setFont(myFont);
+		passwordLabel.setFont(myFont); passwordField.setFont(myFont);
+		loginButton.setFont(myFont);
 
 		// Set preferred size for labels and fields
-		usernameLabel.setPreferredSize(labelSize);
-		usernameField.setPreferredSize(fieldSize);
-		passwordLabel.setPreferredSize(labelSize);
-		passwordField.setPreferredSize(fieldSize);
+		usernameLabel.setPreferredSize(labelSize); usernameField.setPreferredSize(fieldSize);
+		passwordLabel.setPreferredSize(labelSize); passwordField.setPreferredSize(fieldSize);
 
 		// Add components to the JPanel with GridBagLayout
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.insets = new Insets(5, 5, 5, 5); // Adjust the insets as needed
+		GridBagConstraints gbc_usernameLabel = new GridBagConstraints();
+		gbc_usernameLabel.gridx = 0;
+		gbc_usernameLabel.gridy = 0;
+		mainPanel.add(usernameLabel, gbc_usernameLabel);		
 
-		mainPanel.add(usernameLabel, gbc);
+		GridBagConstraints gbc_passwordLabel = new GridBagConstraints();
+		gbc_passwordLabel.gridx = 0;
+		gbc_passwordLabel.gridy = 1;
+		mainPanel.add(passwordLabel, gbc_passwordLabel);
 
-		gbc.gridx = 1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		mainPanel.add(usernameField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 1;
-		gbc.fill = GridBagConstraints.NONE;
-		mainPanel.add(passwordLabel, gbc);
-
-		gbc.gridx = 1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		mainPanel.add(passwordField, gbc);
-
-		gbc.gridx = 0;
-		gbc.gridy = 2;
-		gbc.gridwidth = 2;
-		mainPanel.add(loginButton, gbc);
-
-		// Add the JPanel to the JFrame
-		add(mainPanel);
-
-		// Set visible
-		setVisible(true);
+		GridBagConstraints gbc_usernameField = new GridBagConstraints();
+		gbc_usernameField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_usernameField.gridx = 1;
+		gbc_usernameField.gridy = 0;
+		mainPanel.add(usernameField, gbc_usernameField);
+		
+		GridBagConstraints gbc_passwordField = new GridBagConstraints();
+		gbc_passwordField.fill = GridBagConstraints.HORIZONTAL;
+		gbc_passwordField.gridx = 1;
+		gbc_passwordField.gridy = 1;
+		mainPanel.add(passwordField, gbc_passwordField);		
+										
+		GridBagConstraints gbc_loginButton = new GridBagConstraints();
+		gbc_loginButton.fill = GridBagConstraints.BOTH;
+		gbc_loginButton.gridx = 1;
+		gbc_loginButton.gridy = 2;		
+		mainPanel.add(loginButton, gbc_loginButton);			
 
 		// Add ActionListener to the login button
 		loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					checkLoginCredentials();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
+				try { checkLoginCredentials(); } 
+				catch (IOException e1) { e1.printStackTrace(); }
 			}
 		});
 
@@ -109,17 +99,15 @@ public class LoginPage extends JFrame {
 			field.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					try {
-						checkLoginCredentials();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
+					try { checkLoginCredentials(); } 
+					catch (IOException e1) { e1.printStackTrace(); }
 				}
 			});
 		}
 	}
 
 	public void checkLoginCredentials() throws IOException {
+		
 		// Create a User object with the login credentials
 		User userInfo = new User(usernameField.getText(), new String(passwordField.getPassword()));
 
@@ -130,18 +118,19 @@ public class LoginPage extends JFrame {
 
 			return;
 		}
-		// Close the last page
-		dispose();
+		
+		dispose(); // Close the last page
+		
 		java.awt.EventQueue.invokeLater(new Runnable() {
+		
 			public void run() {
+			
 				if (userInfo.getIsAdmin()) {
 					// Proceed to the next page once logged in
 					// Create and display the form
-
-					new DashboardPage().setVisible(true);
-
-				} else {
-
+					new DashboardPage().setVisible(true); 
+				} 
+				else {
 					try {
 						// Call constructor
 						employeeGI = new GovernmentIdentification(userInfo.getEmployeeNumber());
@@ -153,14 +142,13 @@ public class LoginPage extends JFrame {
 
 						// If user is an employee, go to employee dashboard page
 						new EmployeeDashboard(employeeGI, employeeComp).setVisible(true);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
+					} 
+					catch (IOException e) {
 						e.printStackTrace();
 					}
-				}
-			}
-		});
-
-	}
+				} // end of else-block
+			} // end of run()
+		}); // end of .invokeLater()
+	} // end of checkLoginCredentials()
 
 }

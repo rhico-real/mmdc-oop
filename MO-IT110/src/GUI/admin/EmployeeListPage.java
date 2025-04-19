@@ -5,12 +5,8 @@ import javax.swing.table.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.SerializedName;
-import com.google.gson.stream.JsonWriter;
-
 import Classes.Compensation;
 import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
@@ -21,10 +17,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Iterator;
-
 import javax.swing.*;
 
 @SuppressWarnings("serial")
@@ -35,7 +28,7 @@ public class EmployeeListPage extends JFrame {
 	private JTable jTable1;
 	private int numberOfColumns = 9;
 	private JButton addEmployeeButton;
-	private JButton deleteEmployeeButton;
+	@SuppressWarnings("unused") private JButton deleteEmployeeButton;
 	private int selectedRow;
 	private String employeeNum;
 
@@ -314,7 +307,6 @@ public class EmployeeListPage extends JFrame {
 										deleteEmployeeButtonActionPerformed(
 												jTable1.getValueAt(selectedRow, targetColumn).toString());
 									} catch (IOException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 								}
@@ -345,7 +337,6 @@ public class EmployeeListPage extends JFrame {
 				EmployeeInformation.setEmployeeInformationObject(jTable1.getValueAt(row, targetColumn).toString(),
 						employeeGI, employeeComp);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 

@@ -21,37 +21,20 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 public class JsonFileHandler {
 
-	private static final String attendanceJson = "./resources/JSON_Files/Attendance.json";
-
-	private static final String employeesJson = "./resources/JSON_Files/Employees.json";
-
-	private static final String loginCredentialsJson = "./resources/JSON_Files/LoginCredentials.json";
-
+	private static final String attendanceJson 				= "./resources/JSON_Files/Attendance.json";
+	private static final String employeesJson 				= "./resources/JSON_Files/Employees.json";
+	private static final String loginCredentialsJson 		= "./resources/JSON_Files/LoginCredentials.json";
 	private static final String leaveRequestCredentialsJson = "./resources/JSON_Files/LeaveRequest.json";
 
-	private JsonFileHandler() {
-		throw new AssertionError();
-	}
+	private JsonFileHandler() { throw new AssertionError();	}
 
-	public static String getAttendanceJsonPath() {
-		return attendanceJson;
-	}
-
-	public static String getEmployeesJsonPath() {
-		return employeesJson;
-	}
-
-	public static String getLoginCredentialsJsonPath() {
-		return loginCredentialsJson;
-	}
-
-	public static String getLeaveRequestJsonPath() {
-		return leaveRequestCredentialsJson;
-	}
+	public static String getAttendanceJsonPath() 		{ return attendanceJson; 				}
+	public static String getEmployeesJsonPath() 		{ return employeesJson; 				}
+	public static String getLoginCredentialsJsonPath() 	{ return loginCredentialsJson; 			}
+	public static String getLeaveRequestJsonPath() 		{ return leaveRequestCredentialsJson; 	}
 
 	public static JsonArray getEmployeesJSON() throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(getEmployeesJsonPath()));
@@ -108,8 +91,7 @@ public class JsonFileHandler {
 			// Retrieve the current JsonObject
 			JsonObject currentObject = json.get(i).getAsJsonObject();
 
-			// Check if the JsonObject has the specified key and its value matches the
-			// employeeNumber
+			// Check if the JsonObject has the specified key and its value matches the employeeNumber
 			if (currentObject.has(ENKey) && currentObject.get(ENKey).getAsString().equals(employeeNumber)) {
 				return currentObject;
 			}

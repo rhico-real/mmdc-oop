@@ -3,22 +3,13 @@ package GUI.admin;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.toedter.calendar.JTextFieldDateEditor;
-
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
-import GUI.employee.EmployeeDashboard;
 import UtilityClasses.JsonFileHandler;
 
 @SuppressWarnings("serial")
@@ -49,7 +40,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 		initComponents();
 	}
 
-	@SuppressWarnings("unchecked")
+	// @SuppressWarnings("unchecked")
 	private void initComponents() {
 
 		leaveRequestLabel = new javax.swing.JLabel();
@@ -77,7 +68,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 		typeOfLeaveLabel.setText("Type of Leave");
 
 		typeOfLeaveDropdown.setFont(new java.awt.Font("Arial", 0, 12)); // NOI18N
-		typeOfLeaveDropdown.setText(leaveRequest.getLeave_type());
+		typeOfLeaveDropdown.setText(leaveRequest.getLeaveType());
 
 		jLabel1.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
 		jLabel1.setText("Start Date");
@@ -92,7 +83,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 			startDateField.setText(new SimpleDateFormat("EEE MMM dd, yyyy")
 					.format(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(leaveRequest.getStartDate())));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -103,7 +94,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 			endDateField.setText(new SimpleDateFormat("EEE MMM dd, yyyy")
 					.format(new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(leaveRequest.getEndDate())));
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 
@@ -123,7 +114,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 				try {
 					approveButtonActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -142,7 +133,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 				try {
 					rejectButtonActionPerformed(evt);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -219,7 +210,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 		String startDate = leaveRequest.getStartDate();
 		String endDate = leaveRequest.getEndDate();
 		String notes = leaveRequest.getNotes();
-		String leaveType = leaveRequest.getLeave_type();
+		String leaveType = leaveRequest.getLeaveType();
 
 		rejectEntry(jsonArrayLeaveRequest, employeeNumToUpdate, startDate, endDate, notes, leaveType, errorMessage);
 
@@ -238,7 +229,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 				try {
 					new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -257,7 +248,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 		String startDate = leaveRequest.getStartDate();
 		String endDate = leaveRequest.getEndDate();
 		String notes = leaveRequest.getNotes();
-		String leaveType = leaveRequest.getLeave_type();
+		String leaveType = leaveRequest.getLeaveType();
 
 		approveEntry(jsonArrayLeaveRequest, employeeNumToUpdate, startDate, endDate, notes, leaveType, errorMessage);
 
@@ -276,7 +267,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 				try {
 					new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -292,7 +283,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 				try {
 					new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}

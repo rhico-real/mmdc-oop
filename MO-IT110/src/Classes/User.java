@@ -1,100 +1,46 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Classes;
 
 import UtilityClasses.JsonFileHandler;
 import java.io.IOException;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.google.gson.annotations.SerializedName;
 
 public class User {
 
 	@SerializedName("employeeNum")
-	private String employeeNumber;
-	private String userId;
-	private String password;
-	private Boolean isVerified = false;
-	private Date dateRegistered;
+	private String 	employeeNumber;
+	private String 	userId;
+	private String 	password;
+	private Boolean isVerified 	= false;
 	private Boolean loginStatus = false;
-	private Boolean isAdmin = false;
+	private Boolean isAdmin 	= false;
+	private Date 	dateRegistered;
 
 	public User(String userId, String password) throws IOException {
-		this.userId = userId;
-		this.password = password;
+		this.userId 	= userId;
+		this.password 	= password;
 		if (!userId.equals("") && !password.equals("")) {
 			authenticateLogin();
 		}
 	}
 
-	public User(String employeeNumber) {
-		setEmployeeNumber(employeeNumber);
-	}
+	public User(String employeeNumber) {		setEmployeeNumber(employeeNumber);	}
 
-	public String getEmployeeNumber() {
-		return employeeNumber;
-	}
+	public String 	getEmployeeNumber() { return employeeNumber;	}
+	public String 	getUserId		 () { return userId;			}
+	public String 	getPassword		 () { return password;			}
+	public Boolean 	getIsVerified	 () { return isVerified;		}
+	public Boolean 	getLoginStatus	 () { return loginStatus;		}
+	public Boolean 	getIsAdmin		 () { return isAdmin;			}
+	public Date 	getDateRegistered() { return dateRegistered;	}
 
-	public void setEmployeeNumber(String value) {
-		this.employeeNumber = value;
-	}
-
-	/* userId getter/setter */
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
-
-	public String getUserId() {
-		return userId;
-	}
-
-	/* password getter/setter */
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-
-	/* isVerified getter/setter */
-	public void setIsVerified(Boolean isVerified) {
-		this.isVerified = isVerified;
-	}
-
-	public Boolean getIsVerified() {
-		return isVerified;
-	}
-
-	/* date of registration getter/setter */
-	public void setDateRegistered(Date dateRegistered) {
-		this.dateRegistered = dateRegistered;
-	}
-
-	public Date getDateRegistered() {
-		return dateRegistered;
-	}
-
-	/* login status getter/setter */
-	public void setLoginStatus(Boolean loginStatus) {
-		this.loginStatus = loginStatus;
-	}
-
-	public Boolean getLoginStatus() {
-		return loginStatus;
-	}
-
-	public void setIsAdmin(Boolean value) {
-		this.isAdmin = value;
-	}
-
-	public Boolean getIsAdmin() {
-		return isAdmin;
-	}
+	public void setEmployeeNumber(String  employeeNum	) {	this.employeeNumber = employeeNum; 	  }
+	public void setUserId		 (String  userId		) {	this.userId 		= userId;		  }
+	public void setPassword		 (String  password		) {	this.password 		= password;		  }
+	public void setIsVerified	 (Boolean isVerified	) {	this.isVerified 	= isVerified;	  }
+	public void setLoginStatus	 (Boolean loginStatus	) {	this.loginStatus 	= loginStatus;	  }
+	public void setIsAdmin		 (Boolean value			) {	this.isAdmin 		= value;		  }
+	public void setDateRegistered(Date    dateRegistered) {	this.dateRegistered = dateRegistered; }
 
 	public void authenticateLogin() throws IOException {
 		if (!userId.equals("admin")) {

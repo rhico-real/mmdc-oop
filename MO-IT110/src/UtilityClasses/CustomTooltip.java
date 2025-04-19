@@ -6,6 +6,7 @@ import javax.swing.Popup;
 import javax.swing.PopupFactory;
 
 public class CustomTooltip {
+
 	private static boolean tooltipVisible = false;
 	private static Popup popup;
 

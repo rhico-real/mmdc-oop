@@ -4,8 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.regex.Pattern;
 
-import javax.swing.JTextField;
-
 public class DataValidators {
 	public static boolean isNumeric(String str) {
 		try {
@@ -27,25 +25,11 @@ public class DataValidators {
 		}
 	}
 
-	public static boolean isSSSFormattedCorrectly(String str) {
-		return str.matches("\\d{2}-\\d{7}-\\d{1}");
-	}
-
-	public static boolean isPhoneNumberFormattedCorrectly(String str) {
-		return str.matches("\\d{3}-\\d{3}-\\d{3}");
-	}
-
-	public static boolean isTINFormattedCorrectly(String str) {
-		return str.matches("\\d{3}-\\d{3}-\\d{3}-\\d{3}");
-	}
-
-	public static boolean isProperLength(String str) {
-		return str.matches("\\d{12}");
-	}
-
-	public static boolean isBirthdayFormattedCorrectly(String str) {
-		return str.matches("\\d{2}/\\d{2}/\\d{2}");
-	}
+	public static boolean isSSSFormattedCorrectly		 (String str) { return str.matches("\\d{2}-\\d{7}-\\d{1}"); 		}
+	public static boolean isPhoneNumberFormattedCorrectly(String str) { return str.matches("\\d{3}-\\d{3}-\\d{3}");		}
+	public static boolean isTINFormattedCorrectly		 (String str) { return str.matches("\\d{3}-\\d{3}-\\d{3}-\\d{3}");}
+	public static boolean isProperLength				 (String str) { return str.matches("\\d{12}");					}
+	public static boolean isBirthdayFormattedCorrectly	 (String str) { return str.matches("\\d{2}/\\d{2}/\\d{2}");		}
 
 	public static boolean isValidDate(String dateStr) {
 		// Check if the dateStr consists only of numeric characters and the required

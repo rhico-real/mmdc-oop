@@ -1,26 +1,19 @@
 package GUI.employee;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.toedter.calendar.JTextFieldDateEditor;
 
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
-import GUI.employee.*;
 import UtilityClasses.JsonFileHandler;
 
+@SuppressWarnings("serial")
 public class LeaveRequestPage extends JFrame {
 
 	private com.toedter.calendar.JDateChooser endDateField;
@@ -46,7 +39,7 @@ public class LeaveRequestPage extends JFrame {
 		initComponents();
 	}
 
-	@SuppressWarnings("unchecked")
+	// @SuppressWarnings("unchecked")
 	private void initComponents() {
 
 		leaveRequestLabel = new javax.swing.JLabel();
@@ -199,7 +192,7 @@ public class LeaveRequestPage extends JFrame {
 				try {
 					new EmployeeLeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
 				} catch (ParseException e) {
-					// TODO Auto-generated catch block
+					
 					e.printStackTrace();
 				}
 			}
@@ -244,12 +237,12 @@ public class LeaveRequestPage extends JFrame {
 		LeaveRequest leaveRequest = new LeaveRequest(employeeGI.getEmployeeNumber());
 
 		// Add the data to the json file
-		leaveRequest.setLast_name(employeeGI.getLastName());
-		leaveRequest.setFirst_name(employeeGI.getFirstName());
+		leaveRequest.setLastName(employeeGI.getLastName());
+		leaveRequest.setFirstName(employeeGI.getFirstName());
 		leaveRequest.setStartDate(startDateField.getDate().toString());
 		leaveRequest.setEndDate(endDateField.getDate().toString());
 		leaveRequest.setNotes(notesField.getText());
-		leaveRequest.setLeave_type(typeOfLeaveDropdown.getSelectedItem().toString());
+		leaveRequest.setLeaveType(typeOfLeaveDropdown.getSelectedItem().toString());
 		leaveRequest.setApproved("Not Approved Yet");
 
 		// Read existing LeaveRequest objects from the file
