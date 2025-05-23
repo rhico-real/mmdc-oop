@@ -2,9 +2,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -16,9 +13,7 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
-import DAO.UserDAO;
 import Database.DatabaseConnection;
-import Database.DatabaseInitializer;
 import GUI.LoginPage;
 import UtilityClasses.JsonToDatabaseImporter;
 
@@ -29,39 +24,30 @@ public class Main {
         JDialog loadingDialog = createLoadingDialog();
         loadingDialog.setVisible(true);
         
-        // Database initialization and data import in a background thread
-        Thread importThread = new Thread(() -> {
+        // Database initialization in a background thread
+        Thread initThread = new Thread(() -> {
             try {
-                // First initialize the database schema
-                DatabaseInitializer.initializeDatabase();
+                // Initialize the database
+                JsonToDatabaseImporter.importAllData();
                 
-                // Check if data already exists in the database
-                if (isDataAlreadyImported()) {
-                    System.out.println("Data already exists in the database. Skipping import.");
-                    
-                    // Update loading dialog message
+                // Wait until initialization is complete
+                while (JsonToDatabaseImporter.isImportInProgress()) {
+                    Thread.sleep(500);
+                }
+                
+                // Test database connection
+                if (!DatabaseConnection.testConnection()) {
                     SwingUtilities.invokeLater(() -> {
-                        for (java.awt.Component comp : ((JPanel)loadingDialog.getContentPane().getComponent(0)).getComponents()) {
-                            if (comp instanceof JPanel) {
-                                for (java.awt.Component inner : ((JPanel)comp).getComponents()) {
-                                    if (inner instanceof JLabel && ((JLabel)inner).getText().contains("Initializing")) {
-                                        ((JLabel)inner).setText("Database already initialized. Starting application...");
-                                    }
-                                }
-                            }
-                        }
+                        loadingDialog.dispose();
+                        JOptionPane.showMessageDialog(
+                            null,
+                            "Database connection failed. Please make sure PostgreSQL is running and properly configured.",
+                            "Database Error",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                        System.exit(1);
                     });
-                    
-                    // Small delay to show the message
-                    Thread.sleep(1500);
-                } else {
-                    // Import JSON data to database
-                    JsonToDatabaseImporter.importAllData();
-                    
-                    // Wait until import is complete
-                    while (JsonToDatabaseImporter.isImportInProgress()) {
-                        Thread.sleep(500);
-                    }
+                    return;
                 }
                 
                 // Close the loading dialog and start the application
@@ -73,7 +59,7 @@ public class Main {
                 System.err.println("Error initializing database: " + e.getMessage());
                 e.printStackTrace();
                 
-                // Close the loading dialog even if there's an error
+                // Close the loading dialog and show error
                 SwingUtilities.invokeLater(() -> {
                     loadingDialog.dispose();
                     
@@ -81,61 +67,17 @@ public class Main {
                     JOptionPane.showMessageDialog(
                         null,
                         "Error initializing database: " + e.getMessage() + 
-                        "\nThe application will start, but some features might not work correctly.",
+                        "\nThe application will exit.",
                         "Database Error",
                         JOptionPane.ERROR_MESSAGE
                     );
                     
-                    new LoginPage().setVisible(true);
+                    System.exit(1);
                 });
             }
         });
         
-        importThread.start();
-    }
-    
-    /**
-     * Check if data already exists in the database
-     * @return true if data exists, false otherwise
-     */
-    private static boolean isDataAlreadyImported() {
-        try {
-            // Check if there are users in the database
-            Connection conn = DatabaseConnection.getConnection();
-            
-            // Check users table
-            String sqlUsers = "SELECT COUNT(*) FROM users";
-            try (PreparedStatement pstmt = conn.prepareStatement(sqlUsers);
-                 ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    int userCount = rs.getInt(1);
-                    // If we have users (more than just the admin user), data has been imported
-                    if (userCount > 1) {
-                        return true;
-                    }
-                }
-            }
-            
-            // Additional check: verify if employee data exists
-            String sqlEmployees = "SELECT COUNT(*) FROM employees";
-            try (PreparedStatement pstmt = conn.prepareStatement(sqlEmployees);
-                 ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    int employeeCount = rs.getInt(1);
-                    // If we have employees, data has been imported
-                    if (employeeCount > 0) {
-                        return true;
-                    }
-                }
-            }
-            
-            // If we get here, no data has been imported yet
-            return false;
-        } catch (Exception e) {
-            // If an error occurs (like tables don't exist yet), assume no data has been imported
-            System.err.println("Error checking for existing data: " + e.getMessage());
-            return false;
-        }
+        initThread.start();
     }
     
     /**
@@ -159,7 +101,7 @@ public class Main {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
         
-        JLabel loadingLabel = new JLabel("Initializing database and checking for existing data...");
+        JLabel loadingLabel = new JLabel("Initializing database...");
         loadingLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
         

@@ -1,6 +1,10 @@
-# CamuLite HR System - JDBC PostgreSQL Version
+# MotorPH Payroll System - JDBC PostgreSQL Version
 
 This is a Java-based HR management system that uses JDBC to connect to a PostgreSQL database. It provides functionality for managing employees, attendance records, leave requests, and more.
+
+## Important Note on JSON Files
+
+**The application no longer uses JSON files for data storage.** All data is now stored in a PostgreSQL database. The JSON files that were originally used for data storage can be safely deleted from the resources/JSON_Files directory as they are no longer needed.
 
 ## Prerequisites
 
@@ -24,8 +28,8 @@ First, you need to create the PostgreSQL database:
    If you're on Windows, you can run these SQL commands manually in PostgreSQL:
    ```sql
    CREATE ROLE camulite_admin WITH LOGIN PASSWORD '123';
-   CREATE DATABASE motorph_payroll WITH OWNER camulite_admin;
-   GRANT ALL PRIVILEGES ON DATABASE motorph_payroll TO camulite_admin;
+   CREATE DATABASE camulite_hr WITH OWNER camulite_admin;
+   GRANT ALL PRIVILEGES ON DATABASE camulite_hr TO camulite_admin;
    ```
 
 ### 2. Run the Application
@@ -33,12 +37,11 @@ First, you need to create the PostgreSQL database:
 1. Compile and run the Main class
 2. On first run, the application will:
    - Create the necessary database tables
-   - Import data from the JSON files in resources/JSON_Files into the database
+   - Create the admin user account
    - Start the application GUI
 
 3. You can login with:
    - Admin: username `admin`, password `123`
-   - Employee: Use any username/password from the LoginCredentials.json file
 
 ## Project Structure
 
@@ -48,9 +51,6 @@ First, you need to create the PostgreSQL database:
   - `Database/`: Database connection and initialization
   - `GUI/`: User interface components
   - `UtilityClasses/`: Helper utilities
-- `resources/`: Resources used by the application
-  - `JSON_Files/`: JSON data files for initial import
-- `libs/`: External libraries and dependencies
 
 ## Database Schema
 
@@ -59,7 +59,7 @@ The application uses the following database tables:
 1. `users`: Stores user login credentials
 2. `employees`: Stores employee information including personal and compensation details
 3. `attendance`: Stores employee attendance records
-4. `leave_requests`: Stores employee leave requests
+4. `leave_requests`: Stores employee leave request information
 
 ## Features
 
@@ -68,19 +68,6 @@ The application uses the following database tables:
 - Attendance tracking
 - Leave request submission and approval
 - Salary and compensation management
-
-## Implementation Details
-
-The application originally used JSON files for data storage, and has been converted to use a PostgreSQL database with JDBC. The main components of the JDBC implementation are:
-
-1. `DatabaseConnection.java`: Manages the connection to the PostgreSQL database
-2. `DatabaseInitializer.java`: Creates the database schema (tables)
-3. `JsonToDatabaseImporter.java`: Imports data from JSON files into the database
-4. DAO classes: Provide methods for database operations
-   - `UserDAO.java`: User authentication and management
-   - `EmployeeDAO.java`: Employee information management
-   - `AttendanceDAO.java`: Attendance record management
-   - `LeaveRequestDAO.java`: Leave request management
 
 ## Troubleshooting
 
