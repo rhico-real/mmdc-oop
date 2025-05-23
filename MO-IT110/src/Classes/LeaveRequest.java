@@ -1,12 +1,7 @@
 package Classes;
 
-import java.io.IOException;
 import java.util.UUID;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-
-import UtilityClasses.JsonFileHandler;
+import DAO.LeaveRequestDAO;
 
 public class LeaveRequest {
 
@@ -18,7 +13,7 @@ public class LeaveRequest {
 	private String endDate;
 	private String notes;
 	private String leaveType;
-	private String approved = "Not Approved Yet.";
+	private String approved = "Not Approved Yet";
 
 	public LeaveRequest(String employeeNum) {
 		this.setEmployeeNum(employeeNum);
@@ -46,24 +41,20 @@ public class LeaveRequest {
 	public void setFirstName	(String firstName	) {	this.firstName 	 = firstName;	}
 	public void setLastName		(String lastName	) {	this.lastName 	 = lastName;	}
 
-	public static void setLeaveRequestInformationObject(String value, LeaveRequest leaveRequest) throws IOException {
-
-		// Iterate through the JSON file for the employee data
-		JsonObject employeeData = JsonFileHandler.nameIterator(JsonFileHandler.getLeaveRequestJSON(), "id", value);
-
-		// Instantiate Gson to get their Json counterparts
-		Gson gson = new Gson();
-		LeaveRequest leaveRequestInfo = gson.fromJson(employeeData, LeaveRequest.class);
-
-		// Set the employee's identity information
-		leaveRequest.setEmployeeNum	( leaveRequestInfo.getEmployeeNum()	);
-		leaveRequest.setLastName	( leaveRequestInfo.getLastName()	);
-		leaveRequest.setFirstName	( leaveRequestInfo.getFirstName()	);
-		leaveRequest.setEndDate		( leaveRequestInfo.getEndDate()		);
-		leaveRequest.setStartDate	( leaveRequestInfo.getStartDate()	);
-		leaveRequest.setLeaveType	( leaveRequestInfo.getLeaveType()	);
-		leaveRequest.setNotes		( leaveRequestInfo.getNotes()		);
-		leaveRequest.setApproved	( leaveRequestInfo.isApproved()		);
+	public static void setLeaveRequestInformationObject(String leaveRequestId, LeaveRequest leaveRequest) {
+		// Use LeaveRequestDAO to get leave request information from database
+		LeaveRequest leaveRequestInfo = LeaveRequestDAO.getLeaveRequestById(leaveRequestId);
+		
+		if (leaveRequestInfo != null) {
+			// Set the leave request information
+			leaveRequest.setEmployeeNum	( leaveRequestInfo.getEmployeeNum()	);
+			leaveRequest.setLastName	( leaveRequestInfo.getLastName()	);
+			leaveRequest.setFirstName	( leaveRequestInfo.getFirstName()	);
+			leaveRequest.setEndDate		( leaveRequestInfo.getEndDate()		);
+			leaveRequest.setStartDate	( leaveRequestInfo.getStartDate()	);
+			leaveRequest.setLeaveType	( leaveRequestInfo.getLeaveType()	);
+			leaveRequest.setNotes		( leaveRequestInfo.getNotes()		);
+			leaveRequest.setApproved	( leaveRequestInfo.isApproved()		);
+		}
 	}
-
 }

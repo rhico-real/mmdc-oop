@@ -1,12 +1,7 @@
 package Classes;
 
-import java.io.IOException;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
-
-import UtilityClasses.JsonFileHandler;
+import DAO.EmployeeDAO;
 
 public class EmployeeInformation extends User {
 
@@ -20,8 +15,13 @@ public class EmployeeInformation extends User {
 	@SerializedName("immediate_supervisor")	private String supervisor;
 	@SerializedName("hourly_rate")			private double hourlyRate;
 
-	public EmployeeInformation(String userId, String password) throws IOException { super(userId, password); }
-	public EmployeeInformation(String employeeNumber) {super(employeeNumber);}
+	public EmployeeInformation(String userId, String password) { 
+		super(userId, password); 
+	}
+	
+	public EmployeeInformation(String employeeNumber) {
+		super(employeeNumber);
+	}
 
 	
 	public String getLastName			() { return lastName; 	}
@@ -45,39 +45,36 @@ public class EmployeeInformation extends User {
 	public void setHourlyRate			(double value		) { this.hourlyRate = value; 		}
 
 	public static void setEmployeeInformationObject(String employeeNumber, GovernmentIdentification employeeGI,
-			Compensation employeeComp) throws IOException {
+			Compensation employeeComp) {
 
-		// Iterate through the JSON file for the employee data
-		JsonObject employeeData = JsonFileHandler.nameIterator(JsonFileHandler.getEmployeesJSON(), "employeeNum",
-				employeeNumber);
-
-		// Instantiate Gson to get their Json counterparts
-		Gson gson = new Gson();
-		GovernmentIdentification employeeGovInfo = gson.fromJson(employeeData, GovernmentIdentification.class);
-		Compensation employeeCompInfo = gson.fromJson(employeeData, Compensation.class);
-
-		// Set the employee's identity information
-		employeeGI.setLastName(employeeGovInfo.getLastName());
-		employeeGI.setFirstName(employeeGovInfo.getFirstName());
-		employeeGI.setBirthday(employeeGovInfo.getBirthday());
-		employeeGI.setAddress(employeeGovInfo.getAddress());
-		employeeGI.setPhoneNumber(employeeGovInfo.getPhoneNumber());
-		employeeGI.setSupervisor(employeeGovInfo.getSupervisor());
-		employeeGI.setStatus(employeeGovInfo.getStatus());
-		employeeGI.setPosition(employeeGovInfo.getPosition());
-
-		// Set Government Identification data of Employee
-		employeeGI.setSSSNumber(employeeGovInfo.getSSSNumber());
-		employeeGI.setPhilHealthNumber(employeeGovInfo.getPhilHealthNumber());
-		employeeGI.setPagibigNumber(employeeGovInfo.getPagibigNumber());
-		employeeGI.setTinNumber(employeeGovInfo.getTinNumber());
-
-		// Set Compensation data of Employee
-		employeeComp.setBasicSalary(employeeCompInfo.getBasicSalary());
-		employeeComp.setClothingAllowance(employeeCompInfo.getClothingAllowance());
-		employeeComp.setGrossSemiMonthlyRate(employeeCompInfo.getGrossSemiMonthlyRate());
-		employeeComp.setPhoneAllowance(employeeCompInfo.getPhoneAllowance());
-		employeeComp.setRiceSubsidy(employeeCompInfo.getRiceSubsidy());
-		employeeComp.setHourlyRate(employeeCompInfo.getHourlyRate());
+		// Use EmployeeDAO to get employee information from database
+		GovernmentIdentification employeeGovInfo = EmployeeDAO.getEmployeeGovId(employeeNumber);
+		Compensation employeeCompInfo = EmployeeDAO.getEmployeeCompensation(employeeNumber);
+		
+		if (employeeGovInfo != null && employeeCompInfo != null) {
+			// Set the employee's identity information
+			employeeGI.setLastName(employeeGovInfo.getLastName());
+			employeeGI.setFirstName(employeeGovInfo.getFirstName());
+			employeeGI.setBirthday(employeeGovInfo.getBirthday());
+			employeeGI.setAddress(employeeGovInfo.getAddress());
+			employeeGI.setPhoneNumber(employeeGovInfo.getPhoneNumber());
+			employeeGI.setSupervisor(employeeGovInfo.getSupervisor());
+			employeeGI.setStatus(employeeGovInfo.getStatus());
+			employeeGI.setPosition(employeeGovInfo.getPosition());
+			
+			// Set Government Identification data of Employee
+			employeeGI.setSSSNumber(employeeGovInfo.getSSSNumber());
+			employeeGI.setPhilHealthNumber(employeeGovInfo.getPhilHealthNumber());
+			employeeGI.setPagibigNumber(employeeGovInfo.getPagibigNumber());
+			employeeGI.setTinNumber(employeeGovInfo.getTinNumber());
+			
+			// Set Compensation data of Employee
+			employeeComp.setBasicSalary(employeeCompInfo.getBasicSalary());
+			employeeComp.setClothingAllowance(employeeCompInfo.getClothingAllowance());
+			employeeComp.setGrossSemiMonthlyRate(employeeCompInfo.getGrossSemiMonthlyRate());
+			employeeComp.setPhoneAllowance(employeeCompInfo.getPhoneAllowance());
+			employeeComp.setRiceSubsidy(employeeCompInfo.getRiceSubsidy());
+			employeeComp.setHourlyRate(employeeCompInfo.getHourlyRate());
+		}
 	}
 }
