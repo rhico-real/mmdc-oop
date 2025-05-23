@@ -156,6 +156,31 @@ public class UserDAO {
     }
     
     /**
+     * Update username for an employee
+     * @param employeeNum Employee number
+     * @param username New username
+     * @return true if update successful, false otherwise
+     */
+    public static boolean updateUsername(String employeeNum, String username) {
+        String sql = "UPDATE users SET username = ?, updated_at = CURRENT_TIMESTAMP WHERE employee_num = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, username);
+            pstmt.setInt(2, Integer.parseInt(employeeNum));
+            
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error updating username: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
      * Delete user by employee number
      * @param employeeNum Employee number
      * @return true if deletion successful, false otherwise

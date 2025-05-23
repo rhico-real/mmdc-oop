@@ -1,20 +1,16 @@
 package GUI.admin;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.ParseException;
 import javax.swing.*;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+
+import DAO.EmployeeDAO;
+import DAO.LeaveRequestDAO;
 
 import Classes.Compensation;
 import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
 import GUI.LoginPage;
-import UtilityClasses.JsonFileHandler;
+
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
 
@@ -86,9 +82,7 @@ public class DashboardPage extends JFrame {
 	private JLabel[] labels = { lastNameValue, firstNameValue, birthdayValue, addressValue, phoneNumberValue,
 			sssNumberValue, philhealthNumberValue, tinNumberValue, pagibigNumberValue, statusValue, positionValue,
 			immediateSupervisorValue, hourlyRateValue };
-	private String[] stringifiedLabels = { "employeeNum", "last_name", "first_name", "birthday", "address",
-			"phone_number", "SSS", "Philhealth", "TIN", "Pag-ibig", "Status", "Position", "immediate_supervisor",
-			"hourly_rate" };
+	
 
 	// Instantiate two of the user's important information
 	GovernmentIdentification employeeGI = new GovernmentIdentification(employeeIdField.getText());
@@ -169,11 +163,7 @@ public class DashboardPage extends JFrame {
 		leaveRequestButton.setText("Leave Requests");
 		leaveRequestButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				try {
-					leaveRequestButtonActionPerformed(evt);
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				}
+				leaveRequestButtonActionPerformed(evt);
 			}
 		});
 
@@ -446,34 +436,19 @@ public class DashboardPage extends JFrame {
 	}// </editor-fold>
 
 	private void employeeIdFieldActionPerformed(java.awt.event.ActionEvent evt) {
-		try {
-			// Iterate through the JSON file for the employee data
-			JsonObject employeeData = JsonFileHandler.nameIterator(JsonFileHandler.getEmployeesJSON(), "employeeNum",
-					employeeIdField.getText());
-
-			// Iterate through the data and set labels
-			setLabelValues(employeeData);
-		} catch (IOException e1) {
-			// Handle IOException
-			e1.printStackTrace();
-		}
+		// Get employee information from the database
+		EmployeeInformation employee = EmployeeDAO.getEmployeeByNumber(employeeIdField.getText());
+		
+		// Set the label values with the employee data
+		setLabelValues(employee);
 	}
 
 	private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {
-		// TODO add your handling code here:
-
-		try {
-
-			// Iterate through the JSON file for the employee data
-			JsonObject employeeData = JsonFileHandler.nameIterator(JsonFileHandler.getEmployeesJSON(), "employeeNum",
-					employeeIdField.getText());
-
-			// Iterate through the data and set labels
-			setLabelValues(employeeData);
-		} catch (IOException e1) {
-			// Handle IOException
-			e1.printStackTrace();
-		}
+		// Get employee information from the database
+		EmployeeInformation employee = EmployeeDAO.getEmployeeByNumber(employeeIdField.getText());
+		
+		// Set the label values with the employee data
+		setLabelValues(employee);
 	}
 
 	private void computeButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -494,13 +469,9 @@ public class DashboardPage extends JFrame {
 		});
 	}
 
-	private void leaveRequestButtonActionPerformed(java.awt.event.ActionEvent evt) throws FileNotFoundException {
-		// Read the JSON file and parse it using GSON
-		FileReader reader = new FileReader(JsonFileHandler.getLeaveRequestJsonPath());
-		JsonElement jsonElement = JsonParser.parseReader(reader);
-
-		// Check if the parsed JSON is an array
-		if (!jsonElement.isJsonArray()) {
+	private void leaveRequestButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		// Check if there are any leave requests in the database
+		if (LeaveRequestDAO.getAllLeaveRequests().isEmpty()) {
 			// Display a message to the user
 			JOptionPane.showMessageDialog(this, "No leave requests found.", "Empty Data",
 					JOptionPane.INFORMATION_MESSAGE);
@@ -516,8 +487,9 @@ public class DashboardPage extends JFrame {
 				// Log out
 				try {
 					new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
-				} catch (ParseException e) {
+				} catch (java.text.ParseException e) {
 					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Error loading leave requests: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
@@ -535,7 +507,7 @@ public class DashboardPage extends JFrame {
 		});
 	}
 
-	public Boolean checkForEmployee(JsonObject employeeData) throws IOException {
+	public Boolean checkForEmployee(EmployeeInformation employee) {
 		// Return if employeeIdField is empty
 		if (employeeIdField.getText().equals("")) {
 			JOptionPane.showMessageDialog(new JFrame(""), "Please provide an employee number.", "No input detected",
@@ -543,8 +515,8 @@ public class DashboardPage extends JFrame {
 			return false;
 		}
 
-		// Before iterating through the labels, check if employee data is null
-		if (employeeData == null) {
+		// Check if employee data is null
+		if (employee == null) {
 			JOptionPane.showMessageDialog(new JFrame(""), "No user found.", "Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
@@ -552,14 +524,33 @@ public class DashboardPage extends JFrame {
 		return true;
 	}
 
-	public void setLabelValues(JsonObject employeeData) throws IOException {
+	public void setLabelValues(EmployeeInformation employee) {
 		// Check if user exists
-		if (!checkForEmployee(employeeData)) {
+		if (!checkForEmployee(employee)) {
 			return;
 		}
 
-		// Reassign the values of the labels
-		JsonFileHandler.labelAssigner(employeeData, stringifiedLabels, labels);
+		// Set the values to labels
+		lastNameValue.setText(employee.getLastName());
+		firstNameValue.setText(employee.getFirstName());
+		birthdayValue.setText(employee.getBirthday());
+		addressValue.setText(employee.getAddress());
+		phoneNumberValue.setText(employee.getPhoneNumber());
+		
+		// Get government ID information
+		GovernmentIdentification govId = EmployeeDAO.getEmployeeGovId(employee.getEmployeeNumber());
+		sssNumberValue.setText(govId.getSSSNumber());
+		philhealthNumberValue.setText(govId.getPhilHealthNumber());
+		tinNumberValue.setText(govId.getTinNumber());
+		pagibigNumberValue.setText(govId.getPagibigNumber());
+		
+		// Set employee status and position
+		statusValue.setText(employee.getStatus());
+		positionValue.setText(employee.getPosition());
+		immediateSupervisorValue.setText(employee.getSupervisor());
+		
+		// Set hourly rate
+		hourlyRateValue.setText(String.valueOf(employee.getHourlyRate()));
 
 		// Set the employeeData to the employeeComp and employeeGI objects
 		EmployeeInformation.setEmployeeInformationObject(employeeIdField.getText(), employeeGI, employeeComp);
@@ -578,12 +569,10 @@ public class DashboardPage extends JFrame {
 		});
 	}
 
-	public void setEmployeeInformationObject(JsonObject employeeData) {
-
-		// Instantiate Gson to get their Json counterparts
-		Gson gson = new Gson();
-		GovernmentIdentification employeeGovInfo = gson.fromJson(employeeData, GovernmentIdentification.class);
-		Compensation employeeCompInfo = gson.fromJson(employeeData, Compensation.class);
+	public void setEmployeeInformationObject(String employeeNumber) {
+		// Get employee data from database
+		GovernmentIdentification employeeGovInfo = EmployeeDAO.getEmployeeGovId(employeeNumber);
+		Compensation employeeCompInfo = EmployeeDAO.getEmployeeCompensation(employeeNumber);
 
 		// Set Government Identification data of Employee
 		employeeGI.setSSSNumber(employeeGovInfo.getSSSNumber());
