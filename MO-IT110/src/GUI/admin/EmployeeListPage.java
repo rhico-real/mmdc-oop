@@ -2,22 +2,17 @@ package GUI.admin;
 
 import javax.swing.table.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import Classes.Compensation;
 import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
-import UtilityClasses.JsonFileHandler;
+import DAO.EmployeeDAO;
+import DAO.UserDAO;
 
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileReader;
-import java.io.IOException;
+import java.util.List;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
@@ -159,30 +154,48 @@ public class EmployeeListPage extends JFrame {
 
 	private void loadEmployeeData() {
 		try {
-			// Read the JSON file and parse it using GSON
-			FileReader reader = new FileReader(JsonFileHandler.getEmployeesJsonPath());
-			JsonArray jsonArray = JsonParser.parseReader(reader).getAsJsonArray();
-
-			// Iterate through the JSON array and add data to the table model
+			// Get all employees from the database
+			List<EmployeeInformation> employees = EmployeeDAO.getAllEmployees();
+			
+			// Get the table model
 			DefaultTableModel model = (DefaultTableModel) ((JTable) jScrollPane1.getViewport().getView()).getModel();
-			Gson gson = new Gson();
-
+			
 			// Auto increment employeeNum for record creation
-			employeeNum = String
-					.valueOf(jsonArray.get(jsonArray.size() - 1).getAsJsonObject().get("employeeNum").getAsInt() + 1);
-
-			for (int i = 0; i < jsonArray.size(); i++) {
-				JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-				GovernmentIdentification employee = gson.fromJson(jsonObject, GovernmentIdentification.class);
-
-				// Add the data to the table model
-				model.addRow(new Object[] { employee.getEmployeeNumber(), employee.getLastName(),
-						employee.getFirstName(), employee.getSSSNumber(), employee.getPhilHealthNumber(),
-						employee.getTinNumber(), employee.getPagibigNumber(), "View" });
+			if (!employees.isEmpty()) {
+				int maxEmployeeNum = 0;
+				for (EmployeeInformation emp : employees) {
+					int currentEmpNum = Integer.parseInt(emp.getEmployeeNumber());
+					if (currentEmpNum > maxEmployeeNum) {
+						maxEmployeeNum = currentEmpNum;
+					}
+				}
+				employeeNum = String.valueOf(maxEmployeeNum + 1);
+			} else {
+				employeeNum = "10001"; // Start with 10001 if no employees exist
 			}
-
-		} catch (IOException e) {
+			
+			// Add data to the table
+			for (EmployeeInformation employee : employees) {
+				GovernmentIdentification govId = EmployeeDAO.getEmployeeGovId(employee.getEmployeeNumber());
+				
+				// Add the data to the table model
+				model.addRow(new Object[] { 
+					employee.getEmployeeNumber(), 
+					employee.getLastName(),
+					employee.getFirstName(), 
+					govId.getSSSNumber(), 
+					govId.getPhilHealthNumber(),
+					govId.getTinNumber(), 
+					govId.getPagibigNumber(), 
+					"View" 
+				});
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error loading employee data: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -211,42 +224,37 @@ public class EmployeeListPage extends JFrame {
 		});
 	}
 
-	private void deleteEmployeeButtonActionPerformed(String employeeNumToRemove) throws IOException {
-		JsonArray jsonArray = JsonFileHandler.getEmployeesJSON();
+	private void deleteEmployeeButtonActionPerformed(String employeeNumToRemove) {
+		try {
+			// Delete the employee from the database using EmployeeDAO
+			if (EmployeeDAO.deleteEmployee(employeeNumToRemove)) {
+				JOptionPane.showMessageDialog(this, 
+					"Employee deleted successfully.", 
+					"Success", 
+					JOptionPane.INFORMATION_MESSAGE);
+					
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						// Remove the EmployeesPage Window
+						dispose();
 
-		// Instantiate gson class
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		// Remove the object
-		JsonFileHandler.removeJsonObject(jsonArray, "employeeNum", employeeNumToRemove);
-
-		// Write the modified JsonArray back to the JSON file
-		JsonFileHandler.writeJsonFile(gson.toJson(jsonArray), JsonFileHandler.getEmployeesJsonPath());
-
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				// Remove the EmployeesPage Window
-				dispose();
-
-				// Refresh the Employees Page
-				new EmployeeListPage().setVisible(true);
+						// Refresh the Employees Page
+						new EmployeeListPage().setVisible(true);
+					}
+				});
+			} else {
+				JOptionPane.showMessageDialog(this, 
+					"Failed to delete employee.", 
+					"Error", 
+					JOptionPane.ERROR_MESSAGE);
 			}
-		});
-
-	}
-
-	private void deleteLoginCredentials(String employeeNumToRemove) throws IOException {
-		JsonArray jsonArray = JsonFileHandler.getLoginCredentialsJSON();
-
-		// Instantiate gson class
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		// Remove the object
-		JsonFileHandler.removeJsonObject(jsonArray, "employeeNum", employeeNumToRemove);
-
-		// Write the modified JsonArray back to the JSON file
-		JsonFileHandler.writeJsonFile(gson.toJson(jsonArray), JsonFileHandler.getLoginCredentialsJsonPath());
-
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error deleting employee: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	// Custom on-render look for the button column
@@ -301,21 +309,14 @@ public class EmployeeListPage extends JFrame {
 
 								// Check the user's choice
 								if (result == JOptionPane.YES_OPTION) {
-									try {
-										deleteLoginCredentials(
-												jTable1.getValueAt(selectedRow, targetColumn).toString());
-										deleteEmployeeButtonActionPerformed(
-												jTable1.getValueAt(selectedRow, targetColumn).toString());
-									} catch (IOException e) {
-										e.printStackTrace();
-									}
+									deleteEmployeeButtonActionPerformed(
+										jTable1.getValueAt(selectedRow, targetColumn).toString());
 								}
 								break;
 							default:
 								new FullEmployeeDetailsPage(employeeGI, employeeComp).setVisible(true);
 								break;
 							}
-
 						}
 					});
 				}
@@ -333,12 +334,8 @@ public class EmployeeListPage extends JFrame {
 			selectedRow = row;
 
 			// Set all the important information to be passed
-			try {
-				EmployeeInformation.setEmployeeInformationObject(jTable1.getValueAt(row, targetColumn).toString(),
-						employeeGI, employeeComp);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			EmployeeInformation.setEmployeeInformationObject(jTable1.getValueAt(row, targetColumn).toString(),
+					employeeGI, employeeComp);
 
 			return button;
 		}

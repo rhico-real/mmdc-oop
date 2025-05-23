@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 
 public class DatabaseConnection {
     
-    private static final String URL = "jdbc:postgresql://localhost:5432/camulite_hr";
+    private static final String URL = "jdbc:postgresql://localhost:5432/motorph_payroll";
     private static final String USERNAME = "camulite_admin";
     private static final String PASSWORD = "123";
     

@@ -3,6 +3,7 @@ package UtilityClasses;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -49,20 +50,42 @@ public class JsonToDatabaseImporter {
                     // First initialize the database schema
                     DatabaseInitializer.initializeDatabase();
                     
-                    // Import each type of data
-                    publish("Importing login credentials...");
-                    importLoginCredentials();
+                    // Check each data type before importing
+                    publish("Checking existing data...");
                     
-                    publish("Importing employee data...");
-                    importEmployees();
+                    // Import login credentials if needed
+                    if (isTableEmpty("users", 2)) { // Check if users table has more than 1 entry (admin)
+                        publish("Importing login credentials...");
+                        importLoginCredentials();
+                    } else {
+                        publish("Login credentials already exist, skipping import.");
+                    }
                     
-                    publish("Importing attendance records...");
-                    importAttendance();
+                    // Import employees if needed
+                    if (isTableEmpty("employees", 1)) {
+                        publish("Importing employee data...");
+                        importEmployees();
+                    } else {
+                        publish("Employee data already exists, skipping import.");
+                    }
                     
-                    publish("Importing leave requests...");
-                    importLeaveRequests();
+                    // Import attendance if needed
+                    if (isTableEmpty("attendance", 1)) {
+                        publish("Importing attendance records...");
+                        importAttendance();
+                    } else {
+                        publish("Attendance records already exist, skipping import.");
+                    }
                     
-                    publish("All data imported successfully!");
+                    // Import leave requests if needed
+                    if (isTableEmpty("leave_requests", 1)) {
+                        publish("Importing leave requests...");
+                        importLeaveRequests();
+                    } else {
+                        publish("Leave requests already exist, skipping import.");
+                    }
+                    
+                    publish("Database initialization complete!");
                     return true;
                 } catch (Exception e) {
                     publish("Error importing data: " + e.getMessage());
@@ -85,12 +108,7 @@ public class JsonToDatabaseImporter {
             protected void done() {
                 try {
                     if (get()) {
-                        JOptionPane.showMessageDialog(
-                            null,
-                            "Data import completed successfully!",
-                            "Import Complete",
-                            JOptionPane.INFORMATION_MESSAGE
-                        );
+                        System.out.println("Database initialization completed successfully!");
                     } else {
                         JOptionPane.showMessageDialog(
                             null,
@@ -106,6 +124,52 @@ public class JsonToDatabaseImporter {
         };
         
         worker.execute();
+    }
+    
+    /**
+     * Check if a table is empty or has fewer than the specified number of rows
+     * @param tableName Name of the table to check
+     * @param threshold Minimum number of rows that indicates data exists
+     * @return true if the table is empty or has fewer rows than the threshold
+     */
+    private static boolean isTableEmpty(String tableName, int threshold) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Check if the table exists first (to handle first run)
+            try {
+                String checkTableSql = 
+                    "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = ?)";
+                try (PreparedStatement pstmt = conn.prepareStatement(checkTableSql)) {
+                    pstmt.setString(1, tableName);
+                    try (ResultSet rs = pstmt.executeQuery()) {
+                        if (rs.next() && !rs.getBoolean(1)) {
+                            // Table doesn't exist
+                            return true;
+                        }
+                    }
+                }
+            
+                // Now check the count
+                String sql = "SELECT COUNT(*) FROM " + tableName;
+                try (PreparedStatement pstmt = conn.prepareStatement(sql);
+                     ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        int count = rs.getInt(1);
+                        return count < threshold;
+                    }
+                }
+            } catch (SQLException e) {
+                // Table doesn't exist or other error
+                System.out.println("Table " + tableName + " may not exist yet: " + e.getMessage());
+                return true;
+            }
+            
+            // Default to importing if we're unsure
+            return true;
+        } catch (SQLException e) {
+            // If there's an error, assume the table is empty to trigger import
+            System.err.println("Error checking if " + tableName + " is empty: " + e.getMessage());
+            return true;
+        }
     }
     
     /**

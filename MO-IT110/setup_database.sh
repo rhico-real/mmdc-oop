@@ -4,7 +4,7 @@
 # This script creates the database and the user with proper permissions
 
 # Database configuration
-DB_NAME="camulite_hr"
+DB_NAME="motorph_payroll"
 DB_USER="camulite_admin"
 DB_PASSWORD="123"
 

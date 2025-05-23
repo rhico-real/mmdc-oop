@@ -2,27 +2,19 @@ package GUI.admin;
 
 import javax.swing.table.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
-import UtilityClasses.JsonFileHandler;
+import DAO.LeaveRequestDAO;
 
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -155,80 +147,50 @@ public class LeaveRequestListPage extends JFrame {
 
 	private void loadEmployeeData() throws ParseException {
 		try {
-			// Read the JSON file and parse it using GSON
-			FileReader reader = new FileReader(JsonFileHandler.getLeaveRequestJsonPath());
-			JsonElement jsonElement = JsonParser.parseReader(reader);
-
-			// Check if the parsed JSON is an array
-			if (!jsonElement.isJsonArray()) {
-				return;
-			}
-
-			JsonArray jsonArray = jsonElement.getAsJsonArray();
-
-			// Check if the JSON array is empty
-			if (jsonArray.size() == 0) {
-				// Handle the case when the array is empty by creating an empty JSON array
-				jsonArray = new JsonArray();
-			}
-
-			// Iterate through the JSON array and add data to the table model
+			// Get all leave requests from the database
+			List<LeaveRequest> leaveRequests = LeaveRequestDAO.getAllLeaveRequests();
+			
+			// Get the table model
 			DefaultTableModel model = (DefaultTableModel) ((JTable) jScrollPane1.getViewport().getView()).getModel();
-			Gson gson = new Gson();
-
-			// Auto increment employeeNum for record creation
-			employeeNum = String.valueOf(jsonArray.size() > 0
-					? jsonArray.get(jsonArray.size() - 1).getAsJsonObject().get("employeeNum").getAsInt() + 1
-					: 1);
-
-			// Loop through the JSON array
-			for (int i = 0; i < jsonArray.size(); i++) {
-				JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-				LeaveRequest leaveRequests = gson.fromJson(jsonObject, LeaveRequest.class);
-
-				// Format the start date so it doesn't show the time
-				String startDateString = leaveRequests.getStartDate();
-				String endDateString = leaveRequests.getEndDate();
-
-				// Replace "ULAT" with "+08:00" if necessary
-				startDateString = startDateString.replace("ULAT", "+08:00").replace("GMT", "");
-				endDateString = endDateString.replace("ULAT", "+08:00").replace("GMT", "");
-
-				// Define the formatter
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss XXX yyyy");
-
-				// Parse the date strings
+			
+			// Add data to the table
+			for (LeaveRequest request : leaveRequests) {
+				// Format dates
 				String formattedStartDate;
 				String formattedEndDate;
-
+				
 				try {
-				    // Parse the date strings using OffsetDateTime
-				    OffsetDateTime startDateTime = OffsetDateTime.parse(startDateString, formatter);
-				    OffsetDateTime endDateTime = OffsetDateTime.parse(endDateString, formatter);
-
-				    // Format the dates to the desired output
-				    formattedStartDate = startDateTime.toLocalDate().toString(); // or use a different format
-				    formattedEndDate = endDateTime.toLocalDate().toString(); // or use a different format
-
-				    // Print the formatted dates for debugging
-				    System.out.println("Formatted Start Date: " + formattedStartDate);
-				    System.out.println("Formatted End Date: " + formattedEndDate);
+					// Try to parse and format the dates
+					LocalDate startDate = LocalDate.parse(request.getStartDate().substring(0, 10));
+					LocalDate endDate = LocalDate.parse(request.getEndDate().substring(0, 10));
+					formattedStartDate = startDate.toString();
+					formattedEndDate = endDate.toString();
 				} catch (Exception e) {
-				    e.printStackTrace(); // Handle the exception as needed
-				    // Set to today's date if parsing fails
-				    formattedStartDate = LocalDate.now().toString(); // Get today's date
-				    formattedEndDate = LocalDate.now().toString();   // Get today's date
+					// Use the dates as they are if parsing fails
+					formattedStartDate = request.getStartDate();
+					formattedEndDate = request.getEndDate();
 				}
-
 				
 				// Add the data to the table model
-				model.addRow(new Object[] { leaveRequests.getId(), leaveRequests.getEmployeeNum(),
-						leaveRequests.getLastName(), leaveRequests.getFirstName(), formattedStartDate,
-						formattedEndDate, leaveRequests.isApproved(), leaveRequests.getLeaveType(), "View", "View" });
+				model.addRow(new Object[] { 
+					request.getId(), 
+					request.getEmployeeNum(),
+					request.getLastName(), 
+					request.getFirstName(), 
+					formattedStartDate,
+					formattedEndDate, 
+					request.isApproved(), 
+					request.getLeaveType(), 
+					"View", 
+					"View" 
+				});
 			}
-
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error loading leave request data: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -245,17 +207,27 @@ public class LeaveRequestListPage extends JFrame {
 		});
 	}
 
-	private void deleteLeaveEntry(String value) throws IOException {
-		JsonArray jsonArray = JsonFileHandler.getLeaveRequestJSON();
-
-		// Instantiate gson class
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		// Remove the object
-		JsonFileHandler.removeJsonObject(jsonArray, "id", value);
-
-		// Write the modified JsonArray back to the JSON file
-		JsonFileHandler.writeJsonFile(gson.toJson(jsonArray), JsonFileHandler.getLeaveRequestJsonPath());
+	private void deleteLeaveEntry(String id) {
+		try {
+			// Delete the leave request from the database
+			if (LeaveRequestDAO.deleteLeaveRequest(id)) {
+				JOptionPane.showMessageDialog(this, 
+					"Leave request deleted successfully.", 
+					"Success", 
+					JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(this, 
+					"Failed to delete leave request.", 
+					"Error", 
+					JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error deleting leave request: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	// Custom on-render look for the button column
@@ -318,9 +290,12 @@ public class LeaveRequestListPage extends JFrame {
 										performDeleteOperation(targetColumn);
 										dispose();
 										navigateToLeaveRequestListPage();
-									} catch (IOException | ParseException e) {
-										
+									} catch (Exception e) {
 										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, 
+											"Error: " + e.getMessage(), 
+											"Error", 
+											JOptionPane.ERROR_MESSAGE);
 									}
 								}
 								break;
@@ -347,13 +322,8 @@ public class LeaveRequestListPage extends JFrame {
 			selectedRow = row;
 
 			// Set all the important information to be passed
-			try {
-				LeaveRequest.setLeaveRequestInformationObject(jTable1.getValueAt(row, targetColumn - 1).toString(),
-						leaveRequest);
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-			}
+			LeaveRequest.setLeaveRequestInformationObject(jTable1.getValueAt(row, targetColumn - 1).toString(),
+					leaveRequest);
 
 			return button;
 		}
@@ -389,7 +359,7 @@ public class LeaveRequestListPage extends JFrame {
 		}
 	}
 
-	private void performDeleteOperation(int targetColumn) throws IOException {
+	private void performDeleteOperation(int targetColumn) {
 		deleteLeaveEntry(jTable1.getValueAt(selectedRow, targetColumn - 1).toString());
 	}
 

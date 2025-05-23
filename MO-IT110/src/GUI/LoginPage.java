@@ -2,8 +2,6 @@ package GUI;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -88,8 +86,7 @@ public class LoginPage extends JFrame {
 		loginButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try { checkLoginCredentials(); } 
-				catch (IOException e1) { e1.printStackTrace(); }
+				checkLoginCredentials();
 			}
 		});
 
@@ -99,14 +96,13 @@ public class LoginPage extends JFrame {
 			field.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					try { checkLoginCredentials(); } 
-					catch (IOException e1) { e1.printStackTrace(); }
+					checkLoginCredentials();
 				}
 			});
 		}
 	}
 
-	public void checkLoginCredentials() throws IOException {
+	public void checkLoginCredentials() {
 		
 		// Create a User object with the login credentials
 		User userInfo = new User(usernameField.getText(), new String(passwordField.getPassword()));
@@ -131,21 +127,16 @@ public class LoginPage extends JFrame {
 					new DashboardPage().setVisible(true); 
 				} 
 				else {
-					try {
-						// Call constructor
-						employeeGI = new GovernmentIdentification(userInfo.getEmployeeNumber());
-						employeeComp = new Compensation(userInfo.getEmployeeNumber());
+					// Call constructor
+					employeeGI = new GovernmentIdentification(userInfo.getEmployeeNumber());
+					employeeComp = new Compensation(userInfo.getEmployeeNumber());
 
-						// Set all the data for the logged in employee
-						EmployeeInformation.setEmployeeInformationObject(userInfo.getEmployeeNumber(), employeeGI,
-								employeeComp);
+					// Set all the data for the logged in employee
+					EmployeeInformation.setEmployeeInformationObject(userInfo.getEmployeeNumber(), employeeGI,
+							employeeComp);
 
-						// If user is an employee, go to employee dashboard page
-						new EmployeeDashboard(employeeGI, employeeComp).setVisible(true);
-					} 
-					catch (IOException e) {
-						e.printStackTrace();
-					}
+					// If user is an employee, go to employee dashboard page
+					new EmployeeDashboard(employeeGI, employeeComp).setVisible(true);
 				} // end of else-block
 			} // end of run()
 		}); // end of .invokeLater()
