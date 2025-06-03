@@ -11,6 +11,7 @@ import Classes.GovernmentIdentification;
 import Classes.User;
 import GUI.admin.DashboardPage;
 import GUI.employee.EmployeeDashboard;
+import GUI.hr.HRDashboard;
 
 @SuppressWarnings("serial")
 public class LoginPage extends JFrame {
@@ -122,22 +123,26 @@ public class LoginPage extends JFrame {
 			public void run() {
 			
 				if (userInfo.getIsAdmin()) {
-					// Proceed to the next page once logged in
-					// Create and display the form
-					new DashboardPage().setVisible(true); 
+				// Proceed to the next page once logged in
+				// Create and display the form
+				new DashboardPage().setVisible(true); 
 				} 
-				else {
-					// Call constructor
-					employeeGI = new GovernmentIdentification(userInfo.getEmployeeNumber());
-					employeeComp = new Compensation(userInfo.getEmployeeNumber());
+				else if (userInfo.getIsHR()) {
+				// If user is HR, go to HR dashboard
+				new HRDashboard().setVisible(true);
+				}
+			else {
+				// Call constructor
+				employeeGI = new GovernmentIdentification(userInfo.getEmployeeNumber());
+				employeeComp = new Compensation(userInfo.getEmployeeNumber());
 
-					// Set all the data for the logged in employee
-					EmployeeInformation.setEmployeeInformationObject(userInfo.getEmployeeNumber(), employeeGI,
-							employeeComp);
+				// Set all the data for the logged in employee
+				EmployeeInformation.setEmployeeInformationObject(userInfo.getEmployeeNumber(), employeeGI,
+				   employeeComp);
 
-					// If user is an employee, go to employee dashboard page
-					new EmployeeDashboard(employeeGI, employeeComp).setVisible(true);
-				} // end of else-block
+				// If user is an employee, go to employee dashboard page
+				new EmployeeDashboard(employeeGI, employeeComp).setVisible(true);
+			} // end of else-block
 			} // end of run()
 		}); // end of .invokeLater()
 	} // end of checkLoginCredentials()

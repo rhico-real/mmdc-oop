@@ -278,6 +278,45 @@ public class EmployeeDAO {
     }
     
     /**
+     * Search employees by name
+     * @param searchTerm Search term for name
+     * @return List of matching employees
+     */
+    public static List<EmployeeInformation> searchEmployeesByName(String searchTerm) {
+        List<EmployeeInformation> employees = new ArrayList<>();
+        String sql = """
+            SELECT e.*, u.username
+            FROM employees e
+            JOIN users u ON e.employee_num = u.employee_num
+            WHERE e.last_name ILIKE ? OR e.first_name ILIKE ? 
+               OR CONCAT(e.first_name, ' ', e.last_name) ILIKE ?
+               OR CONCAT(e.last_name, ' ', e.first_name) ILIKE ?
+            ORDER BY e.last_name, e.first_name
+        """;
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            String searchPattern = "%" + searchTerm + "%";
+            pstmt.setString(1, searchPattern);
+            pstmt.setString(2, searchPattern);
+            pstmt.setString(3, searchPattern);
+            pstmt.setString(4, searchPattern);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    employees.add(mapResultSetToEmployee(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error searching employees by name: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return employees;
+    }
+    
+    /**
      * Search employees by name or position
      * @param searchTerm Search term
      * @return List of matching employees

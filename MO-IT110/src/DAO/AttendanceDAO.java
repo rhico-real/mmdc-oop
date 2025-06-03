@@ -4,8 +4,14 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import Database.DatabaseConnection;
 
@@ -291,6 +297,87 @@ public class AttendanceDAO {
             e.printStackTrace();
         }
         return records;
+    }
+    
+    /**
+     * Calculate monthly attendance summary for an employee
+     * @param employeeNumber Employee number as string
+     * @param month Month (1-12)
+     * @param year Year
+     * @return Map containing daysWorked and overtimeHours, or null if no data found
+     */
+    public static Map<String, Object> calculateMonthlyAttendance(String employeeNumber, int month, int year) {
+        Map<String, Object> result = new HashMap<>();
+        int daysWorked = 0;
+        double totalOvertimeHours = 0.0;
+        
+        // Create date range for the month
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+        
+        String sql = "SELECT * FROM attendance WHERE employee_num = ? AND date >= ? AND date <= ? ORDER BY date";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, Integer.parseInt(employeeNumber));
+            pstmt.setString(2, startDate.toString());
+            pstmt.setString(3, endDate.toString());
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+                
+                while (rs.next()) {
+                    String timeIn = rs.getString("time_in");
+                    String timeOut = rs.getString("time_out");
+                    
+                    // If both time in and time out are present, count as a day worked
+                    if (timeIn != null && timeOut != null && !timeIn.trim().isEmpty() && !timeOut.trim().isEmpty()) {
+                        daysWorked++;
+                        
+                        try {
+                            // Calculate overtime (assuming 8-hour work day)
+                            LocalTime inTime = LocalTime.parse(timeIn, timeFormatter);
+                            LocalTime outTime = LocalTime.parse(timeOut, timeFormatter);
+                            
+                            // Calculate total hours worked
+                            long totalMinutes = ChronoUnit.MINUTES.between(inTime, outTime);
+                            double totalHours = totalMinutes / 60.0;
+                            
+                            // Subtract 1 hour for lunch break if worked more than 6 hours
+                            if (totalHours > 6) {
+                                totalHours -= 1; // lunch break
+                            }
+                            
+                            // Calculate overtime (hours beyond 8)
+                            if (totalHours > 8) {
+                                totalOvertimeHours += (totalHours - 8);
+                            }
+                            
+                        } catch (Exception e) {
+                            System.err.println("Error parsing time for employee " + employeeNumber + ": " + e.getMessage());
+                            // Continue processing other records even if time parsing fails
+                        }
+                    }
+                }
+            }
+            
+            // Return results if any attendance data found
+            if (daysWorked > 0 || totalOvertimeHours > 0) {
+                result.put("daysWorked", daysWorked);
+                result.put("overtimeHours", Math.round(totalOvertimeHours * 100.0) / 100.0); // Round to 2 decimal places
+                return result;
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error calculating monthly attendance: " + e.getMessage());
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid employee number format: " + employeeNumber);
+            e.printStackTrace();
+        }
+        
+        return null; // Return null if no data found or error occurred
     }
     
     /**

@@ -19,7 +19,7 @@ public class UserDAO {
      * @return User object if authentication successful, null otherwise
      */
     public static User authenticateUser(String username, String password) {
-        String sql = "SELECT employee_num, username, password, is_admin FROM users WHERE username = ? AND password = ?";
+        String sql = "SELECT employee_num, username, password, is_admin, is_hr FROM users WHERE username = ? AND password = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -33,6 +33,7 @@ public class UserDAO {
                     user.setUserId(rs.getString("username"));
                     user.setPassword(rs.getString("password"));
                     user.setIsAdmin(rs.getBoolean("is_admin"));
+                    user.setIsHR(rs.getBoolean("is_hr"));
                     user.setLoginStatus(true);
                     user.setIsVerified(true);
                     return user;
@@ -51,7 +52,7 @@ public class UserDAO {
      * @return User object if found, null otherwise
      */
     public static User getUserByEmployeeNumber(String employeeNum) {
-        String sql = "SELECT employee_num, username, password, is_admin FROM users WHERE employee_num = ?";
+        String sql = "SELECT employee_num, username, password, is_admin, is_hr FROM users WHERE employee_num = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -64,6 +65,7 @@ public class UserDAO {
                     user.setUserId(rs.getString("username"));
                     user.setPassword(rs.getString("password"));
                     user.setIsAdmin(rs.getBoolean("is_admin"));
+                    user.setIsHR(rs.getBoolean("is_hr"));
                     return user;
                 }
             }
@@ -80,7 +82,7 @@ public class UserDAO {
      * @return User object if found, null otherwise
      */
     public static User getUserByUsername(String username) {
-        String sql = "SELECT employee_num, username, password, is_admin FROM users WHERE username = ?";
+        String sql = "SELECT employee_num, username, password, is_admin, is_hr FROM users WHERE username = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -93,6 +95,7 @@ public class UserDAO {
                     user.setUserId(rs.getString("username"));
                     user.setPassword(rs.getString("password"));
                     user.setIsAdmin(rs.getBoolean("is_admin"));
+                    user.setIsHR(rs.getBoolean("is_hr"));
                     return user;
                 }
             }
@@ -109,7 +112,7 @@ public class UserDAO {
      * @return true if creation successful, false otherwise
      */
     public static boolean createUser(User user) {
-        String sql = "INSERT INTO users (employee_num, username, password, is_admin) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO users (employee_num, username, password, is_admin, is_hr) VALUES (?, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -118,6 +121,7 @@ public class UserDAO {
             pstmt.setString(2, user.getUserId());
             pstmt.setString(3, user.getPassword());
             pstmt.setBoolean(4, user.getIsAdmin());
+            pstmt.setBoolean(5, user.getIsHR());
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -135,7 +139,7 @@ public class UserDAO {
      * @return true if update successful, false otherwise
      */
     public static boolean updateUser(User user) {
-        String sql = "UPDATE users SET username = ?, password = ?, is_admin = ?, updated_at = CURRENT_TIMESTAMP WHERE employee_num = ?";
+        String sql = "UPDATE users SET username = ?, password = ?, is_admin = ?, is_hr = ?, updated_at = CURRENT_TIMESTAMP WHERE employee_num = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -143,7 +147,8 @@ public class UserDAO {
             pstmt.setString(1, user.getUserId());
             pstmt.setString(2, user.getPassword());
             pstmt.setBoolean(3, user.getIsAdmin());
-            pstmt.setInt(4, Integer.parseInt(user.getEmployeeNumber()));
+            pstmt.setBoolean(4, user.getIsHR());
+            pstmt.setInt(5, Integer.parseInt(user.getEmployeeNumber()));
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -209,7 +214,7 @@ public class UserDAO {
      */
     public static List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT employee_num, username, password, is_admin FROM users ORDER BY employee_num";
+        String sql = "SELECT employee_num, username, password, is_admin, is_hr FROM users ORDER BY employee_num";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -220,6 +225,7 @@ public class UserDAO {
                 user.setUserId(rs.getString("username"));
                 user.setPassword(rs.getString("password"));
                 user.setIsAdmin(rs.getBoolean("is_admin"));
+                user.setIsHR(rs.getBoolean("is_hr"));
                 users.add(user);
             }
             
