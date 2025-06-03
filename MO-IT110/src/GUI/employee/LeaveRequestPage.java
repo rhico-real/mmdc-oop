@@ -11,6 +11,9 @@ import com.toedter.calendar.JTextFieldDateEditor;
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
+import DAO.LeaveRequestDAO;
+import DAO.EmployeeDAO;
+import Classes.EmployeeInformation;
 import UtilityClasses.JsonFileHandler;
 
 @SuppressWarnings("serial")
@@ -234,9 +237,10 @@ public class LeaveRequestPage extends JFrame {
 	}
 
 	public void addLeaveRequest() {
+		// Create the leave request object
 		LeaveRequest leaveRequest = new LeaveRequest(employeeGI.getEmployeeNumber());
 
-		// Add the data to the json file
+		// Set the leave request data
 		leaveRequest.setLastName(employeeGI.getLastName());
 		leaveRequest.setFirstName(employeeGI.getFirstName());
 		leaveRequest.setStartDate(startDateField.getDate().toString());
@@ -245,15 +249,20 @@ public class LeaveRequestPage extends JFrame {
 		leaveRequest.setLeaveType(typeOfLeaveDropdown.getSelectedItem().toString());
 		leaveRequest.setApproved("Not Approved Yet");
 
-		// Read existing LeaveRequest objects from the file
-		List<LeaveRequest> existingLeaveRequests = JsonFileHandler
-				.readLeaveRequestsFromFile(JsonFileHandler.getLeaveRequestJsonPath());
-
-		// Add the new LeaveRequest object to the list
-		existingLeaveRequests.add(leaveRequest);
-
-		// Write the updated list back to the file
-		JsonFileHandler.addToJsonFile(existingLeaveRequests, JsonFileHandler.getLeaveRequestJsonPath());
+		// Save the leave request to the database
+		boolean success = LeaveRequestDAO.createLeaveRequest(leaveRequest);
+		
+		if (success) {
+			JOptionPane.showMessageDialog(this, 
+				"Leave request submitted successfully!", 
+				"Success", 
+				JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			JOptionPane.showMessageDialog(this, 
+				"Failed to submit leave request. Please try again.", 
+				"Error", 
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private boolean areAllFieldsValid(StringBuilder errorMessage) {

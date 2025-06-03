@@ -188,6 +188,44 @@ public class LeaveRequestDAO {
      * @return true if update successful, false otherwise
      */
     public static boolean updateLeaveRequestStatus(String id, String status) {
+        // Add debugging information
+        System.out.println("[DEBUG] Updating leave request status:");
+        System.out.println("[DEBUG] ID: " + id);
+        System.out.println("[DEBUG] New Status: " + status);
+        
+        // Validate inputs
+        if (id == null || id.trim().isEmpty()) {
+            System.err.println("[ERROR] Leave request ID is null or empty");
+            return false;
+        }
+        
+        if (status == null || status.trim().isEmpty()) {
+            System.err.println("[ERROR] Status is null or empty");
+            return false;
+        }
+        
+        // First, check if the leave request exists
+        String checkSql = "SELECT id, approved FROM leave_requests WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            
+            checkStmt.setString(1, id);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next()) {
+                    String currentStatus = rs.getString("approved");
+                    System.out.println("[DEBUG] Found leave request. Current status: " + currentStatus);
+                } else {
+                    System.err.println("[ERROR] Leave request with ID " + id + " not found in database");
+                    return false;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("[ERROR] Error checking leave request existence: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+        
+        // Now perform the update
         String sql = "UPDATE leave_requests SET approved = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -196,11 +234,37 @@ public class LeaveRequestDAO {
             pstmt.setString(1, status);
             pstmt.setString(2, id);
             
+            System.out.println("[DEBUG] Executing SQL: " + sql);
+            System.out.println("[DEBUG] Parameters: status=" + status + ", id=" + id);
+            
             int rowsAffected = pstmt.executeUpdate();
+            
+            System.out.println("[DEBUG] Rows affected: " + rowsAffected);
+            
+            if (rowsAffected > 0) {
+                System.out.println("[DEBUG] Update successful!");
+                
+                // Verify the update
+                try (PreparedStatement verifyStmt = conn.prepareStatement(checkSql)) {
+                    verifyStmt.setString(1, id);
+                    try (ResultSet rs = verifyStmt.executeQuery()) {
+                        if (rs.next()) {
+                            String newStatus = rs.getString("approved");
+                            System.out.println("[DEBUG] Verified new status: " + newStatus);
+                            return status.equals(newStatus);
+                        }
+                    }
+                }
+            } else {
+                System.err.println("[ERROR] No rows were affected by the update");
+            }
+            
             return rowsAffected > 0;
             
         } catch (SQLException e) {
-            System.err.println("Error updating leave request status: " + e.getMessage());
+            System.err.println("[ERROR] Error updating leave request status: " + e.getMessage());
+            System.err.println("[ERROR] SQL State: " + e.getSQLState());
+            System.err.println("[ERROR] Error Code: " + e.getErrorCode());
             e.printStackTrace();
             return false;
         }

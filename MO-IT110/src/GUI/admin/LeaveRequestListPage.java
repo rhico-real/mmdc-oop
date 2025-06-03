@@ -314,16 +314,33 @@ public class LeaveRequestListPage extends JFrame {
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
 				int column) {
 
-			// Call constructor
-			employeeGI = new GovernmentIdentification(jTable1.getValueAt(row, targetColumn).toString());
-			employeeComp = new Compensation(jTable1.getValueAt(row, targetColumn).toString());
-			leaveRequest = new LeaveRequest(jTable1.getValueAt(row, targetColumn).toString());
+			// Get the actual leave request ID from the first column (column 0)
+			String leaveRequestId = jTable1.getValueAt(row, 0).toString();
+			String employeeNumber = jTable1.getValueAt(row, 1).toString();
+			
+			System.out.println("[DEBUG] Button clicked for row " + row);
+			System.out.println("[DEBUG] Leave Request ID from table: " + leaveRequestId);
+			System.out.println("[DEBUG] Employee Number: " + employeeNumber);
+
+			// Load the actual leave request from database using the correct ID
+			leaveRequest = LeaveRequestDAO.getLeaveRequestById(leaveRequestId);
+			
+			if (leaveRequest == null) {
+				System.err.println("[ERROR] Could not load leave request with ID: " + leaveRequestId);
+				JOptionPane.showMessageDialog(null, 
+					"Error: Could not load leave request data. Please refresh the page.", 
+					"Data Error", 
+					JOptionPane.ERROR_MESSAGE);
+				return button;
+			}
+			
+			System.out.println("[DEBUG] Loaded leave request with ID: " + leaveRequest.getId());
+
+			// Call constructor for employee data
+			employeeGI = new GovernmentIdentification(employeeNumber);
+			employeeComp = new Compensation(employeeNumber);
 
 			selectedRow = row;
-
-			// Set all the important information to be passed
-			LeaveRequest.setLeaveRequestInformationObject(jTable1.getValueAt(row, targetColumn - 1).toString(),
-					leaveRequest);
 
 			return button;
 		}
@@ -360,7 +377,10 @@ public class LeaveRequestListPage extends JFrame {
 	}
 
 	private void performDeleteOperation(int targetColumn) {
-		deleteLeaveEntry(jTable1.getValueAt(selectedRow, targetColumn - 1).toString());
+		// Get the leave request ID from the first column (column 0)
+		String leaveRequestId = jTable1.getValueAt(selectedRow, 0).toString();
+		System.out.println("[DEBUG] Deleting leave request with ID: " + leaveRequestId);
+		deleteLeaveEntry(leaveRequestId);
 	}
 
 	private void navigateToLeaveRequestListPage() throws ParseException {
