@@ -49,6 +49,9 @@ public class DatabaseInitializer {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             System.out.println("Users table created/verified successfully!");
+        } catch(SQLException e) {
+            System.err.println("Error creating users table: " + e.getMessage());
+            throw e;
         }
     }
     
@@ -86,6 +89,9 @@ public class DatabaseInitializer {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             System.out.println("Employees table created/verified successfully!");
+        } catch(SQLException e) {
+            System.err.println("Error creating employees table: " + e.getMessage());
+            throw e;
         }
     }
     
@@ -111,6 +117,9 @@ public class DatabaseInitializer {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             System.out.println("Attendance table created/verified successfully!");
+        } catch(SQLException e) {
+            System.err.println("Error creating attendance table: " + e.getMessage());
+            throw e;
         }
     }
     
@@ -138,6 +147,9 @@ public class DatabaseInitializer {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(sql);
             System.out.println("Leave requests table created/verified successfully!");
+        } catch(SQLException e) {
+            System.err.println("Error creating leave requests table: " + e.getMessage());
+            throw e;
         }
     }
     
