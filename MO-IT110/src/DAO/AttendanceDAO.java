@@ -18,6 +18,33 @@ import Database.DatabaseConnection;
 public class AttendanceDAO {
     
     /**
+     * Convert date from MM/dd/yyyy to yyyy-MM-dd format
+     * @param dateString Date string in MM/dd/yyyy or yyyy-MM-dd format
+     * @return Date string in yyyy-MM-dd format
+     */
+    private static String convertToSqlDateFormat(String dateString) {
+        // If already in yyyy-MM-dd format, return as is
+        if (dateString.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            return dateString;
+        }
+        
+        // Convert from MM/dd/yyyy to yyyy-MM-dd
+        if (dateString.matches("\\d{2}/\\d{2}/\\d{4}")) {
+            try {
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate date = LocalDate.parse(dateString, inputFormatter);
+                return date.format(outputFormatter);
+            } catch (Exception e) {
+                System.err.println("Error converting date format: " + e.getMessage());
+                return dateString; // Return original if conversion fails
+            }
+        }
+        
+        return dateString; // Return as is if format is unknown
+    }
+    
+    /**
      * Attendance record class to hold attendance data
      */
     public static class AttendanceRecord {
@@ -135,12 +162,23 @@ public class AttendanceDAO {
      */
     public static List<AttendanceRecord> getAttendanceByDate(String date) {
         List<AttendanceRecord> records = new ArrayList<>();
-        String sql = "SELECT * FROM attendance WHERE date = ? ORDER BY employee_num";
+        
+        // Convert date to proper format if needed
+        String formattedDate = convertToSqlDateFormat(date);
+        
+        String sql = """
+            SELECT ar.*, e.employee_number, pi.first_name, pi.last_name
+            FROM attendance_records ar
+            JOIN employees e ON ar.employee_id = e.employee_id
+            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
+            WHERE ar.attendance_date = ?::date
+            ORDER BY e.employee_number
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setString(1, date);
+            pstmt.setString(1, formattedDate);
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -161,7 +199,13 @@ public class AttendanceDAO {
      */
     public static List<AttendanceRecord> getAllAttendanceRecords() {
         List<AttendanceRecord> records = new ArrayList<>();
-        String sql = "SELECT * FROM attendance ORDER BY date DESC, employee_num";
+        String sql = """
+            SELECT ar.*, e.employee_number, pi.first_name, pi.last_name
+            FROM attendance_records ar
+            JOIN employees e ON ar.employee_id = e.employee_id
+            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
+            ORDER BY ar.attendance_date DESC, e.employee_number
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -201,23 +245,41 @@ public class AttendanceDAO {
      * @return true if creation successful, false otherwise
      */
     public static boolean createAttendanceRecord(AttendanceRecord record) {
-        String sql = """
-            INSERT INTO attendance (employee_num, last_name, first_name, date, time_in, time_out)
-            VALUES (?, ?, ?, ?, ?, ?)
+        // First find the employee_id based on employee_number
+        String findEmployeeIdSql = "SELECT employee_id FROM employees WHERE employee_number = ?";
+        String formattedDate = convertToSqlDateFormat(record.getDate());
+        
+        String insertSql = """
+            INSERT INTO attendance_records (employee_id, attendance_date, time_in, time_out)
+            VALUES (?, ?::date, ?, ?)
         """;
         
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
             
-            pstmt.setInt(1, record.getEmployeeNum());
-            pstmt.setString(2, record.getLastName());
-            pstmt.setString(3, record.getFirstName());
-            pstmt.setString(4, record.getDate());
-            pstmt.setString(5, record.getTimeIn());
-            pstmt.setString(6, record.getTimeOut());
+            // Find employee_id
+            int employeeId;
+            try (PreparedStatement findStmt = conn.prepareStatement(findEmployeeIdSql)) {
+                findStmt.setString(1, String.valueOf(record.getEmployeeNum()));
+                try (ResultSet rs = findStmt.executeQuery()) {
+                    if (rs.next()) {
+                        employeeId = rs.getInt("employee_id");
+                    } else {
+                        System.err.println("Employee not found with number: " + record.getEmployeeNum());
+                        return false;
+                    }
+                }
+            }
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Insert attendance record
+            try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+                pstmt.setInt(1, employeeId);
+                pstmt.setString(2, formattedDate);
+                pstmt.setString(3, record.getTimeIn());
+                pstmt.setString(4, record.getTimeOut());
+                
+                int rowsAffected = pstmt.executeUpdate();
+                return rowsAffected > 0;
+            }
             
         } catch (SQLException e) {
             System.err.println("Error creating attendance record: " + e.getMessage());
@@ -232,21 +294,22 @@ public class AttendanceDAO {
      * @return true if update successful, false otherwise
      */
     public static boolean updateAttendanceRecord(AttendanceRecord record) {
+        String formattedDate = convertToSqlDateFormat(record.getDate());
+        
         String sql = """
-            UPDATE attendance SET 
-                last_name = ?, first_name = ?, time_in = ?, time_out = ?
-            WHERE employee_num = ? AND date = ?
+            UPDATE attendance_records SET 
+                time_in = ?, time_out = ?
+            WHERE employee_id = (SELECT employee_id FROM employees WHERE employee_number = ?) 
+            AND attendance_date = ?::date
         """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setString(1, record.getLastName());
-            pstmt.setString(2, record.getFirstName());
-            pstmt.setString(3, record.getTimeIn());
-            pstmt.setString(4, record.getTimeOut());
-            pstmt.setInt(5, record.getEmployeeNum());
-            pstmt.setString(6, record.getDate());
+            pstmt.setString(1, record.getTimeIn());
+            pstmt.setString(2, record.getTimeOut());
+            pstmt.setString(3, String.valueOf(record.getEmployeeNum()));
+            pstmt.setString(4, formattedDate);
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -265,13 +328,19 @@ public class AttendanceDAO {
      * @return true if deletion successful, false otherwise
      */
     public static boolean deleteAttendanceRecord(String employeeNum, String date) {
-        String sql = "DELETE FROM attendance WHERE employee_num = ? AND date = ?";
+        String formattedDate = convertToSqlDateFormat(date);
+        
+        String sql = """
+            DELETE FROM attendance_records 
+            WHERE employee_id = (SELECT employee_id FROM employees WHERE employee_number = ?) 
+            AND attendance_date = ?::date
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, Integer.parseInt(employeeNum));
-            pstmt.setString(2, date);
+            pstmt.setString(1, employeeNum);
+            pstmt.setString(2, formattedDate);
             
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -285,19 +354,31 @@ public class AttendanceDAO {
     
     /**
      * Get attendance records within date range
-     * @param startDate Start date (inclusive)
-     * @param endDate End date (inclusive)
+     * @param startDate Start date (inclusive) - can be in MM/dd/yyyy or yyyy-MM-dd format
+     * @param endDate End date (inclusive) - can be in MM/dd/yyyy or yyyy-MM-dd format
      * @return List of attendance records within the date range
      */
     public static List<AttendanceRecord> getAttendanceByDateRange(String startDate, String endDate) {
         List<AttendanceRecord> records = new ArrayList<>();
-        String sql = "SELECT * FROM attendance WHERE date >= ? AND date <= ? ORDER BY date, employee_num";
+        
+        // Convert dates to proper format if needed
+        String formattedStartDate = convertToSqlDateFormat(startDate);
+        String formattedEndDate = convertToSqlDateFormat(endDate);
+        
+        String sql = """
+            SELECT ar.*, e.employee_number, pi.first_name, pi.last_name
+            FROM attendance_records ar
+            JOIN employees e ON ar.employee_id = e.employee_id
+            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
+            WHERE ar.attendance_date >= ?::date AND ar.attendance_date <= ?::date
+            ORDER BY ar.attendance_date, e.employee_number
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setString(1, startDate);
-            pstmt.setString(2, endDate);
+            pstmt.setString(1, formattedStartDate);
+            pstmt.setString(2, formattedEndDate);
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -328,12 +409,19 @@ public class AttendanceDAO {
         LocalDate startDate = LocalDate.of(year, month, 1);
         LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
         
-        String sql = "SELECT * FROM attendance WHERE employee_num = ? AND date >= ? AND date <= ? ORDER BY date";
+        String sql = """
+            SELECT ar.*, e.employee_number, pi.first_name, pi.last_name
+            FROM attendance_records ar
+            JOIN employees e ON ar.employee_id = e.employee_id
+            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
+            WHERE e.employee_number = ? AND ar.attendance_date >= ?::date AND ar.attendance_date <= ?::date
+            ORDER BY ar.attendance_date
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, Integer.parseInt(employeeNumber));
+            pstmt.setString(1, employeeNumber);
             pstmt.setString(2, startDate.toString());
             pstmt.setString(3, endDate.toString());
             

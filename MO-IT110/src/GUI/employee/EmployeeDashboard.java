@@ -79,6 +79,7 @@ public class EmployeeDashboard extends JFrame {
 	private javax.swing.JLabel lastName;
 	private javax.swing.JLabel lastNameValue;
 	private javax.swing.JComboBox<String> monthDropdown;
+	private javax.swing.JComboBox<String> yearDropdown;
 	private javax.swing.JLabel netSalaryComputationLabel;
 	private javax.swing.JLabel netSalaryLabel;
 	private javax.swing.JLabel netSalaryValue;
@@ -125,6 +126,7 @@ public class EmployeeDashboard extends JFrame {
 	private Compensation employeeComp;
 	private Double totalAllowance;
 	private String selectedMonth = LocalDate.now().getMonth().toString();
+	private int selectedYear = LocalDate.now().getYear();
 	private AtomicInteger hoursRenderedNum = new AtomicInteger(0);
 	private AtomicInteger absentsNum = new AtomicInteger(0);
 	private AtomicInteger latesNum = new AtomicInteger(0);
@@ -232,6 +234,7 @@ public class EmployeeDashboard extends JFrame {
 		tinNumberValue = new javax.swing.JLabel();
 		welcomeLabel = new javax.swing.JLabel();
 		monthDropdown = new javax.swing.JComboBox<>();
+		yearDropdown = new javax.swing.JComboBox<>();
 		computeButton = new javax.swing.JButton();
 		submitLeaveRequestButton = new javax.swing.JButton();
 		submitOvertimeButton = new javax.swing.JButton();
@@ -793,6 +796,21 @@ public class EmployeeDashboard extends JFrame {
 			}
 		});
 
+		// Initialize year dropdown with years from 2000 to present
+		int currentYear = LocalDate.now().getYear();
+		String[] years = new String[currentYear - 2000 + 1];
+		for (int i = 0; i < years.length; i++) {
+			years[i] = String.valueOf(2000 + i);
+		}
+		yearDropdown.setModel(new javax.swing.DefaultComboBoxModel<>(years));
+		yearDropdown.setSelectedItem(String.valueOf(currentYear)); // Set current year as default
+
+		yearDropdown.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				yearDropdownActionPerformed(e);
+			}
+		});
+
 		computeButton.setText("Compute");
 		computeButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -917,17 +935,20 @@ public class EmployeeDashboard extends JFrame {
 												.addComponent(editInfoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
 												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 												.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE,
-														179, javax.swing.GroupLayout.PREFERRED_SIZE)
+														120, javax.swing.GroupLayout.PREFERRED_SIZE)
+												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+												.addComponent(yearDropdown, javax.swing.GroupLayout.PREFERRED_SIZE,
+														70, javax.swing.GroupLayout.PREFERRED_SIZE)
 												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 												.addComponent(computeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 89,
-														javax.swing.GroupLayout.PREFERRED_SIZE))))
-						.addContainerGap(41, Short.MAX_VALUE))
+														javax.swing.GroupLayout.PREFERRED_SIZE)
+						.addContainerGap(41, Short.MAX_VALUE)))
 				.addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
 						jPanel1Layout.createSequentialGroup()
 								.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 94,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addContainerGap()));
+								.addContainerGap()))));
 		jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 				.addGroup(jPanel1Layout.createSequentialGroup().addContainerGap()
 						.addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 21,
@@ -938,6 +959,8 @@ public class EmployeeDashboard extends JFrame {
 								.addComponent(computeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
+										javax.swing.GroupLayout.PREFERRED_SIZE)
+								.addComponent(yearDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addComponent(submitLeaveRequestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
 										javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1153,6 +1176,15 @@ public class EmployeeDashboard extends JFrame {
 		selectedMonth = ((String) monthDropdown.getSelectedItem()).toUpperCase();
 	}
 
+	private void yearDropdownActionPerformed(java.awt.event.ActionEvent evt) {
+
+		// Reset values for hours rendered
+		resetSummaryValues();
+
+		// Get the selected item
+		selectedYear = Integer.parseInt((String) yearDropdown.getSelectedItem());
+	}
+
 	@SuppressWarnings("unused")
 	public void loadAttendanceRecordsFromJsonFile(String filePath) throws IOException {
 
@@ -1207,17 +1239,16 @@ public class EmployeeDashboard extends JFrame {
 	 */
 	public int calculateDaysWorkedFromDatabase(String employeeNumber, String selectedMonth) {
 		try {
-			// Get the current year and the selected month
-			int currentYear = LocalDate.now().getYear();
+			// Get the selected year and the selected month
 			Month month = Month.valueOf(selectedMonth);
 			
 			// Calculate the first and last day of the selected month
-			YearMonth yearMonth = YearMonth.of(currentYear, month);
+			YearMonth yearMonth = YearMonth.of(selectedYear, month);
 			LocalDate firstDay = yearMonth.atDay(1);
 			LocalDate lastDay = yearMonth.atEndOfMonth();
 			
-			// Format dates for database query (assuming your date format is MM/dd/yyyy)
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+			// Format dates for database query (database uses yyyy-MM-dd format)
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			String startDate = firstDay.format(formatter);
 			String endDate = lastDay.format(formatter);
 			
@@ -1246,7 +1277,8 @@ public class EmployeeDashboard extends JFrame {
 						}
 						
 						// Parse the time strings to calculate hours worked
-						DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+						DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+						// Handle database date format (yyyy-MM-dd)
 						LocalDateTime timeInDateTime = LocalDate.parse(record.getDate(), formatter)
 								.atTime(java.time.LocalTime.parse(timeIn, timeFormatter));
 						LocalDateTime timeOutDateTime = LocalDate.parse(record.getDate(), formatter)
@@ -1329,8 +1361,8 @@ public class EmployeeDashboard extends JFrame {
 			LocalDate firstDay = yearMonth.atDay(1);
 			LocalDate lastDay = yearMonth.atEndOfMonth();
 			
-			// Format dates for database query (assuming your date format is MM/dd/yyyy)
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+			// Format dates for database query (database uses yyyy-MM-dd format)
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			String startDate = firstDay.format(formatter);
 			String endDate = lastDay.format(formatter);
 			
@@ -1355,7 +1387,8 @@ public class EmployeeDashboard extends JFrame {
 						}
 						
 						// Parse the time strings to calculate hours worked
-						DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+						DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+						// Handle database date format (yyyy-MM-dd)
 						LocalDateTime timeInDateTime = LocalDate.parse(record.getDate(), formatter)
 								.atTime(java.time.LocalTime.parse(timeIn, timeFormatter));
 						LocalDateTime timeOutDateTime = LocalDate.parse(record.getDate(), formatter)
