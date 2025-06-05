@@ -43,7 +43,16 @@ public class LeaveRequestDAO {
      */
     public static List<LeaveRequest> getAllLeaveRequests() {
         List<LeaveRequest> leaveRequests = new ArrayList<>();
-        String sql = "SELECT * FROM leave_requests ORDER BY created_at DESC";
+        String sql = """
+            SELECT lr.request_number as id, e.employee_number as employee_num,
+                   pi.first_name, pi.last_name, lr.start_date, lr.end_date,
+                   lr.reason as notes, lt.leave_name as leave_type, lr.status as approved
+            FROM leave_requests lr
+            JOIN employees e ON lr.employee_id = e.employee_id
+            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
+            LEFT JOIN leave_types lt ON lr.leave_type_id = lt.leave_type_id
+            ORDER BY lr.created_at DESC
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -324,7 +333,7 @@ public class LeaveRequestDAO {
      * Helper method to map ResultSet to LeaveRequest object
      */
     private static LeaveRequest mapResultSetToLeaveRequest(ResultSet rs) throws SQLException {
-        LeaveRequest leaveRequest = new LeaveRequest(String.valueOf(rs.getInt("employee_num")));
+        LeaveRequest leaveRequest = new LeaveRequest(rs.getString("employee_num"));
         
         leaveRequest.setId(rs.getString("id"));
         leaveRequest.setFirstName(rs.getString("first_name"));

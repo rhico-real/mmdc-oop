@@ -137,21 +137,20 @@ public class JsonToDatabaseImporter {
      * Setup admin user account
      */
     private static void setupAdminUser() throws SQLException {
-        String sql = "INSERT INTO users (employee_num, username, password, is_admin) VALUES (?, ?, ?, ?) " +
-                     "ON CONFLICT (employee_num) DO UPDATE SET " +
-                     "username = EXCLUDED.username, password = EXCLUDED.password";
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            // Check if admin user already exists
+            String checkSql = "SELECT COUNT(*) FROM users WHERE username = ?";
+            try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+                checkStmt.setString(1, "admin");
+                try (ResultSet rs = checkStmt.executeQuery()) {
+                    if (rs.next() && rs.getInt(1) > 0) {
+                        System.out.println("Admin user already exists, skipping setup");
+                        return;
+                    }
+                }
+            }
             
-            // Add admin user
-            pstmt.setInt(1, 99999);  // Special employee number for admin
-            pstmt.setString(2, "admin");
-            pstmt.setString(3, "123");
-            pstmt.setBoolean(4, true);
-            
-            pstmt.executeUpdate();
-            System.out.println("Admin user setup complete");
+            System.out.println("Admin user setup complete - using default admin from DatabaseInitializer");
         }
     }
     

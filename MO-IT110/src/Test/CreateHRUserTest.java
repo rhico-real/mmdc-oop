@@ -22,7 +22,8 @@ public class CreateHRUserTest {
         hrUser.setIsAdmin(false);
         hrUser.setIsHR(true);
         
-        boolean success = UserDAO.createUser(hrUser);
+        int userId = UserDAO.createUserWithRole(hrUser.getUserId(), hrUser.getPassword(), "hr_user@company.com", "HR");
+        boolean success = userId > 0;
         
         if (success) {
             System.out.println("HR user created successfully!");

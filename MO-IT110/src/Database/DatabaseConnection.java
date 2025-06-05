@@ -18,30 +18,28 @@ public class DatabaseConnection {
     private DatabaseConnection() {}
     
     /**
-     * Get database connection instance (Singleton pattern)
+     * Get a new database connection (each call returns a new connection)
      * @return Connection object
      * @throws SQLException if connection fails
      */
     public static Connection getConnection() throws SQLException {
-        if (connection == null || connection.isClosed()) {
-            try {
-                // Load PostgreSQL JDBC driver
-                Class.forName("org.postgresql.Driver");
-                connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
-                System.out.println("Database connection established successfully!");
-            } catch (ClassNotFoundException e) {
-                String errorMsg = "PostgreSQL JDBC Driver not found. Please make sure it's in your classpath.";
-                System.err.println(errorMsg);
-                showErrorDialog(errorMsg, e);
-                throw new SQLException(errorMsg, e);
-            } catch (SQLException e) {
-                String errorMsg = "Failed to connect to the database. Please check that PostgreSQL is running and the database exists.";
-                System.err.println(errorMsg + " Error: " + e.getMessage());
-                showErrorDialog(errorMsg, e);
-                throw e;
-            }
+        try {
+            // Load PostgreSQL JDBC driver
+            Class.forName("org.postgresql.Driver");
+            Connection newConnection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
+            System.out.println("Database connection established successfully!");
+            return newConnection;
+        } catch (ClassNotFoundException e) {
+            String errorMsg = "PostgreSQL JDBC Driver not found. Please make sure it's in your classpath.";
+            System.err.println(errorMsg);
+            showErrorDialog(errorMsg, e);
+            throw new SQLException(errorMsg, e);
+        } catch (SQLException e) {
+            String errorMsg = "Failed to connect to the database. Please check that PostgreSQL is running and the database exists.";
+            System.err.println(errorMsg + " Error: " + e.getMessage());
+            showErrorDialog(errorMsg, e);
+            throw e;
         }
-        return connection;
     }
     
     /**
@@ -65,8 +63,7 @@ public class DatabaseConnection {
      * @return true if connection is successful, false otherwise
      */
     public static boolean testConnection() {
-        try {
-            Connection conn = getConnection();
+        try (Connection conn = getConnection()) {
             return conn != null && !conn.isClosed();
         } catch (SQLException e) {
             System.err.println("Database connection test failed: " + e.getMessage());

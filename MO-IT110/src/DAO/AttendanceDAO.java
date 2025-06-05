@@ -68,12 +68,18 @@ public class AttendanceDAO {
      * @return AttendanceRecord if found, null otherwise
      */
     public static AttendanceRecord getAttendanceRecord(String employeeNum, String date) {
-        String sql = "SELECT * FROM attendance WHERE employee_num = ? AND date = ?";
+        String sql = """
+            SELECT ar.*, e.employee_number, pi.first_name, pi.last_name
+            FROM attendance_records ar
+            JOIN employees e ON ar.employee_id = e.employee_id
+            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
+            WHERE e.employee_number = ? AND ar.attendance_date = ?
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, Integer.parseInt(employeeNum));
+            pstmt.setString(1, employeeNum);
             pstmt.setString(2, date);
             
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -95,12 +101,19 @@ public class AttendanceDAO {
      */
     public static List<AttendanceRecord> getAttendanceByEmployee(String employeeNum) {
         List<AttendanceRecord> records = new ArrayList<>();
-        String sql = "SELECT * FROM attendance WHERE employee_num = ? ORDER BY date DESC";
+        String sql = """
+            SELECT ar.*, e.employee_number, pi.first_name, pi.last_name
+            FROM attendance_records ar
+            JOIN employees e ON ar.employee_id = e.employee_id
+            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
+            WHERE e.employee_number = ?
+            ORDER BY ar.attendance_date DESC
+        """;
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, Integer.parseInt(employeeNum));
+            pstmt.setString(1, employeeNum);
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -385,10 +398,10 @@ public class AttendanceDAO {
      */
     private static AttendanceRecord mapResultSetToAttendance(ResultSet rs) throws SQLException {
         AttendanceRecord record = new AttendanceRecord();
-        record.setEmployeeNum(rs.getInt("employee_num"));
+        record.setEmployeeNum(Integer.parseInt(rs.getString("employee_number")));
         record.setLastName(rs.getString("last_name"));
         record.setFirstName(rs.getString("first_name"));
-        record.setDate(rs.getString("date"));
+        record.setDate(rs.getString("attendance_date"));
         record.setTimeIn(rs.getString("time_in"));
         record.setTimeOut(rs.getString("time_out"));
         return record;
