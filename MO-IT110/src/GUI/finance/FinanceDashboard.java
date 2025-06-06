@@ -52,7 +52,7 @@ public class FinanceDashboard extends JFrame {
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
         
-        JLabel titleLabel = new JLabel("Finance Department - Employee Management");
+        JLabel titleLabel = new JLabel("HR Department - Employee Management");
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         headerPanel.add(titleLabel, BorderLayout.WEST);
         
