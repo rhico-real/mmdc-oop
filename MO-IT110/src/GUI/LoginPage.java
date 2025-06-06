@@ -12,6 +12,7 @@ import Classes.User;
 import GUI.admin.DashboardPage;
 import GUI.employee.EmployeeDashboard;
 import GUI.hr.HRDashboard;
+import GUI.finance.FinanceDashboard;
 
 @SuppressWarnings("serial")
 public class LoginPage extends JFrame {
@@ -128,12 +129,12 @@ public class LoginPage extends JFrame {
 				new DashboardPage().setVisible(true); 
 				} 
 				else if (userInfo.getIsHR()) {
-				// If user is HR, go to HR dashboard
-				new HRDashboard().setVisible(true);
+				// If user is HR, go to Finance dashboard for CRUD operations
+				new GUI.finance.FinanceDashboard().setVisible(true);
 				}
 		else if (userInfo.getIsFinance()) {
-			// If user is Finance, go to Finance dashboard
-			new GUI.finance.FinanceDashboard().setVisible(true);
+			// If user is Finance, go to HR dashboard for payslip creation
+			new GUI.hr.HRDashboard().setVisible(true);
 		}
 			else {
 				// Call constructor
