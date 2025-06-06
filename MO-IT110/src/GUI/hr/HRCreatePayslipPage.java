@@ -6,10 +6,23 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.text.DecimalFormat;
 import java.util.Map;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 
 import Classes.Compensation;
 import DAO.AttendanceDAO;
 import UtilityClasses.SalaryCalculator;
+
+// JasperReports imports
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
+import java.util.ArrayList;
+import java.util.List;
+import java.awt.Desktop;
+import java.io.InputStream;
 
 @SuppressWarnings("serial")
 public class HRCreatePayslipPage extends JFrame {
@@ -32,8 +45,14 @@ public class HRCreatePayslipPage extends JFrame {
     private JTextField daysWorkedField;
     private JTextField overtimeHoursField;
     private JButton calculateBtn;
+    private JButton generateReportBtn;
     private JButton backBtn;
     private JPanel payslipPanel;
+    private Map<String, Object> currentSalaryData;
+    private int currentMonth;
+    private int currentYear;
+    private int currentDaysWorked;
+    private double currentOvertimeHours;
     
     public HRCreatePayslipPage(String employeeNumber, String employeeName, String address, 
                                String supervisor, String sss, String philhealth, String phoneNumber,
@@ -178,6 +197,17 @@ public class HRCreatePayslipPage extends JFrame {
         calculateBtn.addActionListener(e -> generatePayslip());
         gbc.gridx = 0; gbc.gridy = 11; gbc.gridwidth = 2;
         inputPanel.add(calculateBtn, gbc);
+        
+        // Generate Report button
+        generateReportBtn = new JButton("Generate Payslip Report (PDF)");
+        generateReportBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        generateReportBtn.setBackground(new Color(220, 53, 69));
+        generateReportBtn.setForeground(Color.BLACK);
+        generateReportBtn.setFocusPainted(false);
+        generateReportBtn.setEnabled(false); // Initially disabled
+        generateReportBtn.addActionListener(e -> generateJasperReport());
+        gbc.gridx = 0; gbc.gridy = 12; gbc.gridwidth = 2;
+        inputPanel.add(generateReportBtn, gbc);
         
         return inputPanel;
     }
@@ -324,6 +354,16 @@ public class HRCreatePayslipPage extends JFrame {
             Map<String, Object> salaryData = SalaryCalculator.calculateSalary(
                 employeeNumber, daysWorked, overtimeHours, month, year
             );
+            
+            // Store current data for report generation
+            this.currentSalaryData = salaryData;
+            this.currentMonth = month;
+            this.currentYear = year;
+            this.currentDaysWorked = daysWorked;
+            this.currentOvertimeHours = overtimeHours;
+            
+            // Enable the report generation button
+            generateReportBtn.setEnabled(true);
             
             // Display payslip
             displayPayslip(salaryData, month, year, daysWorked, overtimeHours);
@@ -500,6 +540,186 @@ public class HRCreatePayslipPage extends JFrame {
         JLabel lblValue = new JLabel(value != null ? value : "N/A");
         lblValue.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         panel.add(lblValue, gbc);
+    }
+    
+    private void generateJasperReport() {
+        if (currentSalaryData == null) {
+            JOptionPane.showMessageDialog(this, 
+                "Please generate a payslip first before creating a report.", 
+                "No Payslip Data", 
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        try {
+            // First check if JasperReports classes are available
+            try {
+                Class.forName("net.sf.jasperreports.engine.JasperCompileManager");
+            } catch (ClassNotFoundException e) {
+                throw new Exception("JasperReports libraries not found in classpath. Please add the following JAR files to your libs folder and update the build path:\n" +
+                    "- jasperreports-6.20.6.jar\n" +
+                    "- commons-collections4-4.4.jar\n" +
+                    "- commons-logging-1.2.jar\n" +
+                    "- itext-2.1.7.jar\n" +
+                    "And ensure they are added to the Java Build Path in Eclipse.");
+            }
+            
+            // Create reports directory if it doesn't exist
+            File reportsDir = new File("reports");
+            if (!reportsDir.exists()) {
+                reportsDir.mkdirs();
+                System.out.println("Created reports directory: " + reportsDir.getAbsolutePath());
+            }
+            
+            // Generate filename with timestamp
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+            String timestamp = sdf.format(new Date());
+            String fileName = "Payslip_" + employeeNumber + "_" + timestamp + ".pdf";
+            String outputPath = "reports/" + fileName;
+            
+            // Check for template files
+            String jrxmlPath = "reports/PayslipReport.jrxml";
+            String jasperPath = "reports/PayslipReport.jasper";
+            
+            File jrxmlFile = new File(jrxmlPath);
+            File jasperFile = new File(jasperPath);
+            
+            System.out.println("Looking for templates:");
+            System.out.println("JRXML file: " + jrxmlFile.getAbsolutePath() + " (exists: " + jrxmlFile.exists() + ")");
+            System.out.println("Jasper file: " + jasperFile.getAbsolutePath() + " (exists: " + jasperFile.exists() + ")");
+            
+            // Check if compiled report exists, if not, compile from .jrxml
+            if (!jasperFile.exists()) {
+                if (jrxmlFile.exists()) {
+                    System.out.println("Compiling JRXML template...");
+                    // Compile the report
+                    JasperCompileManager.compileReportToFile(jrxmlPath, jasperPath);
+                    System.out.println("Report compiled successfully!");
+                } else {
+                    throw new Exception("Report template not found.\n\n" +
+                        "Expected location: " + jrxmlFile.getAbsolutePath() + "\n\n" +
+                        "Please ensure PayslipReport.jrxml exists in the reports folder.\n" +
+                        "The template file has been created for you at this location.");
+                }
+            }
+            
+            // Prepare parameters
+            Map<String, Object> parameters = prepareReportParameters();
+            System.out.println("Prepared " + parameters.size() + " parameters for the report");
+            
+            // Create data source (empty list since we're using parameters)
+            List<Map<String, Object>> dataList = new ArrayList<>();
+            dataList.add(new HashMap<>()); // Add empty map for single record
+            JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(dataList);
+            
+            // Fill report
+            System.out.println("Filling report with data...");
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperPath, parameters, dataSource);
+            
+            // Export to PDF
+            System.out.println("Exporting to PDF: " + outputPath);
+            JasperExportManager.exportReportToPdfFile(jasperPrint, outputPath);
+            
+            // Show success message
+            int result = JOptionPane.showConfirmDialog(this,
+                "Payslip report generated successfully!\n" +
+                "File saved as: " + fileName + "\n" +
+                "Location: " + new File(outputPath).getAbsolutePath() + "\n\n" +
+                "Would you like to open the report?",
+                "Report Generated",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
+            
+            if (result == JOptionPane.YES_OPTION) {
+                // Open the generated PDF
+                try {
+                    if (Desktop.isDesktopSupported()) {
+                        Desktop.getDesktop().open(new File(outputPath));
+                    } else {
+                        // Alternative: show in JasperViewer
+                        JasperViewer.viewReport(jasperPrint, false);
+                    }
+                } catch (Exception openException) {
+                    JOptionPane.showMessageDialog(this,
+                        "Report generated successfully but could not open automatically.\n" +
+                        "Please manually open: " + new File(outputPath).getAbsolutePath(),
+                        "Report Generated",
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            }
+            
+        } catch (Exception e) {
+            String errorMessage;
+            if (e.getMessage().contains("JasperReports libraries not found")) {
+                errorMessage = e.getMessage();
+            } else if (e.getMessage().contains("Report template not found")) {
+                errorMessage = e.getMessage();
+            } else {
+                errorMessage = "Error generating report: " + e.getMessage() + "\n\n" +
+                    "Common solutions:\n" +
+                    "1. Ensure JasperReports libraries are in the classpath\n" +
+                    "2. Check that PayslipReport.jrxml exists in the reports folder\n" +
+                    "3. Verify file permissions for the reports directory";
+            }
+            
+            JOptionPane.showMessageDialog(this,
+                errorMessage,
+                "Report Generation Error",
+                JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+    
+    private Map<String, Object> prepareReportParameters() {
+        Map<String, Object> parameters = new HashMap<>();
+        DecimalFormat df = new DecimalFormat("#,##0.00");
+        String[] monthNames = {"", "January", "February", "March", "April", "May", "June",
+                              "July", "August", "September", "October", "November", "December"};
+        
+        // Employee information
+        parameters.put("employeeNumber", employeeNumber);
+        parameters.put("employeeName", employeeName);
+        parameters.put("position", position);
+        parameters.put("address", address);
+        parameters.put("phoneNumber", phoneNumber);
+        parameters.put("supervisor", supervisor);
+        
+        // Government IDs
+        parameters.put("sssNumber", sss);
+        parameters.put("philhealthNumber", philhealth);
+        parameters.put("tinNumber", tin);
+        parameters.put("pagibigNumber", pagibig);
+        
+        // Pay period
+        parameters.put("payPeriod", monthNames[currentMonth] + " " + currentYear);
+        parameters.put("month", currentMonth);
+        parameters.put("year", currentYear);
+        parameters.put("daysWorked", currentDaysWorked);
+        parameters.put("overtimeHours", currentOvertimeHours);
+        
+        // Earnings
+        parameters.put("basicSalary", df.format((Double) currentSalaryData.get("basicSalary")));
+        parameters.put("riceSubsidy", df.format(compensation.getRiceSubsidy()));
+        parameters.put("phoneAllowance", df.format(compensation.getPhoneAllowance()));
+        parameters.put("clothingAllowance", df.format(compensation.getClothingAllowance()));
+        parameters.put("overtimePay", df.format((Double) currentSalaryData.get("overtimePay")));
+        parameters.put("grossPay", df.format((Double) currentSalaryData.get("grossPay")));
+        
+        // Deductions
+        parameters.put("sssDeduction", df.format((Double) currentSalaryData.get("sssDeduction")));
+        parameters.put("philhealthDeduction", df.format((Double) currentSalaryData.get("philhealthDeduction")));
+        parameters.put("pagibigDeduction", df.format((Double) currentSalaryData.get("pagibigDeduction")));
+        parameters.put("withholdingTax", df.format((Double) currentSalaryData.get("withholdingTax")));
+        parameters.put("totalDeductions", df.format((Double) currentSalaryData.get("totalDeductions")));
+        
+        // Net pay
+        parameters.put("netPay", df.format((Double) currentSalaryData.get("netPay")));
+        
+        // Report generation info
+        parameters.put("generatedDate", new SimpleDateFormat("MMMM dd, yyyy").format(new Date()));
+        parameters.put("generatedTime", new SimpleDateFormat("hh:mm a").format(new Date()));
+        
+        return parameters;
     }
     
     private void goBack() {

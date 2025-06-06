@@ -12,5 +12,11 @@
 	<classpathentry kind="lib" path="libs/jgoodies-looks-2.4.1.jar"/>
 	<classpathentry kind="lib" path="libs/junit-4.6.jar"/>
 	<classpathentry kind="lib" path="libs/postgresql-42.7.5.jar"/>
+	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="/Users/systech/Downloads/itext-2.1.7.jar"/>
+	<classpathentry kind="lib" path="/Users/systech/Downloads/jasperreports-6.17.0.jar"/>
+	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-digester-2.1.jar"/>
+	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-beanutils-1.9.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
