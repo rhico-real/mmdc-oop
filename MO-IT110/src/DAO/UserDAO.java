@@ -50,9 +50,10 @@ public class UserDAO {
                     // Set roles based on new structure
                     String roles = rs.getString("roles");
                     if (roles != null) {
-                        user.setIsAdmin(roles.contains("ADMIN"));
-                        user.setIsHR(roles.contains("HR"));
-                    }
+                    user.setIsAdmin(roles.contains("ADMIN"));
+                    user.setIsHR(roles.contains("HR"));
+                     user.setIsFinance(roles.contains("FINANCE"));
+					}
                     
                     return user;
                 }
@@ -113,10 +114,12 @@ public class UserDAO {
             
             // Create specific role record if needed
             if ("ADMIN".equals(roleName)) {
-                createAdminRecord(conn, userId);
+            createAdminRecord(conn, userId);
             } else if ("HR".equals(roleName)) {
-                createHRRecord(conn, userId);
-            }
+            createHRRecord(conn, userId);
+            } else if ("FINANCE".equals(roleName)) {
+				createFinanceRecord(conn, userId);
+			}
             
             conn.commit();
             return userId;
@@ -175,9 +178,10 @@ public class UserDAO {
                     // Set roles
                     String roles = rs.getString("roles");
                     if (roles != null) {
-                        user.setIsAdmin(roles.contains("ADMIN"));
-                        user.setIsHR(roles.contains("HR"));
-                    }
+                    user.setIsAdmin(roles.contains("ADMIN"));
+                    user.setIsHR(roles.contains("HR"));
+                     user.setIsFinance(roles.contains("FINANCE"));
+				}
                     
                     return user;
                 }
@@ -222,9 +226,10 @@ public class UserDAO {
                     // Set roles
                     String roles = rs.getString("roles");
                     if (roles != null) {
-                        user.setIsAdmin(roles.contains("ADMIN"));
-                        user.setIsHR(roles.contains("HR"));
-                    }
+                    user.setIsAdmin(roles.contains("ADMIN"));
+                    user.setIsHR(roles.contains("HR"));
+                     user.setIsFinance(roles.contains("FINANCE"));
+				}
                     
                     return user;
                 }
@@ -363,9 +368,10 @@ public class UserDAO {
                 // Set roles
                 String roles = rs.getString("roles");
                 if (roles != null) {
-                    user.setIsAdmin(roles.contains("ADMIN"));
-                    user.setIsHR(roles.contains("HR"));
-                }
+                user.setIsAdmin(roles.contains("ADMIN"));
+                user.setIsHR(roles.contains("HR"));
+                 user.setIsFinance(roles.contains("FINANCE"));
+				}
                 
                 users.add(user);
             }
@@ -451,6 +457,17 @@ public class UserDAO {
      */
     private static void createHRRecord(Connection conn, int userId) throws SQLException {
         String sql = "INSERT INTO hr_personnel (user_id, hr_level) VALUES (?, 'Junior')";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.executeUpdate();
+        }
+    }
+    
+    /**
+     * Helper method to create Finance record
+     */
+    private static void createFinanceRecord(Connection conn, int userId) throws SQLException {
+        String sql = "INSERT INTO finance_personnel (user_id, finance_level) VALUES (?, 'Junior')";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, userId);
             pstmt.executeUpdate();

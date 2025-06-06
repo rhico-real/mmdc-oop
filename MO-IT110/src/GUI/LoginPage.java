@@ -131,6 +131,10 @@ public class LoginPage extends JFrame {
 				// If user is HR, go to HR dashboard
 				new HRDashboard().setVisible(true);
 				}
+		else if (userInfo.getIsFinance()) {
+			// If user is Finance, go to Finance dashboard
+			new GUI.finance.FinanceDashboard().setVisible(true);
+		}
 			else {
 				// Call constructor
 				employeeGI = new GovernmentIdentification(userInfo.getEmployeeNumber());

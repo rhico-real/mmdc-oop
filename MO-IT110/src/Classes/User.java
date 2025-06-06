@@ -14,6 +14,7 @@ public class User {
 	private Boolean loginStatus = false;
 	private Boolean isAdmin 	= false;
 	private Boolean isHR 		= false;
+	private Boolean isFinance 	= false;
 	private Date 	dateRegistered;
 
 	public User(String userId, String password) {
@@ -33,6 +34,7 @@ public class User {
 	public Boolean 	getLoginStatus	 () { return loginStatus;		}
 	public Boolean 	getIsAdmin		 () { return isAdmin;			}
 	public Boolean 	getIsHR			 () { return isHR;			}
+	public Boolean 	getIsFinance	 () { return isFinance;		}
 	public Date 	getDateRegistered() { return dateRegistered;	}
 
 	public void setEmployeeNumber(String  employeeNum	) {	this.employeeNumber = employeeNum; 	  }
@@ -42,6 +44,7 @@ public class User {
 	public void setLoginStatus	 (Boolean loginStatus	) {	this.loginStatus 	= loginStatus;	  }
 	public void setIsAdmin		 (Boolean value			) {	this.isAdmin 		= value;		  }
 	public void setIsHR			 (Boolean value			) {	this.isHR 			= value;		  }
+	public void setIsFinance	 (Boolean value			) {	this.isFinance 		= value;		  }
 	public void setDateRegistered(Date    dateRegistered) {	this.dateRegistered = dateRegistered; }
 
 	public void authenticateLogin() {
@@ -54,6 +57,7 @@ public class User {
 				setIsVerified(true);
 				setIsAdmin(user.getIsAdmin());
 				setIsHR(user.getIsHR());
+				setIsFinance(user.getIsFinance());
 			}
 			return;
 		}
