@@ -28,8 +28,8 @@ First, you need to create the PostgreSQL database:
    If you're on Windows, you can run these SQL commands manually in PostgreSQL:
    ```sql
    CREATE ROLE camulite_admin WITH LOGIN PASSWORD '123';
-   CREATE DATABASE camulite_hr WITH OWNER camulite_admin;
-   GRANT ALL PRIVILEGES ON DATABASE camulite_hr TO camulite_admin;
+   CREATE DATABASE motorph_payroll WITH OWNER camulite_admin;
+   GRANT ALL PRIVILEGES ON DATABASE motorph_payroll TO camulite_admin;
    ```
 
 ### 2. Run the Application
