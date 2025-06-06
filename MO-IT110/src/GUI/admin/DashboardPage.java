@@ -78,6 +78,7 @@ public class DashboardPage extends JFrame {
 	private JButton computeButton = new JButton("Compute Salary");
 	private JButton employeeListButton = new JButton("Employee List");
 	private JButton leaveRequestButton = new JButton("Leave Requests");
+	private JButton updateRequestsButton = new JButton("Update Requests");
 	private JButton logoutButton = new JButton("Log Out");;
 	private JLabel[] labels = { lastNameValue, firstNameValue, birthdayValue, addressValue, phoneNumberValue,
 			sssNumberValue, philhealthNumberValue, tinNumberValue, pagibigNumberValue, statusValue, positionValue,
@@ -167,7 +168,15 @@ public class DashboardPage extends JFrame {
 			}
 		});
 
-		logoutButton.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+		updateRequestsButton.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+        updateRequestsButton.setText("Update Requests");
+        updateRequestsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateRequestsButtonActionPerformed(evt);
+            }
+        });
+
+        logoutButton.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
 		logoutButton.setText("Log Out");
 		logoutButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -381,6 +390,8 @@ public class DashboardPage extends JFrame {
 								.addGroup(gl_dashboardPanel.createSequentialGroup()
 									.addComponent(leaveRequestButton, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(updateRequestsButton, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
+									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(employeeListButton, GroupLayout.DEFAULT_SIZE, 124, Short.MAX_VALUE))
 								.addComponent(jPanel2, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 							.addPreferredGap(ComponentPlacement.RELATED)
@@ -400,17 +411,18 @@ public class DashboardPage extends JFrame {
 		gl_dashboardPanel.setVerticalGroup(
 			gl_dashboardPanel.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_dashboardPanel.createSequentialGroup()
-					.addGap(18)
-					.addGroup(gl_dashboardPanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(employeeIdField, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
-						.addComponent(searchButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-						.addComponent(employeeId)
-						.addComponent(logoutButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_dashboardPanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(leaveRequestButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-						.addComponent(employeeListButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
-						.addComponent(computeButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+				.addGap(18)
+				.addGroup(gl_dashboardPanel.createParallelGroup(Alignment.BASELINE)
+				.addComponent(employeeIdField, GroupLayout.PREFERRED_SIZE, 31, GroupLayout.PREFERRED_SIZE)
+				.addComponent(searchButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+				.addComponent(employeeId)
+				.addComponent(logoutButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
+				.addPreferredGap(ComponentPlacement.RELATED)
+				.addGroup(gl_dashboardPanel.createParallelGroup(Alignment.BASELINE)
+				.addComponent(leaveRequestButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+				.addComponent(updateRequestsButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+				.addComponent(employeeListButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE)
+					.addComponent(computeButton, GroupLayout.PREFERRED_SIZE, 32, GroupLayout.PREFERRED_SIZE))
 					.addGap(20)
 					.addGroup(gl_dashboardPanel.createParallelGroup(Alignment.LEADING)
 						.addComponent(jPanel1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -503,6 +515,19 @@ public class DashboardPage extends JFrame {
 
 				// Log out
 				new LoginPage().setVisible(true);
+			}
+		});
+	}
+
+	private void updateRequestsButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		// Navigate to the update requests page
+		java.awt.EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				// Close the dashboard page
+				dispose();
+
+				// Open the update requests page
+				new UpdateRequestsPage().setVisible(true);
 			}
 		});
 	}

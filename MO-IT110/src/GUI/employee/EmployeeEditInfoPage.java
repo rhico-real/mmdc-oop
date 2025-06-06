@@ -15,6 +15,8 @@ import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
 import DAO.EmployeeDAO;
 import DAO.UserDAO;
+import DAO.UpdateRequestDAO;
+import Classes.UpdateRequest;
 import UtilityClasses.CustomTooltip;
 import UtilityClasses.DataValidators;
 
@@ -403,15 +405,45 @@ public class EmployeeEditInfoPage extends JFrame {
 		// Get the employee number to update
 		String employeeNumToUpdate = employeeNumberField.getText();
 
-		// Update the employee information in the database
-		if (!updateEmployeeInDatabase(employeeNumToUpdate, errorMessage)) {
+		// Check if the employee already has a pending update request
+		if (UpdateRequestDAO.hasEmployeePendingRequests(employeeNumToUpdate)) {
+			errorMessage.setLength(0);
+			errorMessage.append("You already have a pending update request. Please wait for admin approval.");
+			errorDialogPane(errorMessage, "Pending Request");
+			return;
+		}
+
+		// Validate input fields
+		if (!validateInputFields(errorMessage)) {
+			errorDialogPane(errorMessage, "Error");
+			return;
+		}
+
+		// Create update request
+		UpdateRequest request = new UpdateRequest(employeeNumToUpdate);
+		request.setFirstName(firstNameField.getText());
+		request.setLastName(lastNameField.getText());
+		request.setBirthday(birthdayField.getText());
+		request.setAddress(addressField.getText());
+		request.setPhoneNumber(phoneNumberField.getText());
+		request.setSssNumber(sssField.getText());
+		request.setPhilhealthNumber(philhealthField.getText());
+		request.setTinNumber(tinField.getText());
+		request.setPagibigNumber(pagibigField.getText());
+
+		// Submit the update request
+		if (!UpdateRequestDAO.createUpdateRequest(request)) {
+			errorMessage.setLength(0);
+			errorMessage.append("Failed to submit update request. Please try again later.");
 			errorDialogPane(errorMessage, "Error");
 			return;
 		}
 
 		// Show success message
-		JOptionPane.showMessageDialog(this, "Your information has been updated successfully!", "Success", 
-				JOptionPane.INFORMATION_MESSAGE);
+		JOptionPane.showMessageDialog(this, 
+			"Your information update request has been submitted successfully!\nIt is subject to admin approval before changes take effect.", 
+			"Request Submitted", 
+			JOptionPane.INFORMATION_MESSAGE);
 
 		// Go back to the employee dashboard
 		java.awt.EventQueue.invokeLater(new Runnable() {
@@ -419,30 +451,13 @@ public class EmployeeEditInfoPage extends JFrame {
 				// Remove the EmployeeEditInfoPage Window
 				dispose();
 
-				// Create updated objects with new data
-				GovernmentIdentification updatedGI = new GovernmentIdentification(employeeNumToUpdate);
-				updatedGI.setFirstName(firstNameField.getText());
-				updatedGI.setLastName(lastNameField.getText());
-				updatedGI.setBirthday(birthdayField.getText());
-				updatedGI.setAddress(addressField.getText());
-				updatedGI.setPhoneNumber(phoneNumberField.getText());
-				updatedGI.setSSSNumber(sssField.getText());
-				updatedGI.setPhilHealthNumber(philhealthField.getText());
-				updatedGI.setTinNumber(tinField.getText());
-				updatedGI.setPagibigNumber(pagibigField.getText());
-				
-				// Copy other fields that weren't edited
-				updatedGI.setStatus(employeeGI.getStatus());
-				updatedGI.setPosition(employeeGI.getPosition());
-				updatedGI.setSupervisor(employeeGI.getSupervisor());
-
-				// Return to dashboard with updated information
-				new EmployeeDashboard(updatedGI, employeeComp).setVisible(true);
+				// Return to dashboard with current information (not updated yet)
+				new EmployeeDashboard(employeeGI, employeeComp).setVisible(true);
 			}
 		});
 	}
 
-	private boolean updateEmployeeInDatabase(String employeeNumToUpdate, StringBuilder errorMessage) {
+	private boolean validateInputFields(StringBuilder errorMessage) {
 		// Maintain arrays to validate user input - only personal/contact info fields
 		JTextField[] stringOnlyFields = { lastNameField, firstNameField };
 
@@ -482,46 +497,7 @@ public class EmployeeEditInfoPage extends JFrame {
 			return false;
 		}
 
-		// Create employee objects with the updated information
-		EmployeeInformation employee = new EmployeeInformation(employeeNumToUpdate);
-		GovernmentIdentification govId = new GovernmentIdentification(employeeNumToUpdate);
-		Compensation compensation = new Compensation(employeeNumToUpdate);
-
-		// Set only the personal information that employees can edit
-		employee.setLastName(lastNameField.getText());
-		employee.setFirstName(firstNameField.getText());
-		employee.setBirthday(birthdayField.getText());
-		employee.setAddress(addressField.getText());
-		employee.setPhoneNumber(phoneNumberField.getText());
-		
-		// Keep existing values for fields employees shouldn't change
-		employee.setStatus(employeeGI.getStatus());
-		employee.setPosition(employeeGI.getPosition());
-		employee.setSupervisor(employeeGI.getSupervisor());
-		employee.setHourlyRate(employeeComp.getHourlyRate());
-
-		// Set government ID information
-		govId.setSSSNumber(sssField.getText());
-		govId.setPhilHealthNumber(philhealthField.getText());
-		govId.setTinNumber(tinField.getText());
-		govId.setPagibigNumber(pagibigField.getText());
-
-		// Keep existing compensation values
-		compensation.setBasicSalary(employeeComp.getBasicSalary());
-		compensation.setRiceSubsidy(employeeComp.getRiceSubsidy());
-		compensation.setPhoneAllowance(employeeComp.getPhoneAllowance());
-		compensation.setClothingAllowance(employeeComp.getClothingAllowance());
-		compensation.setGrossSemiMonthlyRate(employeeComp.getGrossSemiMonthlyRate());
-		compensation.setHourlyRate(employeeComp.getHourlyRate());
-
-		// Update the database
-		boolean updated = EmployeeDAO.updateEmployee(employee, govId, compensation);
-		
-		// Update username in the users table based on first and last name
-		String username = (firstNameField.getText() + "." + lastNameField.getText()).toLowerCase();
-		UserDAO.updateUsername(employeeNumToUpdate, username);
-
-		return updated;
+		return true;
 	}
 
 	private void errorDialogPane(StringBuilder errorMessage, String title) {

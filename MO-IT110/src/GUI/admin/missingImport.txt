@@ -1,0 +1,2 @@
+// Add this import statement to the top of DashboardPage.java, right after the existing imports:
+import GUI.admin.UpdateRequestsPage;

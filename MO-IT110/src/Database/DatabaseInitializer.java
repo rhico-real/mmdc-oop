@@ -22,6 +22,7 @@ public class DatabaseInitializer {
             createOrganizationalTables(conn);
             createCompensationTables(conn);
             createOperationalTables(conn);
+            createUpdateRequestsTable(conn);
             
             // Insert default data
             insertDefaultData(conn);
@@ -565,6 +566,39 @@ public class DatabaseInitializer {
     }
     
     /**
+     * Create employee update requests table
+     */
+    private static void createUpdateRequestsTable(Connection conn) throws SQLException {
+        String updateRequestsSql = """
+            CREATE TABLE IF NOT EXISTS employee_update_requests (
+                request_id SERIAL PRIMARY KEY,
+                employee_number VARCHAR(50) NOT NULL,
+                first_name VARCHAR(100) NOT NULL,
+                last_name VARCHAR(100) NOT NULL,
+                birthday VARCHAR(20),
+                address TEXT,
+                phone_number VARCHAR(20),
+                sss_number VARCHAR(20),
+                philhealth_number VARCHAR(20),
+                tin_number VARCHAR(20),
+                pagibig_number VARCHAR(20),
+                request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                status VARCHAR(20) DEFAULT 'PENDING',
+                admin_notes TEXT,
+                FOREIGN KEY (employee_number) REFERENCES employees(employee_number)
+            )
+        """;
+        executeSQL(conn, updateRequestsSql, "Employee update requests table");
+        
+        // Create indexes for faster queries
+        String indexSql1 = "CREATE INDEX IF NOT EXISTS idx_update_requests_employee_number ON employee_update_requests(employee_number)";
+        executeSQL(conn, indexSql1, "Employee update requests employee_number index");
+        
+        String indexSql2 = "CREATE INDEX IF NOT EXISTS idx_update_requests_status ON employee_update_requests(status)";
+        executeSQL(conn, indexSql2, "Employee update requests status index");
+    }
+    
+    /**
      * Drop all tables (for testing purposes) - in reverse dependency order
      */
     public static void dropAllTables() {
@@ -573,7 +607,7 @@ public class DatabaseInitializer {
             
             // Drop in reverse order of creation to handle foreign key constraints
             String[] tables = {
-                "leave_requests", "attendance_records", 
+                "employee_update_requests", "leave_requests", "attendance_records", 
                 "employee_allowances", "employee_compensation",
                 "employee_positions", "positions", 
                 "government_ids", "contact_information", "personal_information", "employees",
