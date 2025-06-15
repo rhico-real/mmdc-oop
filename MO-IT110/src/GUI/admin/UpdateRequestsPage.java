@@ -36,7 +36,7 @@ public class UpdateRequestsPage extends JFrame {
     private void initComponents() {
         setTitle("MotorPH Payroll System | Employee Update Requests");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setSize(900, 600);
+        setSize(1366,768);
         setLocationRelativeTo(null);
 
         // Create main panel

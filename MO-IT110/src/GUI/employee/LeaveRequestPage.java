@@ -61,6 +61,7 @@ public class LeaveRequestPage extends JFrame {
 
 		setTitle("MotorPH Payroll System | Submit Leave Request");
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		setSize(1366,768);
 		setResizable(false);
 
 		leaveRequestLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N

@@ -7,7 +7,11 @@ import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
 import DAO.LeaveRequestDAO;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -46,104 +50,113 @@ public class LeaveRequestListPage extends JFrame {
 
 		// Set JFrame
 		setTitle("MotorPH Payroll System | Leave Requests");
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		setResizable(false);
+	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    setResizable(false);
+	    setSize(1366, 768);
+	    setLocationRelativeTo(null);
 
-		// Instantiate Table
-		jTable1 = new JTable();
+	    // 🔹 Top Navigation Bar
+	    JPanel navBar = new JPanel();
+	    navBar.setBackground(new Color(45, 62, 80));
+	    navBar.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
 
-		addEmployeeButton = new JButton();
-		deleteEmployeeButton = new JButton();
+	    JButton navBackButton = new JButton("← Back to Dashboard");
+	    navBackButton.setFocusPainted(false);
+	    navBackButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+	    navBackButton.setForeground(Color.WHITE);
+	    navBackButton.setBackground(new Color(52, 152, 219));
+	    navBackButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+	    navBackButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    navBackButton.addActionListener(evt -> goBackButtonActionPerformed(evt));
+	    navBar.add(navBackButton);
 
-		// Instantiate Button Component
-		goBackButton = new JButton();
-		goBackButton.setText("Go Back to Dashboard");
-		goBackButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				goBackButtonActionPerformed(evt);
-			}
-		});
+	    // 🔹 Table Model
+	    DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] {
+	        "ID", "Employee Number", "Last Name", "First Name", "Start Date", "End Date", "Status", "Leave Type", "", ""
+	    }) {
+	        @Override
+	        public Class<?> getColumnClass(int columnIndex) {
+	            return (columnIndex >= getColumnCount() - 2) ? JButton.class : Object.class;
+	        }
 
-		// Create an empty default table model
-		DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "ID", "Employee Number",
-				"Last Name", "First Name", "Start Date", "End Date", "Status", "Leave Type", "", "" }) {
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				// Return the appropriate class for the last column (column with buttons)
-				return (columnIndex == getColumnCount() - 1) || (columnIndex == getColumnCount() - 2) ? JButton.class
-						: Object.class;
-			}
+	        @Override
+	        public boolean isCellEditable(int row, int column) {
+	            return column >= getColumnCount() - 2;
+	        }
+	    };
 
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				// Allow editing only for the last column
-				return column == getColumnCount() - 1 || column == getColumnCount() - 2;
-			}
-		};
+	    // 🔹 Table Setup
+	    jTable1 = new JTable(model);
+	    jTable1.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+	    jTable1.setRowHeight(30);
+	    jTable1.setSelectionBackground(new Color(173, 216, 230));
+	    jTable1.setSelectionForeground(Color.BLACK);
+	    jTable1.setShowVerticalLines(false);
+	    jTable1.setShowHorizontalLines(true);
+	    jTable1.setGridColor(new Color(230, 230, 230));
+	    jTable1.setFillsViewportHeight(true);
+	    jTable1.setAutoCreateRowSorter(true);
 
-		// Modify Table Row Height
-		jTable1 = new JTable(model);
-		jTable1.setRowHeight(30);
+	    JTableHeader header = jTable1.getTableHeader();
+	    header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+	    header.setBackground(new Color(60, 63, 65));
+	    header.setForeground(Color.WHITE);
+	    header.setPreferredSize(new Dimension(100, 35));
 
-		// Modify the width of the first column
-		TableColumn firstColumn = jTable1.getColumnModel().getColumn(0);
-		firstColumn.setMinWidth(0);
-		firstColumn.setMaxWidth(0);
+	    // 🔹 Row Striping
+	    DefaultTableCellRenderer stripedRenderer = new DefaultTableCellRenderer() {
+	        @Override
+	        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+	                                                       boolean hasFocus, int row, int column) {
+	            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	            c.setBackground(isSelected ? new Color(173, 216, 230) : (row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245)));
+	            return c;
+	        }
+	    };
+	    for (int i = 0; i < jTable1.getColumnCount(); i++) {
+	        jTable1.getColumnModel().getColumn(i).setCellRenderer(stripedRenderer);
+	    }
 
-		// Modify the width of the second column
-		TableColumn secondColumn = jTable1.getColumnModel().getColumn(1);
-		secondColumn.setPreferredWidth(90); // Set your preferred width here
+	    // 🔹 Column Width
+	    jTable1.getColumnModel().getColumn(0).setMinWidth(0);
+	    jTable1.getColumnModel().getColumn(0).setMaxWidth(0);
+	    jTable1.getColumnModel().getColumn(1).setPreferredWidth(90);
+	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(120);
+	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(80);
 
-		// Modify the width of the last column
-		TableColumn lastColumn = jTable1.getColumnModel().getColumn(numberOfColumns);
-		lastColumn.setPreferredWidth(50); // Set your preferred width here
+	    // 🔹 Buttons
+	    jTable1.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer("View Request"));
+	    jTable1.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(1, "View Request", "LeaveRequestDetailsPage"));
 
-		// Modify the width of the last column
-		TableColumn deleteColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 1);
-		deleteColumn.setPreferredWidth(100); // Set your preferred width here
+	    jTable1.getColumnModel().getColumn(9).setCellRenderer(new ButtonRenderer("Delete"));
+	    jTable1.getColumnModel().getColumn(9).setCellEditor(new ButtonEditor(1, "Delete", "DeleteDialogPane"));
 
-		// Set a custom renderer and editor for the Edit Column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1).setCellRenderer(new ButtonRenderer("Delete"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1)
-				.setCellEditor(new ButtonEditor(1, "Delete", "DeleteDialogPane"));
+	    // 🔹 Scroll Pane
+	    jScrollPane1 = new JScrollPane(jTable1);
+	    jScrollPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		// Set a custom renderer and editor for the View Employee column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellRenderer(new ButtonRenderer("View Request"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellEditor(new ButtonEditor(1, "View Request", "LeaveRequestDetailsPage"));
+	    // 🔹 Layout (Full Use of Window Space)
+	    GroupLayout layout = new GroupLayout(getContentPane());
+	    getContentPane().setLayout(layout);
+	    layout.setHorizontalGroup(
+	        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addComponent(navBar, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
+	    layout.setVerticalGroup(
+	        layout.createSequentialGroup()
+	            .addComponent(navBar, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
+	            .addGap(0)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
 
-		// Set custom renderer for the header cells to make them bold
-		JTableHeader header = jTable1.getTableHeader();
-		header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
-
-		jScrollPane1 = new JScrollPane(jTable1);
-
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addContainerGap()
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 996, Short.MAX_VALUE)
-								.addGroup(layout.createSequentialGroup().addComponent(goBackButton).addPreferredGap(
-										javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-						.addContainerGap(13, Short.MAX_VALUE)));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-				javax.swing.GroupLayout.Alignment.TRAILING,
-				layout.createSequentialGroup().addContainerGap(13, Short.MAX_VALUE)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(goBackButton))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addContainerGap()));
-
-		pack();
-
-		// Make the window appear in the middle
-		setLocationRelativeTo(null);
+	    pack();
+	    setSize(1366,768);
+	    setLocationRelativeTo(null);
+	    
 	}
+	
+	
 
 	private void loadEmployeeData() throws ParseException {
 		try {

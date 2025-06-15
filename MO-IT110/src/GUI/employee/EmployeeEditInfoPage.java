@@ -86,6 +86,7 @@ public class EmployeeEditInfoPage extends JFrame {
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 		setResizable(false);
 		setTitle("MotorPH Payroll System | Edit Personal Information");
+		setSize(1366,768);
 
 		goBackToDashboardButton.setText("Go Back to Dashboard");
 		goBackToDashboardButton.addActionListener(new java.awt.event.ActionListener() {

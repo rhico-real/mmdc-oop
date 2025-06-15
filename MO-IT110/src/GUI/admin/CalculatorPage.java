@@ -1,5 +1,8 @@
 package GUI.admin;
 
+import java.awt.Color;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.text.DecimalFormat;
 import javax.swing.*;
 import Classes.Compensation;
@@ -87,6 +90,8 @@ public class CalculatorPage extends JFrame {
 	private JButton calculateSalaryButton = new JButton("Calculate");
 
 	// Panels
+	private JPanel mainPanel;
+	private JPanel menubarPanel;
 	private JPanel jPanel1;
 	private JPanel jPanel3;
 	private JPanel jPanel4;
@@ -119,7 +124,9 @@ public class CalculatorPage extends JFrame {
 	//	@SuppressWarnings("unchecked")
 	// <editor-fold defaultstate="collapsed" desc="Generated Code">
 	private void initComponents(Compensation employeeComp) {
-
+		
+		mainPanel = new javax.swing.JPanel(new GridBagLayout());
+		menubarPanel = new javax.swing.JPanel(new GridBagLayout());
 		jPanel1 = new javax.swing.JPanel();
 		grossSalaryComputationLabel = new javax.swing.JLabel();
 		jPanel3 = new javax.swing.JPanel();
@@ -134,7 +141,43 @@ public class CalculatorPage extends JFrame {
 		setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 		setBackground(new java.awt.Color(255, 255, 255));
 		setResizable(false);
+		add(mainPanel);
 		setTitle("MotorPH Payroll System | Salary Calculator");
+		
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		// Menu Bar Panel
+		menubarPanel.setBackground(Color.decode("#153969"));
+		gbc.gridx = 0;
+	    gbc.gridy = 0;
+	    gbc.gridwidth = GridBagConstraints.REMAINDER; // span entire row
+	    gbc.fill = GridBagConstraints.BOTH;
+        mainPanel.add(menubarPanel,gbc);
+        
+        // jPanel1
+		gbc.gridx = 0;
+	    gbc.gridy = 1;
+	    gbc.gridwidth = 1;  // span entire row
+	    gbc.gridheight = 1;
+	    gbc.fill = GridBagConstraints.BOTH;
+        mainPanel.add(jPanel1,gbc); 
+        
+        // jPanel3
+		gbc.gridx = 1;
+	    gbc.gridy = 1;
+	    gbc.gridwidth = 1;  // span entire row
+	    gbc.gridheight = GridBagConstraints.REMAINDER;;
+	    gbc.fill = GridBagConstraints.BOTH;
+        mainPanel.add(jPanel3,gbc);
+        
+        // Panel4
+		gbc.gridx = 0;
+	    gbc.gridy = 2;
+	    gbc.gridwidth = 1; // span entire row
+	    gbc.gridheight = 1;
+	    gbc.fill = GridBagConstraints.BOTH;
+        mainPanel.add(jPanel4,gbc); 
+		
 
 		jPanel1.setBackground(new java.awt.Color(255, 255, 255));
 		jPanel1.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
@@ -170,7 +213,7 @@ public class CalculatorPage extends JFrame {
 			}
 		});
 
-		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+		GroupLayout jPanel1Layout = new GroupLayout(jPanel1);
 		jPanel1.setLayout(jPanel1Layout);
 		jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 				.addGroup(jPanel1Layout.createSequentialGroup().addGap(42, 42, 42)
@@ -277,7 +320,7 @@ public class CalculatorPage extends JFrame {
 		netSalaryValue.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
 		netSalaryValue.setText(" ");
 
-		javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+		GroupLayout jPanel3Layout = new GroupLayout(jPanel3);
 		jPanel3.setLayout(jPanel3Layout);
 		jPanel3Layout
 				.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -385,7 +428,7 @@ public class CalculatorPage extends JFrame {
 		clothingAllowanceValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 		clothingAllowanceValue.setText(" ");
 
-		javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+		GroupLayout jPanel4Layout = new GroupLayout(jPanel4);
 		jPanel4.setLayout(jPanel4Layout);
 		jPanel4Layout.setHorizontalGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 				.addGroup(jPanel4Layout.createSequentialGroup().addGap(17, 17, 17).addComponent(allowancesLabel)
@@ -422,36 +465,13 @@ public class CalculatorPage extends JFrame {
 								.addComponent(totalAllowanceLabel).addComponent(totalAllowanceValue))
 						.addGap(18, 18, 18)));
 
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(
-				layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(layout.createSequentialGroup().addGap(48, 48, 48)
-								.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-										.addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE,
-												javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE,
-												javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-								.addGap(18, 18, 18)
-								.addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addContainerGap(58, Short.MAX_VALUE)));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(layout
-				.createSequentialGroup().addContainerGap(36, Short.MAX_VALUE)
-				.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-						.addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-						.addGroup(layout.createSequentialGroup()
-								.addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addGap(18, 18, 18).addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-				.addContainerGap(36, Short.MAX_VALUE)));
-
 		pack();
 
 		// Must be called after setting pack
+		setSize(1366,768);
+		setVisible(true);
 		setLocationRelativeTo(null);
+		
 	}
 
 	private void hoursRenderedFieldActionPerformed(java.awt.event.ActionEvent evt, Compensation employeeComp) {

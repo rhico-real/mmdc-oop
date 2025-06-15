@@ -810,6 +810,7 @@ public class FullEmployeeDetailsPage extends JFrame {
 		pack();
 
 		// Must be called after setting pack
+		setSize(1366,768);
 		setLocationRelativeTo(null);
 	}// </editor-fold>
 

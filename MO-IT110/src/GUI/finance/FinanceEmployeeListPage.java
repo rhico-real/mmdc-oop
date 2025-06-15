@@ -40,6 +40,7 @@ public class FinanceEmployeeListPage extends JFrame {
         // Set JFrame
         setTitle("MotorPH Payroll System | Finance - Employee List");
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setSize(1366,768);
         setResizable(false);
 
         // Instantiate Table

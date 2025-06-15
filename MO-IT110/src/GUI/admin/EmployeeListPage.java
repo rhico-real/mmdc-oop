@@ -8,7 +8,12 @@ import Classes.GovernmentIdentification;
 import DAO.EmployeeDAO;
 import DAO.UserDAO;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -40,116 +45,114 @@ public class EmployeeListPage extends JFrame {
 
 		// Set JFrame
 		setTitle("MotorPH Payroll System | Employee List");
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		setResizable(false);
+	    setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+	    setResizable(false);
+	    setSize(1366, 768);
+	    setLocationRelativeTo(null);
 
-		// Instantiate Table
-		jTable1 = new JTable();
+	    // 🔹 Top Navigation Bar with LEFT and RIGHT sections
+	    JPanel navBar = new JPanel(new BorderLayout());
+	    navBar.setBackground(new Color(45, 62, 80));
+	    navBar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-		addEmployeeButton = new JButton();
-		deleteEmployeeButton = new JButton();
+	    // Left-aligned: Back to Dashboard
+	    JPanel leftNav = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+	    leftNav.setOpaque(false);
+	    JButton jButton1 = new JButton("← Back to Dashboard");
+	    jButton1.setFocusPainted(false);
+	    jButton1.setFont(new Font("Segoe UI", Font.BOLD, 14));
+	    jButton1.setForeground(Color.WHITE);
+	    jButton1.setBackground(new Color(52, 152, 219));
+	    jButton1.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+	    jButton1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    jButton1.addActionListener(evt -> jButton1ActionPerformed(evt));
+	    leftNav.add(jButton1);
 
-		// Instantiate Button Component
-		jButton1 = new JButton();
-		jButton1.setText("Go Back to Dashboard");
-		jButton1.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton1ActionPerformed(evt);
-			}
-		});
+	    // Right-aligned: Add Employee
+	    JPanel rightNav = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+	    rightNav.setOpaque(false);
+	    addEmployeeButton = new JButton("Add Employee");
+	    addEmployeeButton.setFocusPainted(false);
+	    addEmployeeButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+	    addEmployeeButton.setBackground(new Color(52, 152, 219));
+	    addEmployeeButton.setForeground(Color.WHITE);
+	    addEmployeeButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+	    addEmployeeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    addEmployeeButton.addActionListener(evt -> addEmployeeButtonActionPerformed(evt));
+	    rightNav.add(addEmployeeButton);
 
-		// Create an empty default table model
-		DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "Employee Number",
-				"Last Name", "First Name", "SSS No.", "PhilHealth No.", "TIN", "Pagibig No.", "", "", "" }) {
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				// Return the appropriate class for the last column (column with buttons)
-				return (columnIndex == getColumnCount() - 1) || (columnIndex == getColumnCount() - 2) ? JButton.class
-						: Object.class;
-			}
+	    // Add to navbar
+	    navBar.add(leftNav, BorderLayout.WEST);
+	    navBar.add(rightNav, BorderLayout.EAST);
 
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				// Allow editing only for the last column
-				return column == getColumnCount() - 1 || column == getColumnCount() - 2
-						|| column == getColumnCount() - 3;
-			}
-		};
+	    // 🔹 Table Model
+	    DefaultTableModel model = new DefaultTableModel(new Object[][] {},
+	        new String[] { "Employee Number", "Last Name", "First Name", "SSS No.", "PhilHealth No.", "TIN", "Pagibig No.", "", "", "" }) {
+	        @Override
+	        public Class<?> getColumnClass(int columnIndex) {
+	            return (columnIndex >= getColumnCount() - 3) ? JButton.class : Object.class;
+	        }
 
-		// Modify Table Row Height
-		jTable1 = new JTable(model);
-		jTable1.setRowHeight(30);
+	        @Override
+	        public boolean isCellEditable(int row, int column) {
+	            return column >= getColumnCount() - 3;
+	        }
+	    };
 
-		// Modify the width of the first column
-		TableColumn firstColumn = jTable1.getColumnModel().getColumn(0);
-		firstColumn.setPreferredWidth(90); // Set your preferred width here
+	    // 🔹 Table Setup
+	    jTable1 = new JTable(model);
+	    jTable1.setRowHeight(30);
+	    jTable1.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+	    jTable1.setSelectionBackground(new Color(173, 216, 230));
+	    jTable1.setSelectionForeground(Color.BLACK);
+	    jTable1.setGridColor(new Color(230, 230, 230));
+	    jTable1.setFillsViewportHeight(true);
 
-		// Modify the width of the last column
-		TableColumn lastColumn = jTable1.getColumnModel().getColumn(numberOfColumns);
-		lastColumn.setPreferredWidth(50); // Set your preferred width here
+	    JTableHeader header = jTable1.getTableHeader();
+	    header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+	    header.setBackground(new Color(60, 63, 65));
+	    header.setForeground(Color.WHITE);
+	    header.setPreferredSize(new Dimension(100, 35));
+	    header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
 
-		// Modify the width of the last column
-		TableColumn editColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 2);
-		editColumn.setPreferredWidth(40); // Set your preferred width here
+	    // 🔹 Column Widths
+	    jTable1.getColumnModel().getColumn(0).setPreferredWidth(90); // Employee Number
+	    jTable1.getColumnModel().getColumn(7).setPreferredWidth(60); // Edit
+	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(120); // View
+	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(100); // Delete
 
-		// Modify the width of the last column
-		TableColumn deleteColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 1);
-		deleteColumn.setPreferredWidth(100); // Set your preferred width here
+	    // 🔹 Button Renderers & Editors
+	    jTable1.getColumnModel().getColumn(7).setCellRenderer(new ButtonRenderer("Edit"));
+	    jTable1.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor(0, "Edit", "UpdateEmployeeDetailsPage"));
 
-		// Set a custom renderer and editor for the Edit Column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1).setCellRenderer(new ButtonRenderer("Delete"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1)
-				.setCellEditor(new ButtonEditor(0, "Delete", "DeleteDialogPane"));
+	    jTable1.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer("View Employee"));
+	    jTable1.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(0, "View Employee", "FullEmployeeDetailsPage"));
 
-		// Set a custom renderer and editor for the View Employee column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellRenderer(new ButtonRenderer("View Employee"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellEditor(new ButtonEditor(0, "View Employee", "FullEmployeeDetailsPage"));
+	    jTable1.getColumnModel().getColumn(9).setCellRenderer(new ButtonRenderer("Delete"));
+	    jTable1.getColumnModel().getColumn(9).setCellEditor(new ButtonEditor(0, "Delete", "DeleteDialogPane"));
 
-		// Set a custom renderer and editor for the Edit Column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 3).setCellRenderer(new ButtonRenderer("Edit"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 3)
-				.setCellEditor(new ButtonEditor(0, "Edit", "UpdateEmployeeDetailsPage"));
+	    // 🔹 Scroll Pane
+	    jScrollPane1 = new JScrollPane(jTable1);
+	    jScrollPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		// Set custom renderer for the header cells to make them bold
-		JTableHeader header = jTable1.getTableHeader();
-		header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
+	    // 🔹 Layout
+	    GroupLayout layout = new GroupLayout(getContentPane());
+	    getContentPane().setLayout(layout);
+	    layout.setHorizontalGroup(
+	        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addComponent(navBar, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
+	    layout.setVerticalGroup(
+	        layout.createSequentialGroup()
+	            .addComponent(navBar, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
+	            .addGap(0)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
 
-		jScrollPane1 = new JScrollPane(jTable1);
-
-		addEmployeeButton.setText("Add Employee");
-		addEmployeeButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				addEmployeeButtonActionPerformed(evt);
-			}
-		});
-
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addContainerGap()
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 996, Short.MAX_VALUE)
-								.addGroup(layout.createSequentialGroup().addComponent(jButton1)
-										.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-												javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(addEmployeeButton)))
-						.addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-				javax.swing.GroupLayout.Alignment.TRAILING,
-				layout.createSequentialGroup().addContainerGap(13, Short.MAX_VALUE)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(jButton1).addComponent(addEmployeeButton))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addContainerGap()));
-
-		pack();
-
-		// Make the window appear in the middle
-		setLocationRelativeTo(null);
+	    pack();
+	    setSize(1366,768);
+	    setLocationRelativeTo(null);
 	}
 
 	private void loadEmployeeData() {

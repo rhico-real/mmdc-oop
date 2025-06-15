@@ -182,6 +182,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 		pack();
 
 		// Put the window in the middle
+		setSize(1366,768);
 		setLocationRelativeTo(null);
 	}
 

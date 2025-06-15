@@ -525,6 +525,7 @@ public class AddEmployeeDetailsPage extends JFrame {
 		pack();
 
 		// Make the window appear in the middle
+		setSize(1366,768);
 		setLocationRelativeTo(null);
 	}// </editor-fold>
 

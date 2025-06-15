@@ -28,7 +28,7 @@ public class HRViewAllEmployeesPage extends JFrame {
     private void initComponents() {
         setTitle("All Employees & Payslips - HR Portal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1200, 800);
+        setSize(1366, 768);
         setResizable(true);
         
         // Main panel
