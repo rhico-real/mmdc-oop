@@ -13,6 +13,8 @@ import GUI.admin.DashboardPage;
 import GUI.employee.EmployeeDashboard;
 import GUI.hr.HRDashboard;
 import GUI.finance.FinanceDashboard;
+import java.io.IOException;
+import java.io.File;
 
 @SuppressWarnings("serial")
 public class LoginPage extends JFrame {
@@ -26,6 +28,19 @@ public class LoginPage extends JFrame {
 	private GovernmentIdentification employeeGI;
 	private Compensation employeeComp;
 
+	// import poppins font
+private static Font loadCustomFont(String fontPath, float size) {
+    try {
+        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(font);
+        return font;
+    } catch (FontFormatException | IOException e) {
+        System.err.println("Error loading font: " + e.getMessage());
+        return null;
+    }
+}
+
 	public LoginPage() {
 
 		// Set up the JFrame
@@ -33,7 +48,15 @@ public class LoginPage extends JFrame {
 		setSize(1366, 768); setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-
+		
+		Font poppinsRegularBase = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 12f);
+		Font poppinsSemiBoldBase = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 12f);
+		Font poppinsBoldBase = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 12f);
+		
+		Font poppinsHeader = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 60f);
+		Font poppinsSubHeader = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf",16f);
+		Font poppinsText = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 14f);
+		
 		// Setup Primary JPanel
 		JPanel container = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -78,15 +101,13 @@ public class LoginPage extends JFrame {
 		passwordField.setPreferredSize(fieldSize);
 
 		// Adjust font size of JLabels
-		titleLabel.setFont(new Font("SansSerif", Font.BOLD, 60)); 
-		descriptionLabel.setFont(new Font("SansSerif", Font.PLAIN, 20));
-		
-		Font myFont = new Font("SansSerif", Font.BOLD, 16);
-		usernameLabel.setFont(myFont); 
-		usernameField.setFont(myFont);
-		passwordLabel.setFont(myFont); 
-		passwordField.setFont(myFont);
-		loginButton.setFont(myFont); 
+		titleLabel.setFont(poppinsHeader); 
+		descriptionLabel.setFont(poppinsSubHeader);
+		usernameLabel.setFont(poppinsText); 
+		usernameField.setFont(poppinsText);
+		passwordLabel.setFont(poppinsText); 
+		passwordField.setFont(poppinsText);
+		loginButton.setFont(poppinsText); 
 		
 		// Set font color for labels
 		titleLabel.setForeground(Color.decode("#153969"));

@@ -4,12 +4,16 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import javax.swing.*;
 
@@ -112,7 +116,11 @@ public class DashboardPage extends JFrame {
 	private javax.swing.JPanel menubarPanel;
 	private javax.swing.JPanel sidebarPanel;
     private javax.swing.JPanel dashboardPanel;
+    
+    private javax.swing.JPanel leftDashboardPanel;
     private javax.swing.JPanel profilepicturePanel;
+    
+    private javax.swing.JPanel rightDashboardPanel;
 	private javax.swing.JPanel primaryinfoPanel;
 	private javax.swing.JPanel fullnamePanel;
 	private javax.swing.JPanel otherprimaryinfoPanel;
@@ -127,6 +135,19 @@ public class DashboardPage extends JFrame {
 	 */
 	public DashboardPage() {
 		initComponents();
+	}
+	
+	// import poppins font
+	private static Font loadCustomFont(String fontPath, float size) {
+	    try {
+	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        ge.registerFont(font);
+	        return font;
+	    } catch (FontFormatException | IOException e) {
+	        System.err.println("Error loading font: " + e.getMessage());
+	        return null;
+	    }
 	}
 	
 	
@@ -162,120 +183,151 @@ public class DashboardPage extends JFrame {
 	// @SuppressWarnings("unchecked")
 	// <editor-fold defaultstate="collapsed" desc="Generated Code">
 	private void initComponents() {
-		// Make grids as placement coordinates
-		GridBagConstraints gbc = new GridBagConstraints();
-		// Main Panel
+		// assign fonts
+		
+		Font poppinsFullNameLabelFont = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 30f);
+		Font poppinsFullNameOutputFont = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 50f);
+		Font poppinsText = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 14f);
+		Font poppinsButtonsFont = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 16f);
+		Font poppinsFieldNameFont = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
+		Font poppinsFieldOutputFont = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 18f);
+		
+		// Grid Layout for the entire window
+		GridBagConstraints windowGBC = new GridBagConstraints();
+		// MAIN PANEL
 		JPanel mainPanelLayout = new JPanel(new GridBagLayout());
-		// Menu Bar Panel
-		menubarPanel = new javax.swing.JPanel(new GridBagLayout());
+
+		// MENUBAR PANEL 
+		menubarPanel = new JPanel(new GridBagLayout());
 		menubarPanel.setBackground(Color.decode("#153969"));
-		
-			gbc.gridx = 0;
-		    gbc.gridy = 0;
-		    gbc.gridwidth = GridBagConstraints.REMAINDER; // span entire row
-		    gbc.fill = GridBagConstraints.BOTH;
-	        mainPanelLayout.add(menubarPanel,gbc);
-	        
-        // Side Bar Panel
-		sidebarPanel = new javax.swing.JPanel(new GridBagLayout());
+		GridBagConstraints menubarGBC = new GridBagConstraints();
+		menubarGBC.gridx = 0;
+		menubarGBC.gridy = 0;
+		menubarGBC.gridwidth = GridBagConstraints.REMAINDER;
+		menubarGBC.gridheight = 1;
+		menubarGBC.fill = GridBagConstraints.BOTH;
+		menubarGBC.weightx = 1;
+		menubarGBC.weighty = 0;
+		mainPanelLayout.add(menubarPanel, menubarGBC);
+
+		// SIDEBAR PANEL 
+		sidebarPanel = new JPanel(new GridBagLayout());
 		sidebarPanel.setBackground(Color.decode("#a4a4a4"));
+		GridBagConstraints sidebarGBC = new GridBagConstraints();
+		sidebarGBC.gridx = 0;
+		sidebarGBC.gridy = 1;
+		sidebarGBC.gridwidth = 1;
+		sidebarGBC.fill = GridBagConstraints.BOTH;
+		sidebarGBC.weightx = 0.2;
+		sidebarGBC.weighty = 1;
+		mainPanelLayout.add(sidebarPanel, sidebarGBC);
+
+		// DASHBOARD PANEL 
+		dashboardPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints dashGBC = new GridBagConstraints();
+		dashGBC.gridy = 1;
+		dashGBC.gridx = 1;
+		dashGBC.weightx = 1;
+		dashGBC.weighty = 1;
+		dashGBC.fill = GridBagConstraints.BOTH;
+		mainPanelLayout.add(dashboardPanel, dashGBC);
 		
-			gbc.gridx = 0;
-	        gbc.gridy = 1;
-	        gbc.gridwidth = 1; // only one column
-	        gbc.fill = GridBagConstraints.BOTH;
-	        gbc.weighty = 1.25; // sets the portion of gridy
-	        gbc.weightx = 0.20;
-	        mainPanelLayout.add(sidebarPanel,gbc);
-	        
-	        
-		// Dashboard Panel
-		dashboardPanel = new javax.swing.JPanel(new GridBagLayout());
-		dashboardPanel.setBackground(Color.decode(lightgrayColor));
-		
-			gbc.gridx = 1;
-		    gbc.gridy = 1;
-		    gbc.gridwidth = 1;
-		    gbc.fill = GridBagConstraints.BOTH;
-		    gbc.weightx = 0.80;
-	        mainPanelLayout.add(dashboardPanel,gbc);
-	        // Profile Picture Panel under Dashboard Panel
-			profilepicturePanel = new javax.swing.JPanel();
-			profilepicturePanel.setBackground(Color.decode(lightgrayColor));
-			
-				gbc.gridy = 0;
-		        gbc.weighty = 0;
-		        gbc.gridx = 0;
-		        gbc.weightx = 0.30;
-		        gbc.fill = GridBagConstraints.BOTH;
-		        dashboardPanel.add(profilepicturePanel,gbc);
-		     // Primary Information Panel under Dashboard Panel
-		    primaryinfoPanel = new javax.swing.JPanel(new GridBagLayout());
-			primaryinfoPanel.setBackground(Color.decode(lightgrayColor));
-			
-				gbc.gridy = 0;
-				gbc.weighty = 1;
-		        gbc.gridx = 1;
-		        gbc.weightx = 0.80;
-		        gbc.gridwidth = GridBagConstraints.REMAINDER;
-		        gbc.fill = GridBagConstraints.BOTH;
-		        dashboardPanel.add(primaryinfoPanel,gbc);
-		        // Full Name Panel under Primary Information Panel
-		        fullnamePanel = new javax.swing.JPanel();
-		        fullnamePanel.setBackground(Color.decode(lightgrayColor));
+		// LEFTSIDE OF DASHBOARD
+		leftDashboardPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints leftGBC = new GridBagConstraints();
+		leftGBC.gridx = 0;
+		leftGBC.gridy = 0;
+		leftGBC.weightx = 0.2;
+		leftGBC.fill = GridBagConstraints.BOTH;
+		leftGBC.weighty = 1;
+		dashboardPanel.add(leftDashboardPanel, leftGBC);
 				
-					gbc.gridy = 0;
-					gbc.weighty = 1;
-			        gbc.gridx = 0;
-			        gbc.weightx = 1;
-			        gbc.fill = GridBagConstraints.BOTH;
-			        gbc.insets = new Insets(50, 0, 0, 0);
-			        primaryinfoPanel.add(fullnamePanel,gbc);
-			     // Other Primary Information Panel under Primary Information Panel  
-		        otherprimaryinfoPanel = new javax.swing.JPanel();
-		        otherprimaryinfoPanel.setBackground(Color.decode(lightgrayColor));
+				// PROFILE PICTURE PANEL
+				profilepicturePanel = new JPanel();
+				GridBagConstraints profilepictureGBC = new GridBagConstraints();
+				profilepictureGBC.gridx = 0;
+				profilepictureGBC.gridy = 0;
+				profilepictureGBC.weightx = 1;
+				profilepictureGBC.weighty = 0.15;
+				profilepictureGBC.fill = GridBagConstraints.BOTH;
+				profilepictureGBC.insets = new Insets(0,0,0,0);
+				leftDashboardPanel.add(profilepicturePanel, profilepictureGBC);
+				
+				// POSITION INFO PANEL
+				positioninfoPanel.setBackground(Color.WHITE);
+				GridBagConstraints positioninfoGBC = new GridBagConstraints();
+				positioninfoGBC.gridx = 0;
+				positioninfoGBC.gridy = 1;
+				positioninfoGBC.weightx = 1;
+				positioninfoGBC.weighty = 0.85;
+				positioninfoGBC.fill = GridBagConstraints.BOTH;
+				positioninfoGBC.insets = new Insets(10,30,30,0);
+				leftDashboardPanel.add(positioninfoPanel, positioninfoGBC);
+		
+		
+		// RIGTH SIDE OF DASHBOARD
+		rightDashboardPanel = new JPanel(new GridBagLayout());
+		GridBagConstraints rightGBC = new GridBagConstraints();
+		rightGBC.gridx = 1;
+		rightGBC.gridy = 0;
+		rightGBC.weightx = 0.8;
+		rightGBC.fill = GridBagConstraints.BOTH;
+		rightGBC.weighty = 1;
+		dashboardPanel.add(rightDashboardPanel, rightGBC);
 			
-					gbc.gridy = 1;
-					gbc.weighty = 1;
-			        gbc.gridx = 0;
-			        gbc.weightx = 1;
-			        gbc.fill = GridBagConstraints.BOTH;
-			        gbc.insets = new Insets(0, 0, 80, 0);
-			        primaryinfoPanel.add(otherprimaryinfoPanel,gbc);
+			//PRIMARY INFO PANEL
+			primaryinfoPanel = new JPanel(new GridBagLayout());
+			GridBagConstraints primaryinfoGBC = new GridBagConstraints();
+			primaryinfoGBC.gridx = 0;
+			primaryinfoGBC.gridy = 0;
+			primaryinfoGBC.weightx = 1;
+			primaryinfoGBC.weighty = 0.4;
+			primaryinfoGBC.fill = GridBagConstraints.BOTH;
+			primaryinfoGBC.insets = new Insets(10,0,0,220);
+			rightDashboardPanel.add(primaryinfoPanel, primaryinfoGBC);
+				
+				fullnamePanel = new JPanel(new GridBagLayout());
+				GridBagConstraints fullnameGBC = new GridBagConstraints();
+				fullnameGBC.gridx = 0;
+				fullnameGBC.gridy = 0;
+				fullnameGBC.weightx = 1;
+				fullnameGBC.weighty = 0.2;
+				fullnameGBC.fill = GridBagConstraints.BOTH;
+				fullnameGBC.insets = new Insets(30,0,0,0);
+				primaryinfoPanel.add(fullnamePanel, fullnameGBC);
+				
+				otherprimaryinfoPanel = new JPanel(new GridBagLayout());
+				GridBagConstraints otherprimaryinfoGBC = new GridBagConstraints();
+				otherprimaryinfoGBC.gridx = 0;
+				otherprimaryinfoGBC.gridy = 2;
+				otherprimaryinfoGBC.weightx = 1;
+				otherprimaryinfoGBC.weighty = 0.8;
+				otherprimaryinfoGBC.fill = GridBagConstraints.BOTH;
+				otherprimaryinfoGBC.insets = new Insets(-20,0,0,0);
+				primaryinfoPanel.add(otherprimaryinfoPanel, otherprimaryinfoGBC);
+				
+			// GOVT NUMBERS PANEL
+			govtnumbersPanel.setBackground(Color.WHITE);
+			GridBagConstraints govtnumbersGBC = new GridBagConstraints();
+			govtnumbersGBC.gridx = 0;
+			govtnumbersGBC.gridy = 1;
+			govtnumbersGBC.weightx = 1;
+			govtnumbersGBC.weighty = 0.3;
+			govtnumbersGBC.fill = GridBagConstraints.BOTH;
+			govtnumbersGBC.insets = new Insets(10,10,5,30);
+			rightDashboardPanel.add(govtnumbersPanel, govtnumbersGBC);
 			
-			//Position Information Panel 
-			positioninfoPanel.setBackground(Color.WHITE);
-			
-				gbc.gridy = 1;
-				gbc.weighty = 1;
-		        gbc.gridx = 0;
-		        gbc.weightx =0.30;
-		        gbc.fill = GridBagConstraints.BOTH;
-		        gbc.gridwidth = 1;
-		        gbc.insets = new Insets(0, 30, 80, 10);
-		        dashboardPanel.add(positioninfoPanel,gbc);
-		     // Government Account Numbers   
-			govtnumbersPanel.setBackground(Color.white);
-			
-				gbc.gridy = 1;
-				gbc.weighty = 1;
-		        gbc.gridx = 1;
-		        gbc.weightx = 0.33;
-		        gbc.fill = GridBagConstraints.BOTH;
-		        gbc.gridwidth = 1;
-		        gbc.insets = new Insets(0, 10, 80, 10);
-		        dashboardPanel.add(govtnumbersPanel,gbc);
-			// Address Panel
-			addressPanel.setBackground(Color.white);
-			
-				gbc.gridy = 1;
-				gbc.weighty = 1;
-		        gbc.gridx = 2;
-		        gbc.weightx = 0.33;
-		        gbc.fill = GridBagConstraints.BOTH;
-		        gbc.gridwidth = 1;
-		        gbc.insets = new Insets(0, 10, 80, 30);
-		        dashboardPanel.add(addressPanel,gbc);
+			// ADDRESS PANEL
+			addressPanel.setBackground(Color.WHITE);
+			GridBagConstraints addressGBC = new GridBagConstraints();
+			addressGBC.gridx = 0;
+			addressGBC.gridy = 2;
+			addressGBC.weightx = 1;
+			addressGBC.weighty = 0.3;
+			addressGBC.fill = GridBagConstraints.BOTH;
+			addressGBC.insets = new Insets(5,10,30,30);
+			rightDashboardPanel.add(addressPanel, addressGBC);
+
 		
 	    // JFrame setup
         setTitle("MotorPH Payroll System | Dashboard");
@@ -325,14 +377,14 @@ public class DashboardPage extends JFrame {
 		GridBagConstraints gbc_motorPHLogo = new GridBagConstraints();
         gbc_motorPHLogo.gridx = 0;
         gbc_motorPHLogo.gridy = 0;
-        gbc_motorPHLogo.insets = new Insets(0, 0, 0, 225);
+        gbc_motorPHLogo.insets = new Insets(0, 0, 0, 150);
 		menubarPanel.add(motorPHLogo, gbc_motorPHLogo);
 		
 		GridBagConstraints gbc_employeeId = new GridBagConstraints();
 		gbc_employeeId.gridx = 1;
 		gbc_employeeId.gridy = 0;
 		gbc_employeeId.anchor = GridBagConstraints.WEST;
-		gbc_employeeId.insets = new Insets(0, 18, 0, 0);
+		gbc_employeeId.insets = new Insets(0, 18, 0, 100);
 		menubarPanel.add(employeeId, gbc_employeeId);
 		
 		GridBagConstraints gbc_employeeIdField = new GridBagConstraints();
@@ -386,7 +438,9 @@ public class DashboardPage extends JFrame {
 		GridBagConstraints gbc_empPhoto = new GridBagConstraints();
 		gbc_empPhoto.gridx = 0;
 		gbc_empPhoto.gridy = 0;
-		gbc_empPhoto.insets = new Insets(-50, -50, -50, -50);
+		gbc_empPhoto.weightx = 1;
+		gbc_empPhoto.weighty = 1;
+		gbc_empPhoto.insets = new Insets(0,100,0,0);
 		profilepicturePanel.add(empPhoto, gbc_empPhoto);
 		
 		// search bar label
@@ -394,7 +448,7 @@ public class DashboardPage extends JFrame {
 		employeeId.setText("Search ID");
 		
 		// employee search bar
-		employeeIdField.setFont(new java.awt.Font("Sans Serif", 0, 14)); // NOI18N
+		employeeIdField.setFont(poppinsText); // NOI18N
 		employeeIdField.setToolTipText("Please enter an ID");
 		employeeIdField.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -403,7 +457,7 @@ public class DashboardPage extends JFrame {
 		});
 		
 		// set fonts and texts for buttons
-		searchButton.setFont(new java.awt.Font("Arial", 0, 14)); // NOI18N
+		searchButton.setFont(poppinsText); // NOI18N
 		searchButton.setText("Search");
 		searchButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -411,7 +465,7 @@ public class DashboardPage extends JFrame {
 			}
 		});
 
-		computeButton.setFont(new java.awt.Font("Sans Serif", Font.BOLD, 16)); // NOI18N
+		computeButton.setFont(poppinsButtonsFont); // NOI18N
 		computeButton.setText("Compute Salary");
 		computeButton.setEnabled(false);
 		computeButton.addActionListener(new java.awt.event.ActionListener() {
@@ -420,7 +474,7 @@ public class DashboardPage extends JFrame {
 			}
 		});
 
-		employeeListButton.setFont(new java.awt.Font("Sans Serif", Font.BOLD, 16)); // NOI18N
+		employeeListButton.setFont(poppinsButtonsFont); // NOI18N
 		employeeListButton.setText("Employee List");
 		employeeListButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -428,7 +482,7 @@ public class DashboardPage extends JFrame {
 			}
 		});
 
-		leaveRequestButton.setFont(new java.awt.Font("Sans Serif", Font.BOLD, 16)); // NOI18N
+		leaveRequestButton.setFont(poppinsButtonsFont); // NOI18N
 		leaveRequestButton.setText("Leave Requests");
 		leaveRequestButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -436,7 +490,7 @@ public class DashboardPage extends JFrame {
 			}
 		});
 
-		updateRequestsButton.setFont(new java.awt.Font("Sans Serif", Font.BOLD, 16)); // NOI18N
+		updateRequestsButton.setFont(poppinsButtonsFont); // NOI18N
         updateRequestsButton.setText("Update Requests");
         updateRequestsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -444,7 +498,7 @@ public class DashboardPage extends JFrame {
             }
         });
 
-        logoutButton.setFont(new java.awt.Font("Sans Serif", Font.BOLD, 16)); // NOI18N
+        logoutButton.setFont(poppinsButtonsFont); // NOI18N
 		logoutButton.setText("Log Out");
 		logoutButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -453,28 +507,30 @@ public class DashboardPage extends JFrame {
 		});
 		
 		// set fonts and color for primary information panel
-		fullName.setFont(new java.awt.Font("Sans Serif", 1, 30)); // NOI18N
+		fullName.setFont(poppinsFullNameLabelFont); // NOI18N
 		fullName.setForeground(Color.decode(navyblueColor));
 	
-		firstNameValue.setFont(new java.awt.Font("Roboto", 5, 50)); // NOI18N
+		firstNameValue.setFont(poppinsFullNameOutputFont); // NOI18N
 		firstNameValue.setText(" ");
-		lastNameValue.setFont(new java.awt.Font("Sans Serif", 5, 50)); // NOI18N
+		lastNameValue.setFont(poppinsFullNameOutputFont); // NOI18N
 		lastNameValue.setText("  ");
 
-		birthday.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		birthday.setFont(poppinsFieldNameFont); // NOI18N
+		birthday.setForeground(Color.decode(navyblueColor));
 		birthday.setText("Birthday");
-		birthdayValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		birthdayValue.setFont(poppinsFieldOutputFont); // NOI18N
 		birthdayValue.setText(" ");
 
-		phoneNumber.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		phoneNumber.setFont(poppinsFieldNameFont);  // NOI18N
+		phoneNumber.setForeground(Color.decode(navyblueColor));
 		phoneNumber.setText("Phone Number");
-		phoneNumberValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		phoneNumberValue.setFont(poppinsFieldOutputFont); // NOI18N
 		phoneNumberValue.setText(" ");
 		
-		status.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		status.setFont(poppinsFieldNameFont); // NOI18N
 		status.setForeground(Color.decode(navyblueColor));
 		status.setText("Status");
-		statusValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		statusValue.setFont(poppinsFieldOutputFont);; // NOI18N
 		statusValue.setText(" ");
 		
 		// layout primary information panel
@@ -541,22 +597,22 @@ public class DashboardPage extends JFrame {
 								.addComponent(statusValue))	
 					));
 		// set fonts and color for position information panel
-		position.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		position.setFont(poppinsFieldNameFont); // NOI18N
 		position.setForeground(Color.decode(navyblueColor));
 		position.setText("Position");
-		positionValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		positionValue.setFont(poppinsFieldOutputFont);  // NOI18N
 		positionValue.setText(" ");
 
-		immediateSupervisor.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		immediateSupervisor.setFont(poppinsFieldNameFont);  // NOI18N
 		immediateSupervisor.setForeground(Color.decode(navyblueColor));
 		immediateSupervisor.setText("Immediate Supervisor");
-		immediateSupervisorValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		immediateSupervisorValue.setFont(poppinsFieldNameFont);  // NOI18N
 		immediateSupervisorValue.setText(" ");
 
-		hourlyRate.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		hourlyRate.setFont(poppinsFieldNameFont);  // NOI18N
 		hourlyRate.setForeground(Color.decode(navyblueColor));
 		hourlyRate.setText("Hourly Rate");
-		hourlyRateValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		hourlyRateValue.setFont(poppinsFieldNameFont);  // NOI18N
 		hourlyRateValue.setText(" ");
 		
 		// set layout for primary information panel
@@ -584,66 +640,83 @@ public class DashboardPage extends JFrame {
 						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 		
 		// set fonts and color for government account numbers panel
-		sssNumber.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		sssNumber.setFont(poppinsFieldNameFont); // NOI18N
 		sssNumber.setForeground(Color.decode(navyblueColor));
 		sssNumber.setText("SSS Number");
-		sssNumberValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		sssNumberValue.setFont(poppinsFieldOutputFont); // NOI18N
 		sssNumberValue.setText(" ");
 
-		philhealthNumber.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		philhealthNumber.setFont(poppinsFieldNameFont);  // NOI18N
 		philhealthNumber.setForeground(Color.decode(navyblueColor));
 		philhealthNumber.setText("PhilHealth Number");
-		philhealthNumberValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		philhealthNumberValue.setFont(poppinsFieldOutputFont);// NOI18N
 		philhealthNumberValue.setText(" ");
 
-		pagibigNumber.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		pagibigNumber.setFont(poppinsFieldNameFont);  // NOI18N
 		pagibigNumber.setForeground(Color.decode(navyblueColor));
 		pagibigNumber.setText("Pag-ibig Number");
-		pagibigNumberValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		pagibigNumberValue.setFont(poppinsFieldOutputFont); // NOI18N
 		pagibigNumberValue.setText(" ");
 
-		tinNumber.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		tinNumber.setFont(poppinsFieldNameFont); // NOI18N
 		tinNumber.setForeground(Color.decode(navyblueColor));
 		tinNumber.setText("TIN Number");
-		tinNumberValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		tinNumberValue.setFont(poppinsFieldOutputFont); // NOI18N
 		tinNumberValue.setText(" ");
 		
 		// set layout for government account numbers panel
 		GroupLayout gl_govtnumbersPanel = new GroupLayout(govtnumbersPanel);
 		govtnumbersPanel.setLayout(gl_govtnumbersPanel);
-		gl_govtnumbersPanel.setHorizontalGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.LEADING)
-				.addGroup(gl_govtnumbersPanel.createSequentialGroup().addGap(30,30,30) // left padding
-						.addGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.LEADING, false)
-								
-								.addComponent(sssNumber)
-								.addComponent(philhealthNumber)
-								.addComponent(pagibigNumber)
-								.addComponent(tinNumber)
-								
-								.addComponent(sssNumberValue, GroupLayout.DEFAULT_SIZE, 120, Short.MAX_VALUE)
-								.addComponent(philhealthNumberValue, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(pagibigNumberValue, javax.swing.GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(tinNumberValue, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-						
-						.addContainerGap(300, Short.MAX_VALUE)));
-		
-		gl_govtnumbersPanel.setVerticalGroup(gl_govtnumbersPanel.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(gl_govtnumbersPanel.createSequentialGroup().addGap(30, 30, 30) // top padding
-						.addComponent(sssNumber) 
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(sssNumberValue)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addComponent(philhealthNumber)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(philhealthNumberValue)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addComponent(pagibigNumber)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(pagibigNumberValue)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED).addComponent(tinNumber)
-						.addPreferredGap(LayoutStyle.ComponentPlacement.RELATED).addComponent(tinNumberValue)
-						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+
+		gl_govtnumbersPanel.setHorizontalGroup(
+		    gl_govtnumbersPanel.createSequentialGroup()
+		        .addGap(30) // Left padding
+		        .addGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(sssNumber)
+		            .addComponent(sssNumberValue)
+		            .addComponent(philhealthNumber)
+		            .addComponent(philhealthNumberValue)
+		        )
+		        .addGap(50) // Space between columns
+		        .addGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(pagibigNumber)
+		            .addComponent(pagibigNumberValue)
+		            .addComponent(tinNumber)
+		            .addComponent(tinNumberValue)
+		        )
+		        .addContainerGap(30, Short.MAX_VALUE) // Right padding
+		);
+
+		gl_govtnumbersPanel.setVerticalGroup(
+		    gl_govtnumbersPanel.createSequentialGroup()
+		        .addGap(30) // Top padding
+		        .addGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(sssNumber)
+		            .addComponent(pagibigNumber)
+		        )
+		        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+		        .addGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(sssNumberValue)
+		            .addComponent(pagibigNumberValue)
+		        )
+		        .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
+		        .addGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(philhealthNumber)
+		            .addComponent(tinNumber)
+		        )
+		        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+		        .addGroup(gl_govtnumbersPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(philhealthNumberValue)
+		            .addComponent(tinNumberValue)
+		        )
+		        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+		);
 		
 		// set font and colors for government account numbers panel
-		address.setFont(new java.awt.Font("Sans Serif", 1, 18)); // NOI18N
+		address.setFont(poppinsFieldNameFont); // NOI18N
 		address.setForeground(Color.decode(navyblueColor));
 		address.setText("Address");
-		addressValue.setFont(new java.awt.Font("Sans Serif", 0, 18)); // NOI18N
+		addressValue.setFont(poppinsFieldOutputFont); // NOI18N
 		addressValue.setText(" ");
 		
 		// set layout for address panel
@@ -665,7 +738,6 @@ public class DashboardPage extends JFrame {
 						.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 
 		pack();
-		// Must be called after setting pack
 		setSize(1366,788);
 		setLocationRelativeTo(null);
 		
