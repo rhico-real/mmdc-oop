@@ -514,7 +514,7 @@ public class DatabaseInitializer {
         // Create employee record for admin
         String insertEmployee = """
             INSERT INTO employees (employee_number, user_id, hire_date, employment_type) 
-            VALUES ('ADMIN001', ?, CURRENT_DATE, 'Full-time')
+            VALUES ('10000', ?, CURRENT_DATE, 'Full-time')
         """;
         
         int employeeId;
