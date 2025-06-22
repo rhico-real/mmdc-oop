@@ -7,6 +7,7 @@ import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
 import DAO.EmployeeDAO;
 import DAO.UserDAO;
+import GUI.admin.LeaveRequestListPage.ButtonRenderer;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -15,10 +16,18 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 @SuppressWarnings("serial")
 public class EmployeeListPage extends JFrame {
@@ -40,6 +49,19 @@ public class EmployeeListPage extends JFrame {
 		initComponents();
 		loadEmployeeData();
 	}
+	
+	// CUSTOM FONT CLASS
+	private static Font loadCustomFont(String fontPath, float size) {
+	    try {
+	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        ge.registerFont(font);
+	        return font;
+	    } catch (FontFormatException | IOException e) {
+	        System.err.println("Error loading font: " + e.getMessage());
+	        return null;
+	    }
+	}
 
 	private void initComponents() {
 
@@ -49,41 +71,54 @@ public class EmployeeListPage extends JFrame {
 	    setResizable(false);
 	    setSize(1366, 768);
 	    setLocationRelativeTo(null);
+	    
+	    // custom font
+	    Font poppinsRegular16f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f);
+	    Font poppinsSemiBold18f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
 
-	    // 🔹 Top Navigation Bar with LEFT and RIGHT sections
-	    JPanel navBar = new JPanel(new BorderLayout());
-	    navBar.setBackground(new Color(45, 62, 80));
-	    navBar.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
-
-	    // Left-aligned: Back to Dashboard
-	    JPanel leftNav = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-	    leftNav.setOpaque(false);
-	    JButton jButton1 = new JButton("← Back to Dashboard");
-	    jButton1.setFocusPainted(false);
-	    jButton1.setFont(new Font("Segoe UI", Font.BOLD, 14));
-	    jButton1.setForeground(Color.WHITE);
-	    jButton1.setBackground(new Color(52, 152, 219));
-	    jButton1.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
-	    jButton1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-	    jButton1.addActionListener(evt -> jButton1ActionPerformed(evt));
-	    leftNav.add(jButton1);
-
-	    // Right-aligned: Add Employee
-	    JPanel rightNav = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-	    rightNav.setOpaque(false);
-	    addEmployeeButton = new JButton("Add Employee");
+	    // Top Navigation Bar with LEFT and RIGHT sections
+	    JPanel navBar = new JPanel(new GridBagLayout());
+	    navBar.setBackground(Color.decode("#153969"));
+	    
+	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+        JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
+        
+        GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
+        motorPHLogoGBC.insets = new Insets(-20, 0, 0, 790);
+        navBar.add(motorPHLogo, motorPHLogoGBC);
+        
+        // back to dashboard button
+        JButton navBackButton = new JButton("Dashboard");
+	    navBackButton.setFocusPainted(false);
+	    navBackButton.setFont(poppinsRegular16f);
+	    navBackButton.setForeground(Color.WHITE);
+	    navBackButton.setBackground(Color.decode("#547792"));
+	    navBackButton.setPreferredSize(new Dimension(120, 40));
+	    navBackButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
+	    navBackButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    navBackButton.addActionListener(evt -> jButton1ActionPerformed(evt));
+	    navBar.add(navBackButton);
+	    
+	    GridBagConstraints navBackButtonGBC = new GridBagConstraints();
+	    navBackButtonGBC.insets = new Insets(0,0,0,0);
+        navBar.add(navBackButton, navBackButtonGBC);
+        
+	    // search button
+	    JButton addEmployeeButton = new JButton("Add Employee");
 	    addEmployeeButton.setFocusPainted(false);
-	    addEmployeeButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-	    addEmployeeButton.setBackground(new Color(52, 152, 219));
+	    addEmployeeButton.setFont(poppinsRegular16f);
 	    addEmployeeButton.setForeground(Color.WHITE);
-	    addEmployeeButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+	    addEmployeeButton.setBackground(Color.decode("#547792"));
+	    addEmployeeButton.setPreferredSize(new Dimension(160, 40));
+	    addEmployeeButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
 	    addEmployeeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	    addEmployeeButton.addActionListener(evt -> addEmployeeButtonActionPerformed(evt));
-	    rightNav.add(addEmployeeButton);
-
-	    // Add to navbar
-	    navBar.add(leftNav, BorderLayout.WEST);
-	    navBar.add(rightNav, BorderLayout.EAST);
+	    navBar.add(addEmployeeButton);
+	    
+	    GridBagConstraints addEmployeeButtonGBC = new GridBagConstraints();
+        addEmployeeButtonGBC.insets = new Insets(0,10,0,0);
+        navBar.add(addEmployeeButton, addEmployeeButtonGBC);
+	    
 
 	    // 🔹 Table Model
 	    DefaultTableModel model = new DefaultTableModel(new Object[][] {},
@@ -102,34 +137,48 @@ public class EmployeeListPage extends JFrame {
 	    // 🔹 Table Setup
 	    jTable1 = new JTable(model);
 	    jTable1.setRowHeight(30);
-	    jTable1.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+	    jTable1.setFont(poppinsRegular16f);
 	    jTable1.setSelectionBackground(new Color(173, 216, 230));
 	    jTable1.setSelectionForeground(Color.BLACK);
 	    jTable1.setGridColor(new Color(230, 230, 230));
 	    jTable1.setFillsViewportHeight(true);
 
 	    JTableHeader header = jTable1.getTableHeader();
-	    header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+	    header.setFont(poppinsSemiBold18f);
 	    header.setBackground(new Color(60, 63, 65));
 	    header.setForeground(Color.WHITE);
 	    header.setPreferredSize(new Dimension(100, 35));
 	    header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
 
 	    // 🔹 Column Widths
-	    jTable1.getColumnModel().getColumn(0).setPreferredWidth(90); // Employee Number
-	    jTable1.getColumnModel().getColumn(7).setPreferredWidth(60); // Edit
-	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(120); // View
-	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(100); // Delete
+	    jTable1.getColumnModel().getColumn(0).setPreferredWidth(125); // Employee Number
+	    jTable1.getColumnModel().getColumn(4).setPreferredWidth(120); 
+	    jTable1.getColumnModel().getColumn(5).setPreferredWidth(120); 
+	    jTable1.getColumnModel().getColumn(7).setPreferredWidth(20); // Edit
+	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(20); // View
+	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(20); // Delete
 
-	    // 🔹 Button Renderers & Editors
-	    jTable1.getColumnModel().getColumn(7).setCellRenderer(new ButtonRenderer("Edit"));
-	    jTable1.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor(0, "Edit", "UpdateEmployeeDetailsPage"));
 
-	    jTable1.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer("View Employee"));
-	    jTable1.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(0, "View Employee", "FullEmployeeDetailsPage"));
+	    // buttons
+	    jTable1.getColumnModel().getColumn(7).setCellRenderer(
+		        new ButtonRenderer("Edit", Color.GRAY)
+	    );
+	    jTable1.getColumnModel().getColumn(7).setCellEditor(
+	        new ButtonEditor(1, "Edit", "UpdateEmployeeDetailsPage")
+	    );
+	    jTable1.getColumnModel().getColumn(8).setCellRenderer(
+		        new ButtonRenderer("View", Color.GRAY)  
+	    );
+	    jTable1.getColumnModel().getColumn(8).setCellEditor(
+	        new ButtonEditor(1, "View Employee", "FullEmployeeDetailsPage")
+	    );
 
-	    jTable1.getColumnModel().getColumn(9).setCellRenderer(new ButtonRenderer("Delete"));
-	    jTable1.getColumnModel().getColumn(9).setCellEditor(new ButtonEditor(0, "Delete", "DeleteDialogPane"));
+	    jTable1.getColumnModel().getColumn(9).setCellRenderer(
+	        new ButtonRenderer("Delete", new Color(0xBF3131))  
+	    );
+	    jTable1.getColumnModel().getColumn(9).setCellEditor(
+	        new ButtonEditor(1, "Delete", "DeleteDialogPane")
+	    );
 
 	    // 🔹 Scroll Pane
 	    jScrollPane1 = new JScrollPane(jTable1);
@@ -201,6 +250,30 @@ public class EmployeeListPage extends JFrame {
 				JOptionPane.ERROR_MESSAGE);
 		}
 	}
+	
+	class ButtonRenderer extends JButton implements TableCellRenderer {
+	    private String label;
+	    private Color backgroundColor;
+
+	    public ButtonRenderer(String label, Color backgroundColor) {
+	        this.label = label;
+	        this.backgroundColor = backgroundColor;
+	        setOpaque(true);
+	        setFont(new Font("SansSerif", Font.BOLD, 14));
+	        setForeground(Color.WHITE);
+	        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+	        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    }
+
+	    @Override
+	    public Component getTableCellRendererComponent(JTable table, Object value,
+	            boolean isSelected, boolean hasFocus, int row, int column) {
+
+	        setText(label);
+	        setBackground(isSelected ? new Color(173, 216, 230) : backgroundColor);
+	        return this;
+	    }
+	}
 
 	// Click event of Go Back to Dashboard Button
 	private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
@@ -260,22 +333,6 @@ public class EmployeeListPage extends JFrame {
 		}
 	}
 
-	// Custom on-render look for the button column
-	private class ButtonRenderer extends JButton implements TableCellRenderer {
-		private String buttonLabel;
-
-		public ButtonRenderer(String buttonLabel) {
-			this.buttonLabel = buttonLabel;
-			setOpaque(true);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			setText(buttonLabel);
-			return this;
-		}
-	}
 
 	// Custom click-event look for the button column
 	private class ButtonEditor extends AbstractCellEditor implements TableCellEditor {

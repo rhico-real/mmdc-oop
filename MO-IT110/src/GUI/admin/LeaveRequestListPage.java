@@ -13,14 +13,23 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+
 
 @SuppressWarnings("serial")
 public class LeaveRequestListPage extends JFrame {
@@ -38,6 +47,19 @@ public class LeaveRequestListPage extends JFrame {
 	GovernmentIdentification employeeGI;
 	Compensation employeeComp;
 	LeaveRequest leaveRequest;
+	
+	// CUSTOM FONT ASSIGNMENT
+	private static Font loadCustomFont(String fontPath, float size) {
+	    try {
+	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        ge.registerFont(font);
+	        return font;
+	    } catch (FontFormatException | IOException e) {
+	        System.err.println("Error loading font: " + e.getMessage());
+	        return null;
+	    }
+	}
 
 	public LeaveRequestListPage(GovernmentIdentification employeeGI, Compensation employeeComp) throws ParseException {
 		this.employeeGI = employeeGI;
@@ -54,18 +76,32 @@ public class LeaveRequestListPage extends JFrame {
 	    setResizable(false);
 	    setSize(1366, 768);
 	    setLocationRelativeTo(null);
+	    
+	    // custom font
+	    Font poppinsRegular16f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f);
+	    Font poppinsSemiBold18f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
 
 	    // 🔹 Top Navigation Bar
-	    JPanel navBar = new JPanel();
-	    navBar.setBackground(new Color(45, 62, 80));
-	    navBar.setLayout(new FlowLayout(FlowLayout.LEFT, 20, 10));
+	    JPanel navBar = new JPanel(new GridBagLayout());
+	    navBar.setBackground(Color.decode("#153969"));
+	    
+	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+        JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
+        
+        GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
+        motorPHLogoGBC.gridx = 0;
+        motorPHLogoGBC.gridy = 0;
+        motorPHLogoGBC.insets = new Insets(-20, 0, 0, 950);
+        navBar.add(motorPHLogo, motorPHLogoGBC);
 
-	    JButton navBackButton = new JButton("← Back to Dashboard");
+
+	    JButton navBackButton = new JButton("Dashboard");
 	    navBackButton.setFocusPainted(false);
-	    navBackButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+	    navBackButton.setFont(poppinsRegular16f);
 	    navBackButton.setForeground(Color.WHITE);
-	    navBackButton.setBackground(new Color(52, 152, 219));
-	    navBackButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+	    navBackButton.setBackground(Color.decode("#547792"));
+	    navBackButton.setPreferredSize(new Dimension(120, 40));
+	    navBackButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
 	    navBackButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	    navBackButton.addActionListener(evt -> goBackButtonActionPerformed(evt));
 	    navBar.add(navBackButton);
@@ -87,8 +123,8 @@ public class LeaveRequestListPage extends JFrame {
 
 	    // 🔹 Table Setup
 	    jTable1 = new JTable(model);
-	    jTable1.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-	    jTable1.setRowHeight(30);
+	    jTable1.setFont(poppinsRegular16f);
+	    jTable1.setRowHeight(40);
 	    jTable1.setSelectionBackground(new Color(173, 216, 230));
 	    jTable1.setSelectionForeground(Color.BLACK);
 	    jTable1.setShowVerticalLines(false);
@@ -98,12 +134,12 @@ public class LeaveRequestListPage extends JFrame {
 	    jTable1.setAutoCreateRowSorter(true);
 
 	    JTableHeader header = jTable1.getTableHeader();
-	    header.setFont(new Font("Segoe UI", Font.BOLD, 15));
+	    header.setFont(poppinsSemiBold18f);
 	    header.setBackground(new Color(60, 63, 65));
 	    header.setForeground(Color.WHITE);
-	    header.setPreferredSize(new Dimension(100, 35));
+	    header.setPreferredSize(new Dimension(200, 35));
 
-	    // 🔹 Row Striping
+	    // Row Striping
 	    DefaultTableCellRenderer stripedRenderer = new DefaultTableCellRenderer() {
 	        @Override
 	        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
@@ -117,25 +153,34 @@ public class LeaveRequestListPage extends JFrame {
 	        jTable1.getColumnModel().getColumn(i).setCellRenderer(stripedRenderer);
 	    }
 
-	    // 🔹 Column Width
+	    // Column Width
 	    jTable1.getColumnModel().getColumn(0).setMinWidth(0);
 	    jTable1.getColumnModel().getColumn(0).setMaxWidth(0);
-	    jTable1.getColumnModel().getColumn(1).setPreferredWidth(90);
-	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(120);
-	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(80);
+	    jTable1.getColumnModel().getColumn(1).setPreferredWidth(125);
+	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(30);
+	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(30);
 
-	    // 🔹 Buttons
-	    jTable1.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer("View Request"));
-	    jTable1.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(1, "View Request", "LeaveRequestDetailsPage"));
+	    
+	    // Buttons with custom colors
+	    jTable1.getColumnModel().getColumn(8).setCellRenderer(
+	        new ButtonRenderer("View", Color.GRAY)
+	    );
+	    jTable1.getColumnModel().getColumn(8).setCellEditor(
+	        new ButtonEditor(1, "View Request", "LeaveRequestDetailsPage")
+	    );
 
-	    jTable1.getColumnModel().getColumn(9).setCellRenderer(new ButtonRenderer("Delete"));
-	    jTable1.getColumnModel().getColumn(9).setCellEditor(new ButtonEditor(1, "Delete", "DeleteDialogPane"));
+	    jTable1.getColumnModel().getColumn(9).setCellRenderer(
+	        new ButtonRenderer("Delete", new Color(0xBF3131))  
+	    );
+	    jTable1.getColumnModel().getColumn(9).setCellEditor(
+	        new ButtonEditor(1, "Delete", "DeleteDialogPane")
+	    );
 
-	    // 🔹 Scroll Pane
+	    // Scroll Pane
 	    jScrollPane1 = new JScrollPane(jTable1);
 	    jScrollPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-	    // 🔹 Layout (Full Use of Window Space)
+	    // Layout (Full Use of Window Space)
 	    GroupLayout layout = new GroupLayout(getContentPane());
 	    getContentPane().setLayout(layout);
 	    layout.setHorizontalGroup(
@@ -244,20 +289,28 @@ public class LeaveRequestListPage extends JFrame {
 	}
 
 	// Custom on-render look for the button column
-	private class ButtonRenderer extends JButton implements TableCellRenderer {
-		private String buttonLabel;
+	class ButtonRenderer extends JButton implements TableCellRenderer {
+	    private String label;
+	    private Color backgroundColor;
 
-		public ButtonRenderer(String buttonLabel) {
-			this.buttonLabel = buttonLabel;
-			setOpaque(true);
-		}
+	    public ButtonRenderer(String label, Color backgroundColor) {
+	        this.label = label;
+	        this.backgroundColor = backgroundColor;
+	        setOpaque(true);
+	        setFont(new Font("SansSerif", Font.BOLD, 14));
+	        setForeground(Color.WHITE);
+	        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+	        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    }
 
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			setText(buttonLabel);
-			return this;
-		}
+	    @Override
+	    public Component getTableCellRendererComponent(JTable table, Object value,
+	            boolean isSelected, boolean hasFocus, int row, int column) {
+
+	        setText(label);
+	        setBackground(isSelected ? new Color(173, 216, 230) : backgroundColor);
+	        return this;
+	    }
 	}
 
 	// Custom click-event look for the button column
