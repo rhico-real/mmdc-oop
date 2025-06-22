@@ -22,6 +22,7 @@ public class FinanceViewEmployeeDetailsPage extends JFrame {
     private void initComponents() {
         setTitle("MotorPH Payroll System | Finance - View Employee Details");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(1366,768);
         setResizable(false);
 
         // Create main panel

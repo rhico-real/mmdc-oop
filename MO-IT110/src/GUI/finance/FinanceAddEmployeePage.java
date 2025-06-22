@@ -42,6 +42,7 @@ public class FinanceAddEmployeePage extends JFrame {
     private void initComponents() {
         setTitle("MotorPH Payroll System | Finance - Add Employee");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(1366,768);
         setResizable(false);
         
         // Initialize fields

@@ -26,7 +26,7 @@ public class HRSearchEmployeePage extends JFrame {
     private void initComponents() {
         setTitle("Search Employee - HR Portal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(900, 700);
+        setSize(1366, 788);
         setResizable(false);
         
         // Main panel

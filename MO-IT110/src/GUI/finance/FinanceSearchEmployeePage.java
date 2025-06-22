@@ -26,7 +26,7 @@ public class FinanceSearchEmployeePage extends JFrame {
     private void initComponents() {
         setTitle("MotorPH Payroll System | Finance - Search Employee");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        setSize(600, 400);
+        setSize(1366,768);
         setLocationRelativeTo(null);
 
         // Search panel

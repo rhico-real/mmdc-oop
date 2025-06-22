@@ -76,7 +76,7 @@ public class HRCreatePayslipPage extends JFrame {
     private void initComponents() {
         setTitle("Create Payslip - HR Portal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 900);
+        setSize(1366, 788);
         setResizable(true);
         
         // Main panel

@@ -3,6 +3,7 @@ package GUI.finance;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -39,128 +40,182 @@ public class FinanceDashboard extends JFrame {
     }
     
     private void initComponents() {
-        setTitle("MotorPH Payroll System | Finance Dashboard");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 700);
-        setLocationRelativeTo(null);
-        
-        // Main panel with border layout
-        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
-        mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
-        
-        // Header panel
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-        
-        JLabel titleLabel = new JLabel("HR Department - Employee Management");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        headerPanel.add(titleLabel, BorderLayout.WEST);
-        
-        // Search panel
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        searchField = new JTextField(20);
-        searchButton = new JButton("Search");
-        clearButton = new JButton("Clear");
-        
-        searchPanel.add(new JLabel("Search:"));
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
-        searchPanel.add(clearButton);
-        
-        headerPanel.add(searchPanel, BorderLayout.EAST);
-        
-        // Table setup
-        String[] columnNames = {
-            "Employee ID", "Last Name", "First Name", "Position", 
-            "Status", "Basic Salary", "View", "Edit", "Delete"
-        };
-        
-        tableModel = new DefaultTableModel(columnNames, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                // Only make action buttons columns editable
-                return column >= 6;
-            }
-            
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                return columnIndex >= 6 ? JButton.class : Object.class;
-            }
-        };
-        
-        employeeTable = new JTable(tableModel);
-        employeeTable.setRowHeight(35);
-        employeeTable.setShowGrid(true);
-        employeeTable.setGridColor(Color.LIGHT_GRAY);
-        employeeTable.setFillsViewportHeight(true);
-        
-        // Column widths
-        employeeTable.getColumnModel().getColumn(0).setPreferredWidth(80);  // ID
-        employeeTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Last Name
-        employeeTable.getColumnModel().getColumn(2).setPreferredWidth(120); // First Name
-        employeeTable.getColumnModel().getColumn(3).setPreferredWidth(150); // Position
-        employeeTable.getColumnModel().getColumn(4).setPreferredWidth(80);  // Status
-        employeeTable.getColumnModel().getColumn(5).setPreferredWidth(100); // Salary
-        employeeTable.getColumnModel().getColumn(6).setPreferredWidth(70);  // View
-        employeeTable.getColumnModel().getColumn(7).setPreferredWidth(70);  // Edit
-        employeeTable.getColumnModel().getColumn(8).setPreferredWidth(70);  // Delete
-        
-        // Button renderers and editors
-        employeeTable.getColumnModel().getColumn(6).setCellRenderer(new ButtonRenderer("View"));
-        employeeTable.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(new JButton("View"), "view"));
-        
-        employeeTable.getColumnModel().getColumn(7).setCellRenderer(new ButtonRenderer("Edit"));
-        employeeTable.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor(new JButton("Edit"), "edit"));
-        
-        employeeTable.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer("Delete"));
-        employeeTable.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(new JButton("Delete"), "delete"));
-        
-        // Make header bold
-        JTableHeader header = employeeTable.getTableHeader();
-        header.setFont(new Font("Arial", Font.BOLD, 12));
-        
-        // Add table to scroll pane
-        JScrollPane scrollPane = new JScrollPane(employeeTable);
-        
-        // Button panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        addEmployeeButton = new JButton("Add New Employee");
-        refreshButton = new JButton("Refresh Data");
-        
-        buttonPanel.add(addEmployeeButton);
-        buttonPanel.add(refreshButton);
-        
-        // Status panel at the bottom
-        JPanel statusPanel = new JPanel(new BorderLayout());
-        statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
-        
-        statusLabel = new JLabel("Ready");
-        logoutButton = new JButton("Logout");
-        
-        statusPanel.add(statusLabel, BorderLayout.WEST);
-        statusPanel.add(logoutButton, BorderLayout.EAST);
-        
-        // Add components to main panel
-        mainPanel.add(headerPanel, BorderLayout.NORTH);
-        mainPanel.add(scrollPane, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-        mainPanel.add(statusPanel, BorderLayout.SOUTH);
-        
-        // Add main panel to frame
-        add(mainPanel);
-        
-        // Event handlers
-        addEmployeeButton.addActionListener(e -> openAddEmployee());
-        refreshButton.addActionListener(e -> loadEmployeeData());
-        searchButton.addActionListener(e -> searchEmployees());
-        clearButton.addActionListener(e -> {
-            searchField.setText("");
-            loadEmployeeData();
-        });
-        logoutButton.addActionListener(e -> logout());
-        
-        // Search field enter key
-        searchField.addActionListener(e -> searchEmployees());
+    	setTitle("MotorPH Payroll System | Finance Dashboard");
+    	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    	setSize(1366, 768);
+    	setLocationRelativeTo(null);
+
+    	// Main panel
+    	JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+    	mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+    	// Header panel (Navbar)
+    	JPanel headerPanel = new JPanel(new BorderLayout());
+    	headerPanel.setBackground(Color.decode("#153969"));
+    	headerPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+
+    	JLabel titleLabel = new JLabel("HR Department - Employee Management");
+    	titleLabel.setFont(new Font("Sans Serif", Font.BOLD, 20));
+    	titleLabel.setForeground(Color.WHITE);
+    	headerPanel.add(titleLabel, BorderLayout.WEST);
+
+    	// Search panel
+    	JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    	searchPanel.setOpaque(false);
+
+    	searchField = new JTextField(20);
+    	searchField.setPreferredSize(new Dimension(300, 32)); 
+    	searchField.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+
+    	// Custom styled buttons
+    	Color primaryBlue = new Color(33, 150, 243);
+    	Color hoverBlue = new Color(30, 136, 229);
+
+    	searchButton = new JButton("Search");
+    	clearButton = new JButton("Clear");
+
+    	JButton[] navButtons = { searchButton, clearButton };
+    	for (JButton btn : navButtons) {
+    	    btn.setFont(new Font("Sans Serif", Font.PLAIN, 15));
+    	    btn.setBackground(primaryBlue);
+    	    btn.setForeground(Color.WHITE);
+    	    btn.setFocusPainted(false);
+    	    btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+    	    btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    	    btn.setOpaque(true);
+
+    	    btn.addMouseListener(new java.awt.event.MouseAdapter() {
+    	        public void mouseEntered(java.awt.event.MouseEvent evt) {
+    	            btn.setBackground(hoverBlue);
+    	        }
+
+    	        public void mouseExited(java.awt.event.MouseEvent evt) {
+    	            btn.setBackground(primaryBlue);
+    	        }
+    	    });
+    	}
+    	
+    	searchPanel.add(searchField);
+    	searchPanel.add(searchButton);
+    	searchPanel.add(clearButton);
+
+    	headerPanel.add(searchPanel, BorderLayout.EAST);
+
+    	// Table setup
+    	String[] columnNames = {
+    	    "Employee ID", "Last Name", "First Name", "Position",
+    	    "Status", "Basic Salary", "View", "Edit", "Delete"
+    	};
+
+    	tableModel = new DefaultTableModel(columnNames, 0) {
+    	    @Override
+    	    public boolean isCellEditable(int row, int column) {
+    	        return column >= 6;
+    	    }
+
+    	    @Override
+    	    public Class<?> getColumnClass(int columnIndex) {
+    	        return columnIndex >= 6 ? JButton.class : Object.class;
+    	    }
+    	};
+
+    	// JTable with zebra striping
+    	employeeTable = new JTable(tableModel) {
+    	    @Override
+    	    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+    	        Component c = super.prepareRenderer(renderer, row, column);
+    	        if (!isRowSelected(row)) {
+    	            Color bg = (row % 2 == 0) ? Color.WHITE : new Color(240, 240, 240);
+    	            c.setBackground(bg);
+    	        } else {
+    	            c.setBackground(getSelectionBackground());
+    	        }
+    	        return c;
+    	    }
+    	};
+
+    	employeeTable.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	employeeTable.setRowHeight(35);
+    	employeeTable.setShowGrid(true);
+    	employeeTable.setGridColor(Color.LIGHT_GRAY);
+    	employeeTable.setFillsViewportHeight(true);
+
+    	// Column widths
+    	employeeTable.getColumnModel().getColumn(0).setPreferredWidth(80);
+    	employeeTable.getColumnModel().getColumn(1).setPreferredWidth(120);
+    	employeeTable.getColumnModel().getColumn(2).setPreferredWidth(120);
+    	employeeTable.getColumnModel().getColumn(3).setPreferredWidth(150);
+    	employeeTable.getColumnModel().getColumn(4).setPreferredWidth(80);
+    	employeeTable.getColumnModel().getColumn(5).setPreferredWidth(100);
+    	employeeTable.getColumnModel().getColumn(6).setPreferredWidth(70);
+    	employeeTable.getColumnModel().getColumn(7).setPreferredWidth(70);
+    	employeeTable.getColumnModel().getColumn(8).setPreferredWidth(70);
+
+    	// Button renderers/editors
+    	employeeTable.getColumnModel().getColumn(6).setCellRenderer(new ButtonRenderer("View"));
+    	employeeTable.getColumnModel().getColumn(6).setCellEditor(new ButtonEditor(new JButton("View"), "view"));
+
+    	employeeTable.getColumnModel().getColumn(7).setCellRenderer(new ButtonRenderer("Edit"));
+    	employeeTable.getColumnModel().getColumn(7).setCellEditor(new ButtonEditor(new JButton("Edit"), "edit"));
+
+    	employeeTable.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer("Delete"));
+    	employeeTable.getColumnModel().getColumn(8).setCellEditor(new ButtonEditor(new JButton("Delete"), "delete"));
+
+    	// Header font
+    	JTableHeader header = employeeTable.getTableHeader();
+    	header.setFont(new Font("Sans Serif", Font.BOLD, 20));
+
+    	// Scroll pane
+    	JScrollPane scrollPane = new JScrollPane(employeeTable);
+
+    	// Button panel
+    	JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    	addEmployeeButton = new JButton("Add New Employee");
+    	refreshButton = new JButton("Refresh Data");
+
+    	addEmployeeButton.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	refreshButton.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+
+    	buttonPanel.add(addEmployeeButton);
+    	buttonPanel.add(refreshButton);
+
+    	// Status panel
+    	JPanel statusPanel = new JPanel(new BorderLayout());
+    	statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
+
+    	statusLabel = new JLabel("Ready");
+    	statusLabel.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	
+    	logoutButton = new JButton("Logout");
+    	logoutButton.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	logoutButton.setBackground(Color.RED);
+    	logoutButton.setForeground(Color.WHITE);
+    	logoutButton.setFocusPainted(false);
+    	logoutButton.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
+    	logoutButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    	logoutButton.setOpaque(true);
+
+    	statusPanel.add(statusLabel, BorderLayout.WEST);
+    	statusPanel.add(logoutButton, BorderLayout.EAST);
+
+    	// Add panels to layout
+    	mainPanel.add(headerPanel, BorderLayout.NORTH);
+    	mainPanel.add(scrollPane, BorderLayout.CENTER);
+    	mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+    	mainPanel.add(statusPanel, BorderLayout.PAGE_END);
+
+    	add(mainPanel);
+
+    	// Event handlers
+    	addEmployeeButton.addActionListener(e -> openAddEmployee());
+    	refreshButton.addActionListener(e -> loadEmployeeData());
+    	searchButton.addActionListener(e -> searchEmployees());
+    	clearButton.addActionListener(e -> {
+    	    searchField.setText("");
+    	    loadEmployeeData();
+    	});
+    	logoutButton.addActionListener(e -> logout());
+    	searchField.addActionListener(e -> searchEmployees());
     }
     
     private void loadEmployeeData() {

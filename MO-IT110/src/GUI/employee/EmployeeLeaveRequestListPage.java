@@ -46,6 +46,7 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 		// Set JFrame
 		setTitle("MotorPH Payroll System | Leave Requests");
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		setSize(1366,768);
 		setResizable(false);
 
 		// Instantiate Table

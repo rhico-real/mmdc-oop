@@ -1,5 +1,6 @@
 package GUI.admin;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
@@ -370,7 +371,8 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 				CustomTooltip.hideCustomTooltip();
 			}
 		});
-
+		
+		jPanel3.setBackground(Color.RED);
 		javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
 		jPanel3.setLayout(jPanel3Layout);
 		jPanel3Layout.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -508,6 +510,7 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 		pack();
 
 		// Make the window appear in the middle
+		setSize(1366,768);
 		setLocationRelativeTo(null);
 	}// </editor-fold>
 

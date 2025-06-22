@@ -7,13 +7,27 @@ import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
 import DAO.EmployeeDAO;
 import DAO.UserDAO;
+import GUI.admin.LeaveRequestListPage.ButtonRenderer;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 @SuppressWarnings("serial")
 public class EmployeeListPage extends JFrame {
@@ -35,121 +49,159 @@ public class EmployeeListPage extends JFrame {
 		initComponents();
 		loadEmployeeData();
 	}
+	
+	// CUSTOM FONT CLASS
+	private static Font loadCustomFont(String fontPath, float size) {
+	    try {
+	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        ge.registerFont(font);
+	        return font;
+	    } catch (FontFormatException | IOException e) {
+	        System.err.println("Error loading font: " + e.getMessage());
+	        return null;
+	    }
+	}
 
 	private void initComponents() {
 
 		// Set JFrame
 		setTitle("MotorPH Payroll System | Employee List");
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		setResizable(false);
+	    setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+	    setResizable(false);
+	    setSize(1366, 768);
+	    setLocationRelativeTo(null);
+	    
+	    // custom font
+	    Font poppinsRegular16f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f);
+	    Font poppinsSemiBold18f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
 
-		// Instantiate Table
-		jTable1 = new JTable();
+	    // Top Navigation Bar with LEFT and RIGHT sections
+	    JPanel navBar = new JPanel(new GridBagLayout());
+	    navBar.setBackground(Color.decode("#153969"));
+	    
+	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+        JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
+        
+        GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
+        motorPHLogoGBC.insets = new Insets(-20, 0, 0, 790);
+        navBar.add(motorPHLogo, motorPHLogoGBC);
+        
+        // back to dashboard button
+        JButton navBackButton = new JButton("Dashboard");
+	    navBackButton.setFocusPainted(false);
+	    navBackButton.setFont(poppinsRegular16f);
+	    navBackButton.setForeground(Color.WHITE);
+	    navBackButton.setBackground(Color.decode("#547792"));
+	    navBackButton.setPreferredSize(new Dimension(120, 40));
+	    navBackButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
+	    navBackButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    navBackButton.addActionListener(evt -> jButton1ActionPerformed(evt));
+	    navBar.add(navBackButton);
+	    
+	    GridBagConstraints navBackButtonGBC = new GridBagConstraints();
+	    navBackButtonGBC.insets = new Insets(0,0,0,0);
+        navBar.add(navBackButton, navBackButtonGBC);
+        
+	    // search button
+	    JButton addEmployeeButton = new JButton("Add Employee");
+	    addEmployeeButton.setFocusPainted(false);
+	    addEmployeeButton.setFont(poppinsRegular16f);
+	    addEmployeeButton.setForeground(Color.WHITE);
+	    addEmployeeButton.setBackground(Color.decode("#547792"));
+	    addEmployeeButton.setPreferredSize(new Dimension(160, 40));
+	    addEmployeeButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
+	    addEmployeeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    addEmployeeButton.addActionListener(evt -> addEmployeeButtonActionPerformed(evt));
+	    navBar.add(addEmployeeButton);
+	    
+	    GridBagConstraints addEmployeeButtonGBC = new GridBagConstraints();
+        addEmployeeButtonGBC.insets = new Insets(0,10,0,0);
+        navBar.add(addEmployeeButton, addEmployeeButtonGBC);
+	    
 
-		addEmployeeButton = new JButton();
-		deleteEmployeeButton = new JButton();
+	    // 🔹 Table Model
+	    DefaultTableModel model = new DefaultTableModel(new Object[][] {},
+	        new String[] { "Employee Number", "Last Name", "First Name", "SSS No.", "PhilHealth No.", "TIN", "Pagibig No.", "", "", "" }) {
+	        @Override
+	        public Class<?> getColumnClass(int columnIndex) {
+	            return (columnIndex >= getColumnCount() - 3) ? JButton.class : Object.class;
+	        }
 
-		// Instantiate Button Component
-		jButton1 = new JButton();
-		jButton1.setText("Go Back to Dashboard");
-		jButton1.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				jButton1ActionPerformed(evt);
-			}
-		});
+	        @Override
+	        public boolean isCellEditable(int row, int column) {
+	            return column >= getColumnCount() - 3;
+	        }
+	    };
 
-		// Create an empty default table model
-		DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "Employee Number",
-				"Last Name", "First Name", "SSS No.", "PhilHealth No.", "TIN", "Pagibig No.", "", "", "" }) {
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				// Return the appropriate class for the last column (column with buttons)
-				return (columnIndex == getColumnCount() - 1) || (columnIndex == getColumnCount() - 2) ? JButton.class
-						: Object.class;
-			}
+	    // 🔹 Table Setup
+	    jTable1 = new JTable(model);
+	    jTable1.setRowHeight(30);
+	    jTable1.setFont(poppinsRegular16f);
+	    jTable1.setSelectionBackground(new Color(173, 216, 230));
+	    jTable1.setSelectionForeground(Color.BLACK);
+	    jTable1.setGridColor(new Color(230, 230, 230));
+	    jTable1.setFillsViewportHeight(true);
 
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				// Allow editing only for the last column
-				return column == getColumnCount() - 1 || column == getColumnCount() - 2
-						|| column == getColumnCount() - 3;
-			}
-		};
+	    JTableHeader header = jTable1.getTableHeader();
+	    header.setFont(poppinsSemiBold18f);
+	    header.setBackground(new Color(60, 63, 65));
+	    header.setForeground(Color.WHITE);
+	    header.setPreferredSize(new Dimension(100, 35));
+	    header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
 
-		// Modify Table Row Height
-		jTable1 = new JTable(model);
-		jTable1.setRowHeight(30);
+	    // 🔹 Column Widths
+	    jTable1.getColumnModel().getColumn(0).setPreferredWidth(125); // Employee Number
+	    jTable1.getColumnModel().getColumn(4).setPreferredWidth(120); 
+	    jTable1.getColumnModel().getColumn(5).setPreferredWidth(120); 
+	    jTable1.getColumnModel().getColumn(7).setPreferredWidth(20); // Edit
+	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(20); // View
+	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(20); // Delete
 
-		// Modify the width of the first column
-		TableColumn firstColumn = jTable1.getColumnModel().getColumn(0);
-		firstColumn.setPreferredWidth(90); // Set your preferred width here
 
-		// Modify the width of the last column
-		TableColumn lastColumn = jTable1.getColumnModel().getColumn(numberOfColumns);
-		lastColumn.setPreferredWidth(50); // Set your preferred width here
+	    // buttons
+	    jTable1.getColumnModel().getColumn(7).setCellRenderer(
+		        new ButtonRenderer("Edit", Color.GRAY)
+	    );
+	    jTable1.getColumnModel().getColumn(7).setCellEditor(
+	        new ButtonEditor(1, "Edit", "UpdateEmployeeDetailsPage")
+	    );
+	    jTable1.getColumnModel().getColumn(8).setCellRenderer(
+		        new ButtonRenderer("View", Color.GRAY)  
+	    );
+	    jTable1.getColumnModel().getColumn(8).setCellEditor(
+	        new ButtonEditor(1, "View Employee", "FullEmployeeDetailsPage")
+	    );
 
-		// Modify the width of the last column
-		TableColumn editColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 2);
-		editColumn.setPreferredWidth(40); // Set your preferred width here
+	    jTable1.getColumnModel().getColumn(9).setCellRenderer(
+	        new ButtonRenderer("Delete", new Color(0xBF3131))  
+	    );
+	    jTable1.getColumnModel().getColumn(9).setCellEditor(
+	        new ButtonEditor(1, "Delete", "DeleteDialogPane")
+	    );
 
-		// Modify the width of the last column
-		TableColumn deleteColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 1);
-		deleteColumn.setPreferredWidth(100); // Set your preferred width here
+	    // 🔹 Scroll Pane
+	    jScrollPane1 = new JScrollPane(jTable1);
+	    jScrollPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		// Set a custom renderer and editor for the Edit Column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1).setCellRenderer(new ButtonRenderer("Delete"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1)
-				.setCellEditor(new ButtonEditor(0, "Delete", "DeleteDialogPane"));
+	    // 🔹 Layout
+	    GroupLayout layout = new GroupLayout(getContentPane());
+	    getContentPane().setLayout(layout);
+	    layout.setHorizontalGroup(
+	        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addComponent(navBar, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
+	    layout.setVerticalGroup(
+	        layout.createSequentialGroup()
+	            .addComponent(navBar, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
+	            .addGap(0)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
 
-		// Set a custom renderer and editor for the View Employee column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellRenderer(new ButtonRenderer("View Employee"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellEditor(new ButtonEditor(0, "View Employee", "FullEmployeeDetailsPage"));
-
-		// Set a custom renderer and editor for the Edit Column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 3).setCellRenderer(new ButtonRenderer("Edit"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 3)
-				.setCellEditor(new ButtonEditor(0, "Edit", "UpdateEmployeeDetailsPage"));
-
-		// Set custom renderer for the header cells to make them bold
-		JTableHeader header = jTable1.getTableHeader();
-		header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
-
-		jScrollPane1 = new JScrollPane(jTable1);
-
-		addEmployeeButton.setText("Add Employee");
-		addEmployeeButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				addEmployeeButtonActionPerformed(evt);
-			}
-		});
-
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addContainerGap()
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 996, Short.MAX_VALUE)
-								.addGroup(layout.createSequentialGroup().addComponent(jButton1)
-										.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-												javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-										.addComponent(addEmployeeButton)))
-						.addContainerGap()));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-				javax.swing.GroupLayout.Alignment.TRAILING,
-				layout.createSequentialGroup().addContainerGap(13, Short.MAX_VALUE)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(jButton1).addComponent(addEmployeeButton))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addContainerGap()));
-
-		pack();
-
-		// Make the window appear in the middle
-		setLocationRelativeTo(null);
+	    pack();
+	    setSize(1366,768);
+	    setLocationRelativeTo(null);
 	}
 
 	private void loadEmployeeData() {
@@ -197,6 +249,30 @@ public class EmployeeListPage extends JFrame {
 				"Database Error", 
 				JOptionPane.ERROR_MESSAGE);
 		}
+	}
+	
+	class ButtonRenderer extends JButton implements TableCellRenderer {
+	    private String label;
+	    private Color backgroundColor;
+
+	    public ButtonRenderer(String label, Color backgroundColor) {
+	        this.label = label;
+	        this.backgroundColor = backgroundColor;
+	        setOpaque(true);
+	        setFont(new Font("SansSerif", Font.BOLD, 14));
+	        setForeground(Color.WHITE);
+	        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+	        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    }
+
+	    @Override
+	    public Component getTableCellRendererComponent(JTable table, Object value,
+	            boolean isSelected, boolean hasFocus, int row, int column) {
+
+	        setText(label);
+	        setBackground(isSelected ? new Color(173, 216, 230) : backgroundColor);
+	        return this;
+	    }
 	}
 
 	// Click event of Go Back to Dashboard Button
@@ -257,22 +333,6 @@ public class EmployeeListPage extends JFrame {
 		}
 	}
 
-	// Custom on-render look for the button column
-	private class ButtonRenderer extends JButton implements TableCellRenderer {
-		private String buttonLabel;
-
-		public ButtonRenderer(String buttonLabel) {
-			this.buttonLabel = buttonLabel;
-			setOpaque(true);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			setText(buttonLabel);
-			return this;
-		}
-	}
 
 	// Custom click-event look for the button column
 	private class ButtonEditor extends AbstractCellEditor implements TableCellEditor {

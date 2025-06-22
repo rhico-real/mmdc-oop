@@ -244,6 +244,7 @@ public class EmployeeDashboard extends JFrame {
 
 		setTitle("MotorPH Payroll System | Full Details of " + employeeGI.getLastName());
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		setSize(1366,768);
 		setResizable(false);
 
 		jPanel1.setBackground(new java.awt.Color(255, 255, 255));
@@ -856,54 +857,6 @@ public class EmployeeDashboard extends JFrame {
 		welcomeLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 		welcomeLabel.setText("Welcome, " + employeeGI.getLastName() + ".");
 
-//		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-//		jPanel1.setLayout(jPanel1Layout);
-//		jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//				.addGroup(jPanel1Layout.createSequentialGroup().addContainerGap(41, Integer.MAX_VALUE)
-//						.addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//								.addComponent(welcomeLabel)
-//								.addGroup(jPanel1Layout
-//										.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-//										.addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING,
-//												javax.swing.GroupLayout.PREFERRED_SIZE, 948,
-//												javax.swing.GroupLayout.PREFERRED_SIZE)
-//										.addGroup(jPanel1Layout.createSequentialGroup()
-//												.addComponent(submitLeaveRequestButton,
-//														javax.swing.GroupLayout.PREFERRED_SIZE, 206,
-//														javax.swing.GroupLayout.PREFERRED_SIZE)
-//												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-//														javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-//												.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE,
-//														179, javax.swing.GroupLayout.PREFERRED_SIZE)
-//												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-//												.addComponent(computeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 89,
-//														javax.swing.GroupLayout.PREFERRED_SIZE))))
-//						.addContainerGap(41, Integer.MAX_VALUE)));
-//		jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//				.addGroup(jPanel1Layout.createSequentialGroup().addContainerGap(39, Integer.MAX_VALUE)
-//						.addComponent(welcomeLabel)
-//						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-//						.addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-//								.addComponent(computeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-//										javax.swing.GroupLayout.PREFERRED_SIZE)
-//								.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-//										javax.swing.GroupLayout.PREFERRED_SIZE)
-//								.addComponent(submitLeaveRequestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-//										javax.swing.GroupLayout.PREFERRED_SIZE))
-//						.addGap(12, 12, 12).addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 438,
-//								javax.swing.GroupLayout.PREFERRED_SIZE)
-//						.addGap(27, 27, 27)));
-//
-//		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-//		getContentPane().setLayout(layout);
-//		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-//				jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
-//		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-//				.addGroup(layout.createSequentialGroup()
-//						.addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE,
-//								javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-//						.addGap(0, 0, Integer.MAX_VALUE)));
-
 		logoutButton.setText("Log Out");
 		logoutButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -987,8 +940,11 @@ public class EmployeeDashboard extends JFrame {
 		pack();
 
 		// Must be called after setting pack
+		setSize(1366,768);
 		setLocationRelativeTo(null);
-	}// </editor-fold>
+	}
+	
+	// </editor-fold>
 	
 	private void submitOvertimeButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		OvertimeDialog dialog = new OvertimeDialog(this);

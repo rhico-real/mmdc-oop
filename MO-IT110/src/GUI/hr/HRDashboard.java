@@ -14,9 +14,9 @@ public class HRDashboard extends JFrame {
     }
     
     private void initComponents() {
-        setTitle("FINANCE Dashboard - MotorPH Portal");
+        setTitle("Human Resource Dashboard - MotorPH Portal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 600);
+        setSize(1366, 768);
         setResizable(false);
         
         // Main panel with padding
