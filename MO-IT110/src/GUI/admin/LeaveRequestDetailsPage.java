@@ -1,16 +1,13 @@
 package GUI.admin;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.swing.JFrame;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import javax.swing.JOptionPane;
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
-import UtilityClasses.JsonFileHandler;
+import DAO.LeaveRequestDAO;
 
 @SuppressWarnings("serial")
 public class LeaveRequestDetailsPage extends JFrame {
@@ -111,12 +108,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 		submitButton.setText("Approve");
 		submitButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				try {
-					approveButtonActionPerformed(evt);
-				} catch (IOException e) {
-					
-					e.printStackTrace();
-				}
+				approveButtonActionPerformed(evt);
 			}
 		});
 
@@ -130,12 +122,7 @@ public class LeaveRequestDetailsPage extends JFrame {
 		viewRequestsButton.setText("Reject");
 		viewRequestsButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				try {
-					rejectButtonActionPerformed(evt);
-				} catch (IOException e) {
-					
-					e.printStackTrace();
-				}
+				rejectButtonActionPerformed(evt);
 			}
 		});
 
@@ -195,150 +182,206 @@ public class LeaveRequestDetailsPage extends JFrame {
 		pack();
 
 		// Put the window in the middle
+		setSize(1366,768);
 		setLocationRelativeTo(null);
 	}
 
-	private void rejectButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
-		// Instantiate error message in case of misinput
-		StringBuilder errorMessage = new StringBuilder();
-
-		// Read the JSON file and parse it into a Java object
-		JsonArray jsonArrayLeaveRequest = JsonFileHandler.getLeaveRequestJSON();
-
-		// Update a specific entry in the Java object
-		String employeeNumToUpdate = leaveRequest.getEmployeeNum();
-		String startDate = leaveRequest.getStartDate();
-		String endDate = leaveRequest.getEndDate();
-		String notes = leaveRequest.getNotes();
-		String leaveType = leaveRequest.getLeaveType();
-
-		rejectEntry(jsonArrayLeaveRequest, employeeNumToUpdate, startDate, endDate, notes, leaveType, errorMessage);
-
-		// Convert the Java object back to JSON
-		String updatedJson = jsonArrayLeaveRequest.toString();
-
-		// Write the updated JSON back to the file
-		JsonFileHandler.writeJsonFile(updatedJson, JsonFileHandler.getLeaveRequestJsonPath());
-
-		// Go back to the employee list page
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				// Remove the UpdateEmployeeDetailsPage Window
-				dispose();
-
-				try {
-					new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
-				} catch (ParseException e) {
-					
-					e.printStackTrace();
+	private void rejectButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		try {
+			// Add debugging information
+			System.out.println("Attempting to reject leave request with ID: " + leaveRequest.getId());
+			System.out.println("Leave request details: Employee=" + leaveRequest.getEmployeeNum() + 
+							   ", Name=" + leaveRequest.getFirstName() + " " + leaveRequest.getLastName());
+			
+			// Validate leave request data
+			if (leaveRequest == null) {
+				JOptionPane.showMessageDialog(this, 
+					"Error: Leave request data is not available.", 
+					"Data Error", 
+					JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			if (leaveRequest.getId() == null || leaveRequest.getId().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(this, 
+					"Error: Leave request ID is missing.", 
+					"Data Error", 
+					JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			// Check if the leave request is already processed
+			String currentStatus = leaveRequest.isApproved();
+			if ("Approved".equals(currentStatus) || "Rejected".equals(currentStatus)) {
+				int choice = JOptionPane.showConfirmDialog(this, 
+					"This leave request is already " + currentStatus.toLowerCase() + 
+					". Do you want to change it to Rejected?", 
+					"Status Change Confirmation", 
+					JOptionPane.YES_NO_OPTION);
+				
+				if (choice != JOptionPane.YES_OPTION) {
+					return;
 				}
 			}
-		});
+			
+			// Update leave request status to "Rejected" in the database
+			boolean success = LeaveRequestDAO.updateLeaveRequestStatus(leaveRequest.getId(), "Rejected");
+			
+			if (success) {
+				// Update the local object as well
+				leaveRequest.setApproved("Rejected");
+				
+				JOptionPane.showMessageDialog(this, 
+					"Leave request has been rejected successfully!", 
+					"Success", 
+					JOptionPane.INFORMATION_MESSAGE);
+				
+				// Go back to the leave request list page
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						dispose();
+						try {
+							new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
+						} catch (ParseException e) {
+							e.printStackTrace();
+							JOptionPane.showMessageDialog(null, 
+								"Error navigating back to list: " + e.getMessage(), 
+								"Navigation Error", 
+								JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				});
+			} else {
+				// More detailed error message
+				String errorMsg = "Failed to reject leave request. Possible causes:\n" +
+								"- Database connection issue\n" +
+								"- Leave request not found in database\n" +
+								"- Database constraint violation\n\n" +
+								"Please check the console for detailed error messages.";
+				
+				JOptionPane.showMessageDialog(this, 
+					errorMsg, 
+					"Database Error", 
+					JOptionPane.ERROR_MESSAGE);
+				
+				System.err.println("Failed to update leave request status for ID: " + leaveRequest.getId());
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"An unexpected error occurred: " + e.getMessage() + 
+				"\n\nPlease check the console for detailed error information.", 
+				"System Error", 
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
-	private void approveButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
-		// Instantiate error message in case of misinput
-		StringBuilder errorMessage = new StringBuilder();
-
-		// Read the JSON file and parse it into a Java object
-		JsonArray jsonArrayLeaveRequest = JsonFileHandler.getLeaveRequestJSON();
-
-		// Update a specific entry in the Java object
-		String employeeNumToUpdate = leaveRequest.getEmployeeNum();
-		String startDate = leaveRequest.getStartDate();
-		String endDate = leaveRequest.getEndDate();
-		String notes = leaveRequest.getNotes();
-		String leaveType = leaveRequest.getLeaveType();
-
-		approveEntry(jsonArrayLeaveRequest, employeeNumToUpdate, startDate, endDate, notes, leaveType, errorMessage);
-
-		// Convert the Java object back to JSON
-		String updatedJson = jsonArrayLeaveRequest.toString();
-
-		// Write the updated JSON back to the file
-		JsonFileHandler.writeJsonFile(updatedJson, JsonFileHandler.getLeaveRequestJsonPath());
-
-		// Go back to the employee list page
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				// Remove the UpdateEmployeeDetailsPage Window
-				dispose();
-
-				try {
-					new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
-				} catch (ParseException e) {
-					
-					e.printStackTrace();
+	private void approveButtonActionPerformed(java.awt.event.ActionEvent evt) {
+		try {
+			// Add debugging information
+			System.out.println("Attempting to approve leave request with ID: " + leaveRequest.getId());
+			System.out.println("Leave request details: Employee=" + leaveRequest.getEmployeeNum() + 
+							   ", Name=" + leaveRequest.getFirstName() + " " + leaveRequest.getLastName());
+			
+			// Validate leave request data
+			if (leaveRequest == null) {
+				JOptionPane.showMessageDialog(this, 
+					"Error: Leave request data is not available.", 
+					"Data Error", 
+					JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			if (leaveRequest.getId() == null || leaveRequest.getId().trim().isEmpty()) {
+				JOptionPane.showMessageDialog(this, 
+					"Error: Leave request ID is missing.", 
+					"Data Error", 
+					JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			
+			// Check if the leave request is already processed
+			String currentStatus = leaveRequest.isApproved();
+			if ("Approved".equals(currentStatus) || "Rejected".equals(currentStatus)) {
+				int choice = JOptionPane.showConfirmDialog(this, 
+					"This leave request is already " + currentStatus.toLowerCase() + 
+					". Do you want to change it to Approved?", 
+					"Status Change Confirmation", 
+					JOptionPane.YES_NO_OPTION);
+				
+				if (choice != JOptionPane.YES_OPTION) {
+					return;
 				}
 			}
-		});
+			
+			// Update leave request status to "Approved" in the database
+			boolean success = LeaveRequestDAO.updateLeaveRequestStatus(leaveRequest.getId(), "Approved");
+			
+			if (success) {
+				// Update the local object as well
+				leaveRequest.setApproved("Approved");
+				
+				JOptionPane.showMessageDialog(this, 
+					"Leave request has been approved successfully!", 
+					"Success", 
+					JOptionPane.INFORMATION_MESSAGE);
+				
+				// Go back to the leave request list page
+				java.awt.EventQueue.invokeLater(new Runnable() {
+					public void run() {
+						dispose();
+						try {
+							new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
+						} catch (ParseException e) {
+							e.printStackTrace();
+							JOptionPane.showMessageDialog(null, 
+								"Error navigating back to list: " + e.getMessage(), 
+								"Navigation Error", 
+								JOptionPane.ERROR_MESSAGE);
+						}
+					}
+				});
+			} else {
+				// More detailed error message
+				String errorMsg = "Failed to approve leave request. Possible causes:\n" +
+								"- Database connection issue\n" +
+								"- Leave request not found in database\n" +
+								"- Database constraint violation\n\n" +
+								"Please check the console for detailed error messages.";
+				
+				JOptionPane.showMessageDialog(this, 
+					errorMsg, 
+					"Database Error", 
+					JOptionPane.ERROR_MESSAGE);
+				
+				System.err.println("Failed to update leave request status for ID: " + leaveRequest.getId());
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"An unexpected error occurred: " + e.getMessage() + 
+				"\n\nPlease check the console for detailed error information.", 
+				"System Error", 
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				// Remove the EmployeesPage Window
 				dispose();
-
 				try {
 					new LeaveRequestListPage(employeeGI, employeeComp).setVisible(true);
 				} catch (ParseException e) {
-					
 					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, 
+						"Error navigating back to list: " + e.getMessage(), 
+						"Navigation Error", 
+						JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
-	}
-
-	private static boolean approveEntry(JsonArray jsonArray, String employeeNumToUpdate, String startDate,
-			String endDate, String notes, String leaveType, StringBuilder errorMessage) {
-
-		for (JsonElement element : jsonArray) {
-			if (!element.isJsonObject()) {
-				errorMessage.setLength(0); // Clear previous content
-				errorMessage.append("Data is not a Json Object.");
-				return false;
-			}
-
-			JsonObject employeeObject = element.getAsJsonObject();
-			if (employeeObject.has("employeeNum") // I'm cooked
-					&& employeeObject.get("employeeNum").getAsString().equals(employeeNumToUpdate)
-					&& employeeObject.get("startDate").getAsString().equals(startDate)
-					&& employeeObject.get("endDate").getAsString().equals(endDate)
-					&& employeeObject.get("notes").getAsString().equals(notes)
-					&& employeeObject.get("leave_type").getAsString().equals(leaveType)) {
-
-				employeeObject.addProperty("approved", "Approved");
-
-				break; // Break the loop once the entry is updated
-			}
-		}
-		return true;
-	}
-
-	private static boolean rejectEntry(JsonArray jsonArray, String employeeNumToUpdate, String startDate,
-			String endDate, String notes, String leaveType, StringBuilder errorMessage) {
-
-		for (JsonElement element : jsonArray) {
-			if (!element.isJsonObject()) {
-				errorMessage.setLength(0); // Clear previous content
-				errorMessage.append("Data is not a Json Object.");
-				return false;
-			}
-
-			JsonObject employeeObject = element.getAsJsonObject();
-			if (employeeObject.has("employeeNum") // I'm cooked
-					&& employeeObject.get("employeeNum").getAsString().equals(employeeNumToUpdate)
-					&& employeeObject.get("startDate").getAsString().equals(startDate)
-					&& employeeObject.get("endDate").getAsString().equals(endDate)
-					&& employeeObject.get("notes").getAsString().equals(notes)
-					&& employeeObject.get("leave_type").getAsString().equals(leaveType)) {
-
-				employeeObject.addProperty("approved", "Rejected");
-
-				break; // Break the loop once the entry is updated
-			}
-		}
-		return true;
 	}
 }

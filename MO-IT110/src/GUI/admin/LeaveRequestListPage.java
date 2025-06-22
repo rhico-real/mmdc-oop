@@ -2,29 +2,34 @@ package GUI.admin;
 
 import javax.swing.table.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
-import UtilityClasses.JsonFileHandler;
+import DAO.LeaveRequestDAO;
 
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileReader;
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDate;
-import java.time.OffsetDateTime;
+import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+
 
 @SuppressWarnings("serial")
 public class LeaveRequestListPage extends JFrame {
@@ -42,6 +47,19 @@ public class LeaveRequestListPage extends JFrame {
 	GovernmentIdentification employeeGI;
 	Compensation employeeComp;
 	LeaveRequest leaveRequest;
+	
+	// CUSTOM FONT ASSIGNMENT
+	private static Font loadCustomFont(String fontPath, float size) {
+	    try {
+	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        ge.registerFont(font);
+	        return font;
+	    } catch (FontFormatException | IOException e) {
+	        System.err.println("Error loading font: " + e.getMessage());
+	        return null;
+	    }
+	}
 
 	public LeaveRequestListPage(GovernmentIdentification employeeGI, Compensation employeeComp) throws ParseException {
 		this.employeeGI = employeeGI;
@@ -54,181 +72,183 @@ public class LeaveRequestListPage extends JFrame {
 
 		// Set JFrame
 		setTitle("MotorPH Payroll System | Leave Requests");
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		setResizable(false);
+	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    setResizable(false);
+	    setSize(1366, 768);
+	    setLocationRelativeTo(null);
+	    
+	    // custom font
+	    Font poppinsRegular16f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f);
+	    Font poppinsSemiBold18f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
 
-		// Instantiate Table
-		jTable1 = new JTable();
+	    // 🔹 Top Navigation Bar
+	    JPanel navBar = new JPanel(new GridBagLayout());
+	    navBar.setBackground(Color.decode("#153969"));
+	    
+	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+        JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
+        
+        GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
+        motorPHLogoGBC.gridx = 0;
+        motorPHLogoGBC.gridy = 0;
+        motorPHLogoGBC.insets = new Insets(-20, 0, 0, 950);
+        navBar.add(motorPHLogo, motorPHLogoGBC);
 
-		addEmployeeButton = new JButton();
-		deleteEmployeeButton = new JButton();
 
-		// Instantiate Button Component
-		goBackButton = new JButton();
-		goBackButton.setText("Go Back to Dashboard");
-		goBackButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				goBackButtonActionPerformed(evt);
-			}
-		});
+	    JButton navBackButton = new JButton("Dashboard");
+	    navBackButton.setFocusPainted(false);
+	    navBackButton.setFont(poppinsRegular16f);
+	    navBackButton.setForeground(Color.WHITE);
+	    navBackButton.setBackground(Color.decode("#547792"));
+	    navBackButton.setPreferredSize(new Dimension(120, 40));
+	    navBackButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
+	    navBackButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    navBackButton.addActionListener(evt -> goBackButtonActionPerformed(evt));
+	    navBar.add(navBackButton);
 
-		// Create an empty default table model
-		DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "ID", "Employee Number",
-				"Last Name", "First Name", "Start Date", "End Date", "Status", "Leave Type", "", "" }) {
-			@Override
-			public Class<?> getColumnClass(int columnIndex) {
-				// Return the appropriate class for the last column (column with buttons)
-				return (columnIndex == getColumnCount() - 1) || (columnIndex == getColumnCount() - 2) ? JButton.class
-						: Object.class;
-			}
+	    // 🔹 Table Model
+	    DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] {
+	        "ID", "Employee Number", "Last Name", "First Name", "Start Date", "End Date", "Status", "Leave Type", "", ""
+	    }) {
+	        @Override
+	        public Class<?> getColumnClass(int columnIndex) {
+	            return (columnIndex >= getColumnCount() - 2) ? JButton.class : Object.class;
+	        }
 
-			@Override
-			public boolean isCellEditable(int row, int column) {
-				// Allow editing only for the last column
-				return column == getColumnCount() - 1 || column == getColumnCount() - 2;
-			}
-		};
+	        @Override
+	        public boolean isCellEditable(int row, int column) {
+	            return column >= getColumnCount() - 2;
+	        }
+	    };
 
-		// Modify Table Row Height
-		jTable1 = new JTable(model);
-		jTable1.setRowHeight(30);
+	    // 🔹 Table Setup
+	    jTable1 = new JTable(model);
+	    jTable1.setFont(poppinsRegular16f);
+	    jTable1.setRowHeight(40);
+	    jTable1.setSelectionBackground(new Color(173, 216, 230));
+	    jTable1.setSelectionForeground(Color.BLACK);
+	    jTable1.setShowVerticalLines(false);
+	    jTable1.setShowHorizontalLines(true);
+	    jTable1.setGridColor(new Color(230, 230, 230));
+	    jTable1.setFillsViewportHeight(true);
+	    jTable1.setAutoCreateRowSorter(true);
 
-		// Modify the width of the first column
-		TableColumn firstColumn = jTable1.getColumnModel().getColumn(0);
-		firstColumn.setMinWidth(0);
-		firstColumn.setMaxWidth(0);
+	    JTableHeader header = jTable1.getTableHeader();
+	    header.setFont(poppinsSemiBold18f);
+	    header.setBackground(new Color(60, 63, 65));
+	    header.setForeground(Color.WHITE);
+	    header.setPreferredSize(new Dimension(200, 35));
 
-		// Modify the width of the second column
-		TableColumn secondColumn = jTable1.getColumnModel().getColumn(1);
-		secondColumn.setPreferredWidth(90); // Set your preferred width here
+	    // Row Striping
+	    DefaultTableCellRenderer stripedRenderer = new DefaultTableCellRenderer() {
+	        @Override
+	        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+	                                                       boolean hasFocus, int row, int column) {
+	            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	            c.setBackground(isSelected ? new Color(173, 216, 230) : (row % 2 == 0 ? Color.WHITE : new Color(245, 245, 245)));
+	            return c;
+	        }
+	    };
+	    for (int i = 0; i < jTable1.getColumnCount(); i++) {
+	        jTable1.getColumnModel().getColumn(i).setCellRenderer(stripedRenderer);
+	    }
 
-		// Modify the width of the last column
-		TableColumn lastColumn = jTable1.getColumnModel().getColumn(numberOfColumns);
-		lastColumn.setPreferredWidth(50); // Set your preferred width here
+	    // Column Width
+	    jTable1.getColumnModel().getColumn(0).setMinWidth(0);
+	    jTable1.getColumnModel().getColumn(0).setMaxWidth(0);
+	    jTable1.getColumnModel().getColumn(1).setPreferredWidth(125);
+	    jTable1.getColumnModel().getColumn(8).setPreferredWidth(30);
+	    jTable1.getColumnModel().getColumn(9).setPreferredWidth(30);
 
-		// Modify the width of the last column
-		TableColumn deleteColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 1);
-		deleteColumn.setPreferredWidth(100); // Set your preferred width here
+	    
+	    // Buttons with custom colors
+	    jTable1.getColumnModel().getColumn(8).setCellRenderer(
+	        new ButtonRenderer("View", Color.GRAY)
+	    );
+	    jTable1.getColumnModel().getColumn(8).setCellEditor(
+	        new ButtonEditor(1, "View Request", "LeaveRequestDetailsPage")
+	    );
 
-		// Set a custom renderer and editor for the Edit Column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1).setCellRenderer(new ButtonRenderer("Delete"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 1)
-				.setCellEditor(new ButtonEditor(1, "Delete", "DeleteDialogPane"));
+	    jTable1.getColumnModel().getColumn(9).setCellRenderer(
+	        new ButtonRenderer("Delete", new Color(0xBF3131))  
+	    );
+	    jTable1.getColumnModel().getColumn(9).setCellEditor(
+	        new ButtonEditor(1, "Delete", "DeleteDialogPane")
+	    );
 
-		// Set a custom renderer and editor for the View Employee column
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellRenderer(new ButtonRenderer("View Request"));
-		jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
-				.setCellEditor(new ButtonEditor(1, "View Request", "LeaveRequestDetailsPage"));
+	    // Scroll Pane
+	    jScrollPane1 = new JScrollPane(jTable1);
+	    jScrollPane1.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-		// Set custom renderer for the header cells to make them bold
-		JTableHeader header = jTable1.getTableHeader();
-		header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
+	    // Layout (Full Use of Window Space)
+	    GroupLayout layout = new GroupLayout(getContentPane());
+	    getContentPane().setLayout(layout);
+	    layout.setHorizontalGroup(
+	        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+	            .addComponent(navBar, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
+	    layout.setVerticalGroup(
+	        layout.createSequentialGroup()
+	            .addComponent(navBar, GroupLayout.PREFERRED_SIZE, 55, GroupLayout.PREFERRED_SIZE)
+	            .addGap(0)
+	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+	    );
 
-		jScrollPane1 = new JScrollPane(jTable1);
-
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup().addContainerGap()
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 996, Short.MAX_VALUE)
-								.addGroup(layout.createSequentialGroup().addComponent(goBackButton).addPreferredGap(
-										javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-						.addContainerGap(13, Short.MAX_VALUE)));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
-				javax.swing.GroupLayout.Alignment.TRAILING,
-				layout.createSequentialGroup().addContainerGap(13, Short.MAX_VALUE)
-						.addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(goBackButton))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addContainerGap()));
-
-		pack();
-
-		// Make the window appear in the middle
-		setLocationRelativeTo(null);
+	    pack();
+	    setSize(1366,768);
+	    setLocationRelativeTo(null);
+	    
 	}
+	
+	
 
 	private void loadEmployeeData() throws ParseException {
 		try {
-			// Read the JSON file and parse it using GSON
-			FileReader reader = new FileReader(JsonFileHandler.getLeaveRequestJsonPath());
-			JsonElement jsonElement = JsonParser.parseReader(reader);
-
-			// Check if the parsed JSON is an array
-			if (!jsonElement.isJsonArray()) {
-				return;
-			}
-
-			JsonArray jsonArray = jsonElement.getAsJsonArray();
-
-			// Check if the JSON array is empty
-			if (jsonArray.size() == 0) {
-				// Handle the case when the array is empty by creating an empty JSON array
-				jsonArray = new JsonArray();
-			}
-
-			// Iterate through the JSON array and add data to the table model
+			// Get all leave requests from the database
+			List<LeaveRequest> leaveRequests = LeaveRequestDAO.getAllLeaveRequests();
+			
+			// Get the table model
 			DefaultTableModel model = (DefaultTableModel) ((JTable) jScrollPane1.getViewport().getView()).getModel();
-			Gson gson = new Gson();
-
-			// Auto increment employeeNum for record creation
-			employeeNum = String.valueOf(jsonArray.size() > 0
-					? jsonArray.get(jsonArray.size() - 1).getAsJsonObject().get("employeeNum").getAsInt() + 1
-					: 1);
-
-			// Loop through the JSON array
-			for (int i = 0; i < jsonArray.size(); i++) {
-				JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-				LeaveRequest leaveRequests = gson.fromJson(jsonObject, LeaveRequest.class);
-
-				// Format the start date so it doesn't show the time
-				String startDateString = leaveRequests.getStartDate();
-				String endDateString = leaveRequests.getEndDate();
-
-				// Replace "ULAT" with "+08:00" if necessary
-				startDateString = startDateString.replace("ULAT", "+08:00").replace("GMT", "");
-				endDateString = endDateString.replace("ULAT", "+08:00").replace("GMT", "");
-
-				// Define the formatter
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss XXX yyyy");
-
-				// Parse the date strings
+			
+			// Add data to the table
+			for (LeaveRequest request : leaveRequests) {
+				// Format dates
 				String formattedStartDate;
 				String formattedEndDate;
-
+				
 				try {
-				    // Parse the date strings using OffsetDateTime
-				    OffsetDateTime startDateTime = OffsetDateTime.parse(startDateString, formatter);
-				    OffsetDateTime endDateTime = OffsetDateTime.parse(endDateString, formatter);
-
-				    // Format the dates to the desired output
-				    formattedStartDate = startDateTime.toLocalDate().toString(); // or use a different format
-				    formattedEndDate = endDateTime.toLocalDate().toString(); // or use a different format
-
-				    // Print the formatted dates for debugging
-				    System.out.println("Formatted Start Date: " + formattedStartDate);
-				    System.out.println("Formatted End Date: " + formattedEndDate);
+					// Try to parse and format the dates
+					LocalDate startDate = LocalDate.parse(request.getStartDate().substring(0, 10));
+					LocalDate endDate = LocalDate.parse(request.getEndDate().substring(0, 10));
+					formattedStartDate = startDate.toString();
+					formattedEndDate = endDate.toString();
 				} catch (Exception e) {
-				    e.printStackTrace(); // Handle the exception as needed
-				    // Set to today's date if parsing fails
-				    formattedStartDate = LocalDate.now().toString(); // Get today's date
-				    formattedEndDate = LocalDate.now().toString();   // Get today's date
+					// Use the dates as they are if parsing fails
+					formattedStartDate = request.getStartDate();
+					formattedEndDate = request.getEndDate();
 				}
-
 				
 				// Add the data to the table model
-				model.addRow(new Object[] { leaveRequests.getId(), leaveRequests.getEmployeeNum(),
-						leaveRequests.getLastName(), leaveRequests.getFirstName(), formattedStartDate,
-						formattedEndDate, leaveRequests.isApproved(), leaveRequests.getLeaveType(), "View", "View" });
+				model.addRow(new Object[] { 
+					request.getId(), 
+					request.getEmployeeNum(),
+					request.getLastName(), 
+					request.getFirstName(), 
+					formattedStartDate,
+					formattedEndDate, 
+					request.isApproved(), 
+					request.getLeaveType(), 
+					"View", 
+					"View" 
+				});
 			}
-
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error loading leave request data: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -245,34 +265,52 @@ public class LeaveRequestListPage extends JFrame {
 		});
 	}
 
-	private void deleteLeaveEntry(String value) throws IOException {
-		JsonArray jsonArray = JsonFileHandler.getLeaveRequestJSON();
-
-		// Instantiate gson class
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		// Remove the object
-		JsonFileHandler.removeJsonObject(jsonArray, "id", value);
-
-		// Write the modified JsonArray back to the JSON file
-		JsonFileHandler.writeJsonFile(gson.toJson(jsonArray), JsonFileHandler.getLeaveRequestJsonPath());
+	private void deleteLeaveEntry(String id) {
+		try {
+			// Delete the leave request from the database
+			if (LeaveRequestDAO.deleteLeaveRequest(id)) {
+				JOptionPane.showMessageDialog(this, 
+					"Leave request deleted successfully.", 
+					"Success", 
+					JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(this, 
+					"Failed to delete leave request.", 
+					"Error", 
+					JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error deleting leave request: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	// Custom on-render look for the button column
-	private class ButtonRenderer extends JButton implements TableCellRenderer {
-		private String buttonLabel;
+	class ButtonRenderer extends JButton implements TableCellRenderer {
+	    private String label;
+	    private Color backgroundColor;
 
-		public ButtonRenderer(String buttonLabel) {
-			this.buttonLabel = buttonLabel;
-			setOpaque(true);
-		}
+	    public ButtonRenderer(String label, Color backgroundColor) {
+	        this.label = label;
+	        this.backgroundColor = backgroundColor;
+	        setOpaque(true);
+	        setFont(new Font("SansSerif", Font.BOLD, 14));
+	        setForeground(Color.WHITE);
+	        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
+	        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    }
 
-		@Override
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
-				int row, int column) {
-			setText(buttonLabel);
-			return this;
-		}
+	    @Override
+	    public Component getTableCellRendererComponent(JTable table, Object value,
+	            boolean isSelected, boolean hasFocus, int row, int column) {
+
+	        setText(label);
+	        setBackground(isSelected ? new Color(173, 216, 230) : backgroundColor);
+	        return this;
+	    }
 	}
 
 	// Custom click-event look for the button column
@@ -318,9 +356,12 @@ public class LeaveRequestListPage extends JFrame {
 										performDeleteOperation(targetColumn);
 										dispose();
 										navigateToLeaveRequestListPage();
-									} catch (IOException | ParseException e) {
-										
+									} catch (Exception e) {
 										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, 
+											"Error: " + e.getMessage(), 
+											"Error", 
+											JOptionPane.ERROR_MESSAGE);
 									}
 								}
 								break;
@@ -339,21 +380,33 @@ public class LeaveRequestListPage extends JFrame {
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
 				int column) {
 
-			// Call constructor
-			employeeGI = new GovernmentIdentification(jTable1.getValueAt(row, targetColumn).toString());
-			employeeComp = new Compensation(jTable1.getValueAt(row, targetColumn).toString());
-			leaveRequest = new LeaveRequest(jTable1.getValueAt(row, targetColumn).toString());
+			// Get the actual leave request ID from the first column (column 0)
+			String leaveRequestId = jTable1.getValueAt(row, 0).toString();
+			String employeeNumber = jTable1.getValueAt(row, 1).toString();
+			
+			System.out.println("[DEBUG] Button clicked for row " + row);
+			System.out.println("[DEBUG] Leave Request ID from table: " + leaveRequestId);
+			System.out.println("[DEBUG] Employee Number: " + employeeNumber);
+
+			// Load the actual leave request from database using the correct ID
+			leaveRequest = LeaveRequestDAO.getLeaveRequestById(leaveRequestId);
+			
+			if (leaveRequest == null) {
+				System.err.println("[ERROR] Could not load leave request with ID: " + leaveRequestId);
+				JOptionPane.showMessageDialog(null, 
+					"Error: Could not load leave request data. Please refresh the page.", 
+					"Data Error", 
+					JOptionPane.ERROR_MESSAGE);
+				return button;
+			}
+			
+			System.out.println("[DEBUG] Loaded leave request with ID: " + leaveRequest.getId());
+
+			// Call constructor for employee data
+			employeeGI = new GovernmentIdentification(employeeNumber);
+			employeeComp = new Compensation(employeeNumber);
 
 			selectedRow = row;
-
-			// Set all the important information to be passed
-			try {
-				LeaveRequest.setLeaveRequestInformationObject(jTable1.getValueAt(row, targetColumn - 1).toString(),
-						leaveRequest);
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-			}
 
 			return button;
 		}
@@ -389,8 +442,11 @@ public class LeaveRequestListPage extends JFrame {
 		}
 	}
 
-	private void performDeleteOperation(int targetColumn) throws IOException {
-		deleteLeaveEntry(jTable1.getValueAt(selectedRow, targetColumn - 1).toString());
+	private void performDeleteOperation(int targetColumn) {
+		// Get the leave request ID from the first column (column 0)
+		String leaveRequestId = jTable1.getValueAt(selectedRow, 0).toString();
+		System.out.println("[DEBUG] Deleting leave request with ID: " + leaveRequestId);
+		deleteLeaveEntry(leaveRequestId);
 	}
 
 	private void navigateToLeaveRequestListPage() throws ParseException {

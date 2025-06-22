@@ -2,26 +2,18 @@ package GUI.employee;
 
 import javax.swing.table.*;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import Classes.Compensation;
-import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
-import UtilityClasses.JsonFileHandler;
+import DAO.LeaveRequestDAO;
 
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.List;
 import javax.swing.*;
 
 @SuppressWarnings("serial")
@@ -54,6 +46,7 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 		// Set JFrame
 		setTitle("MotorPH Payroll System | Leave Requests");
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+		setSize(1366,768);
 		setResizable(false);
 
 		// Instantiate Table
@@ -144,57 +137,47 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 
 	private void loadEmployeeData() throws ParseException {
 		try {
-			// Read the JSON file and parse it using GSON
-			FileReader reader = new FileReader(JsonFileHandler.getLeaveRequestJsonPath());
-			JsonElement jsonElement = JsonParser.parseReader(reader);
-
-			// Check if the parsed JSON is an array
-			if (!jsonElement.isJsonArray()) {
-				return;
-			}
-
-			JsonArray jsonArray = jsonElement.getAsJsonArray();
-
-			// Check if the JSON array is empty
-			if (jsonArray.size() == 0) {
-				// Handle the case when the array is empty by creating an empty JSON array
-				jsonArray = new JsonArray();
-			}
-
-			// Iterate through the JSON array and add data to the table model
+			// Get leave requests for this employee from the database
+			List<LeaveRequest> leaveRequests = LeaveRequestDAO.getLeaveRequestsByEmployee(employeeGI.getEmployeeNumber());
+			
+			// Get the table model
 			DefaultTableModel model = (DefaultTableModel) ((JTable) jScrollPane1.getViewport().getView()).getModel();
-			Gson gson = new Gson();
-
-			// Auto increment employeeNum for record creation
-			employeeNum = String.valueOf(jsonArray.size() > 0
-					? jsonArray.get(jsonArray.size() - 1).getAsJsonObject().get("employeeNum").getAsInt() + 1
-					: 1);
-
-			// Loop through the JSON array
-			for (int i = 0; i < jsonArray.size(); i++) {
-				JsonObject jsonObject = jsonArray.get(i).getAsJsonObject();
-				LeaveRequest leaveRequests = gson.fromJson(jsonObject, LeaveRequest.class);
-
-				// Only show records that belong to this employee
-				if (jsonObject.get("employeeNum").getAsString().equals(employeeGI.getEmployeeNumber())) {
-
-					// Format the start date so it doesn't show the time
-					String formattedStartDate = new SimpleDateFormat("EEE MMM dd, yyyy").format(
-							new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(leaveRequests.getStartDate()));
-
-					String formattedEndDate = new SimpleDateFormat("EEE MMM dd, yyyy").format(
-							new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy").parse(leaveRequests.getEndDate()));
-
-					// Add the data to the table model
-					model.addRow(new Object[] { leaveRequests.getId(), leaveRequests.getEmployeeNum(),
-							formattedStartDate, formattedEndDate, leaveRequests.isApproved(),
-							leaveRequests.getLeaveType(), "View", "View" });
+			
+			// Add data to the table
+			for (LeaveRequest request : leaveRequests) {
+				// Format dates
+				String formattedStartDate;
+				String formattedEndDate;
+				
+				try {
+					// Try to parse and format the dates
+					LocalDate startDate = LocalDate.parse(request.getStartDate().substring(0, 10));
+					LocalDate endDate = LocalDate.parse(request.getEndDate().substring(0, 10));
+					formattedStartDate = startDate.toString();
+					formattedEndDate = endDate.toString();
+				} catch (Exception e) {
+					// Use the dates as they are if parsing fails
+					formattedStartDate = request.getStartDate();
+					formattedEndDate = request.getEndDate();
 				}
-
+				
+				// Add the data to the table model
+				model.addRow(new Object[] { 
+					request.getId(), 
+					request.getEmployeeNum(),
+					formattedStartDate,
+					formattedEndDate, 
+					request.isApproved(), 
+					request.getLeaveType(), 
+					"Delete"
+				});
 			}
-
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error loading leave request data: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -211,17 +194,27 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 		});
 	}
 
-	private void deleteLeaveEntry(String value) throws IOException {
-		JsonArray jsonArray = JsonFileHandler.getLeaveRequestJSON();
-
-		// Instantiate gson class
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-
-		// Remove the object
-		JsonFileHandler.removeJsonObject(jsonArray, "id", value);
-
-		// Write the modified JsonArray back to the JSON file
-		JsonFileHandler.writeJsonFile(gson.toJson(jsonArray), JsonFileHandler.getLeaveRequestJsonPath());
+	private void deleteLeaveEntry(String id) {
+		try {
+			// Delete the leave request from the database
+			if (LeaveRequestDAO.deleteLeaveRequest(id)) {
+				JOptionPane.showMessageDialog(this, 
+					"Leave request deleted successfully.", 
+					"Success", 
+					JOptionPane.INFORMATION_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(this, 
+					"Failed to delete leave request.", 
+					"Error", 
+					JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, 
+				"Error deleting leave request: " + e.getMessage(), 
+				"Database Error", 
+				JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	// Custom on-render look for the button column
@@ -272,16 +265,18 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 										performDeleteOperation(targetColumn);
 										dispose();
 										navigateToLeaveRequestListPage();
-									} catch (IOException | ParseException e) {
+									} catch (Exception e) {
 										e.printStackTrace();
-										// Handle or log the exception as needed
+										JOptionPane.showMessageDialog(null, 
+											"Error: " + e.getMessage(), 
+											"Error", 
+											JOptionPane.ERROR_MESSAGE);
 									}
 								}
 								break;
 							default:
 								break;
 							}
-
 						}
 					});
 				}
@@ -292,23 +287,13 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 		public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
 				int column) {
 
-			// Call constructor
-			employeeGI = new GovernmentIdentification(jTable1.getValueAt(row, targetColumn).toString());
-			employeeComp = new Compensation(jTable1.getValueAt(row, targetColumn).toString());
-			leaveRequest = new LeaveRequest(jTable1.getValueAt(row, targetColumn).toString());
-
 			selectedRow = row;
-
-			// Set all the important information to be passed
-			try {
-				EmployeeInformation.setEmployeeInformationObject(jTable1.getValueAt(row, targetColumn).toString(),
-						employeeGI, employeeComp);
-				LeaveRequest.setLeaveRequestInformationObject(jTable1.getValueAt(row, targetColumn - 1).toString(),
-						leaveRequest);
-			} catch (IOException e) {
-				
-				e.printStackTrace();
-			}
+			
+			// Set the leave request ID for the selected row
+			String leaveRequestId = jTable1.getValueAt(row, 0).toString();
+			
+			// Get the leave request information
+			leaveRequest = LeaveRequestDAO.getLeaveRequestById(leaveRequestId);
 
 			return button;
 		}
@@ -344,8 +329,10 @@ public class EmployeeLeaveRequestListPage extends JFrame {
 		}
 	}
 
-	private void performDeleteOperation(int targetColumn) throws IOException {
-		deleteLeaveEntry(jTable1.getValueAt(selectedRow, targetColumn - 1).toString());
+	private void performDeleteOperation(int targetColumn) {
+		// Get the leave request ID from the first column (hidden)
+		String leaveRequestId = jTable1.getValueAt(selectedRow, 0).toString();
+		deleteLeaveEntry(leaveRequestId);
 	}
 
 	private void navigateToLeaveRequestListPage() throws ParseException {

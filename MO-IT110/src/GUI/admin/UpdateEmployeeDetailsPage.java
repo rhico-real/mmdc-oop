@@ -1,9 +1,9 @@
 package GUI.admin;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.io.IOException;
 import java.util.Arrays;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -11,14 +11,13 @@ import javax.swing.JTextField;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import Classes.Compensation;
+import Classes.EmployeeInformation;
 import Classes.GovernmentIdentification;
+import DAO.EmployeeDAO;
+import DAO.UserDAO;
 import UtilityClasses.CustomTooltip;
 import UtilityClasses.DataValidators;
-import UtilityClasses.JsonFileHandler;
 
 @SuppressWarnings("serial")
 public class UpdateEmployeeDetailsPage extends JFrame {
@@ -126,12 +125,7 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 		goBackToEmployeeListButton.setText("Go Back to Employee List");
 		goBackToEmployeeListButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				try {
-					goBackToEmployeeListButtonActionPerformed(evt);
-				} catch (IOException e) {
-					
-					e.printStackTrace();
-				}
+				goBackToEmployeeListButtonActionPerformed(evt);
 			}
 		});
 
@@ -181,12 +175,7 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 		confirmButton.setText("Confirm");
 		confirmButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				try {
-					confirmButtonActionPerformed(evt);
-				} catch (IOException e) {
-					
-					e.printStackTrace();
-				}
+				confirmButtonActionPerformed(evt);
 			}
 		});
 
@@ -382,7 +371,8 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 				CustomTooltip.hideCustomTooltip();
 			}
 		});
-
+		
+		jPanel3.setBackground(Color.RED);
 		javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
 		jPanel3.setLayout(jPanel3Layout);
 		jPanel3Layout.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -520,36 +510,22 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 		pack();
 
 		// Make the window appear in the middle
+		setSize(1366,768);
 		setLocationRelativeTo(null);
 	}// </editor-fold>
 
-	private void confirmButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
+	private void confirmButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// Instantiate error message in case of misinput
 		StringBuilder errorMessage = new StringBuilder();
 
-		// Read the JSON file and parse it into a Java object
-		JsonArray jsonArrayEmployees = JsonFileHandler.getEmployeesJSON();
-		JsonArray jsonArrayLoginCredentials = JsonFileHandler.getLoginCredentialsJSON();
-
-		// Update a specific entry in the Java object
+		// Get the employee number to update
 		String employeeNumToUpdate = employeeNumberField.getText();
 
-		if (!updateEntry(jsonArrayEmployees, employeeNumToUpdate, errorMessage)) {
+		// Update the employee information in the database
+		if (!updateEmployeeInDatabase(employeeNumToUpdate, errorMessage)) {
 			errorDialogPane(errorMessage, "Error");
 			return;
 		}
-
-		// Update temporary login credentials
-		updateLoginCredentialsEntry(jsonArrayLoginCredentials, employeeNumToUpdate, employeeNumberField, firstNameField,
-				lastNameField);
-
-		// Convert the Java object back to JSON
-		String updatedJson = jsonArrayEmployees.toString();
-		String updatedJsonLoginCredentials = jsonArrayLoginCredentials.toString();
-
-		// Write the updated JSON back to the file
-		JsonFileHandler.writeJsonFile(updatedJson, JsonFileHandler.getEmployeesJsonPath());
-		JsonFileHandler.writeJsonFile(updatedJsonLoginCredentials, JsonFileHandler.getLoginCredentialsJsonPath());
 
 		// Go back to the employee list page
 		java.awt.EventQueue.invokeLater(new Runnable() {
@@ -560,21 +536,14 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 				new EmployeeListPage().setVisible(true);
 			}
 		});
-
 	}
 
-	private static boolean updateEntry(JsonArray jsonArray, String employeeNumToUpdate, StringBuilder errorMessage) {
-		String[] properties = { "last_name", "first_name", "birthday", "address", "phone_number", "SSS", "Philhealth",
-				"TIN", "Pag-ibig", "Status", "Position", "immediate_supervisor", "basic_salary", "rice_subsidy",
-				"phone_allowance", "clothing_allowance", "gross_semi-monthly_rate", "hourly_rate" };
 
-		// Maintain a new array to validate user input
+
+	private boolean updateEmployeeInDatabase(String employeeNumToUpdate, StringBuilder errorMessage) {
+		// Maintain arrays to validate user input
 		JTextField[] stringOnlyFields = { lastNameField, firstNameField, positionField, immediateSupervisorField,
 				statusField };
-
-		@SuppressWarnings("unused") 
-		JTextField[] numericOnlyFields = { basicSalaryField, riceSubsidyField, clothingAllowanceField,
-				grossSemiMonthlyRateField, hourlyRateField };
 
 		JTextField[] fields = { lastNameField, firstNameField, birthdayField, addressField, phoneNumberField, sssField,
 				philhealthField, tinField, pagibigField, statusField, positionField, immediateSupervisorField,
@@ -584,119 +553,92 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 		JTextField[] numericFields = { pagibigField, philhealthField, basicSalaryField, riceSubsidyField,
 				phoneAllowanceField, clothingAllowanceField, grossSemiMonthlyRateField, hourlyRateField };
 
-		for (JsonElement element : jsonArray) {
-			if (!element.isJsonObject()) {
-				errorMessage.setLength(0); // Clear previous content
-				errorMessage.append("Data is not a Json Object.");
-				return false;
-			}
-
-			JsonObject employeeObject = element.getAsJsonObject();
-			if (employeeObject.has("employeeNum")
-					&& employeeObject.get("employeeNum").getAsString().equals(employeeNumToUpdate)) {
-
-				// Check if all the fields are filled out
-				if (Arrays.stream(fields).anyMatch(field -> field.getText().trim().isEmpty())) {
-					errorMessage.setLength(0); // Clear previous content
-					errorMessage.append("Please fill in all the fields.");
-					return false;
-				}
-
-				if (Arrays.stream(numericFields).anyMatch(numField -> !DataValidators.isNumeric(numField.getText()))) {
-					errorMessage.setLength(0); // Clear previous content
-					errorMessage.append(
-							"Please enter valid numeric values for those that require it. (e.g. Hourly Rate, Basic Salary)");
-					return false;
-				}
-
-				if (Arrays.stream(stringOnlyFields)
-						.anyMatch(stringField -> !DataValidators.isPureString(stringField.getText()))) {
-					errorMessage.setLength(0);
-					errorMessage.append("Please enter valid characters only.");
-					return false;
-				}
-
-				if (!DataValidators.isValidDate(birthdayField.getText())) {
-					errorMessage.setLength(0);
-					errorMessage.append("Please enter a valid date.");
-					return false;
-				}
-
-				if (!DataValidators.isSSSFormattedCorrectly(sssField.getText())
-						|| !DataValidators.isPhoneNumberFormattedCorrectly(phoneNumberField.getText())
-						|| !DataValidators.isTINFormattedCorrectly(tinField.getText())
-						|| !DataValidators.isProperLength(pagibigField.getText())
-						|| !DataValidators.isProperLength(philhealthField.getText())) {
-					errorMessage.setLength(0);
-					errorMessage.append("Please follow proper formatting.");
-					return false;
-				}
-
-				// Update the values for the specified employeeNum
-				for (int i = 0; i < properties.length; i++) {
-					updateProperty(employeeObject, properties[i], fields[i].getText());
-				}
-
-				break; // Break the loop once the entry is updated
-			}
-		}
-		return true;
-	}
-
-	private static void updateProperty(JsonObject jsonObject, String propertyName, String propertyValue) {
-		if (!jsonObject.has(propertyName)) {
-			return;
+		// Check if all fields are filled out
+		if (Arrays.stream(fields).anyMatch(field -> field.getText().trim().isEmpty())) {
+			errorMessage.setLength(0);
+			errorMessage.append("Please fill in all the fields.");
+			return false;
 		}
 
-		switch (propertyName) {
-		case "Philhealth":
-		case "Pag-ibig":
-			jsonObject.addProperty(propertyName, Long.parseLong(propertyValue));
-			break;
-		case "basic_salary":
-		case "rice_subsidy":
-		case "phone_allowance":
-		case "clothing_allowance":
-		case "gross_semi-monthly_rate":
-		case "hourly_rate":
-			jsonObject.addProperty(propertyName, Double.parseDouble(propertyValue));
-			break;
-		default:
-			jsonObject.addProperty(propertyName, propertyValue);
-			break;
-		}
-	}
-
-	public static void updateLoginCredentialsEntry(JsonArray jsonArray, String employeeNum,
-			JTextField employeeNumberField, JTextField firstNameField, JTextField lastNameField) {
-
-		// Iterate through the array
-		for (JsonElement element : jsonArray) {
-			if (!element.isJsonObject()) {
-				return;
-			}
-
-			// Get the target object then modify it
-			JsonObject employeeObject = element.getAsJsonObject();
-			if (employeeObject.has("employeeNum")
-					&& employeeObject.get("employeeNum").getAsString().equals(employeeNum)) {
-
-				employeeObject.addProperty("employeeNum", Integer.parseInt(employeeNumberField.getText()));
-				employeeObject.addProperty("username",
-						(firstNameField.getText() + "." + lastNameField.getText()).toLowerCase());
-				employeeObject.addProperty("password", "password" + employeeNumberField.getText());
-
-				break;
-			}
+		// Check numeric fields
+		if (Arrays.stream(numericFields).anyMatch(numField -> !DataValidators.isNumeric(numField.getText()))) {
+			errorMessage.setLength(0);
+			errorMessage.append(
+					"Please enter valid numeric values for those that require it. (e.g. Hourly Rate, Basic Salary)");
+			return false;
 		}
 
+		// Check string-only fields
+		if (Arrays.stream(stringOnlyFields)
+				.anyMatch(stringField -> !DataValidators.isPureString(stringField.getText()))) {
+			errorMessage.setLength(0);
+			errorMessage.append("Please enter valid characters only.");
+			return false;
+		}
+
+		// Validate date format
+		if (!DataValidators.isValidDate(birthdayField.getText())) {
+			errorMessage.setLength(0);
+			errorMessage.append("Please enter a valid date.");
+			return false;
+		}
+
+		// Validate other fields format
+		if (!DataValidators.isSSSFormattedCorrectly(sssField.getText())
+				|| !DataValidators.isPhoneNumberFormattedCorrectly(phoneNumberField.getText())
+				|| !DataValidators.isTINFormattedCorrectly(tinField.getText())
+				|| !DataValidators.isProperLength(pagibigField.getText())
+				|| !DataValidators.isProperLength(philhealthField.getText())) {
+			errorMessage.setLength(0);
+			errorMessage.append("Please follow proper formatting.");
+			return false;
+		}
+
+		// Create employee objects with the updated information
+		EmployeeInformation employee = new EmployeeInformation(employeeNumToUpdate);
+		GovernmentIdentification govId = new GovernmentIdentification(employeeNumToUpdate);
+		Compensation compensation = new Compensation(employeeNumToUpdate);
+
+		// Set employee information
+		employee.setLastName(lastNameField.getText());
+		employee.setFirstName(firstNameField.getText());
+		employee.setBirthday(birthdayField.getText());
+		employee.setAddress(addressField.getText());
+		employee.setPhoneNumber(phoneNumberField.getText());
+		employee.setStatus(statusField.getText());
+		employee.setPosition(positionField.getText());
+		employee.setSupervisor(immediateSupervisorField.getText());
+		employee.setHourlyRate(Double.parseDouble(hourlyRateField.getText()));
+
+		// Set government ID information
+		govId.setSSSNumber(sssField.getText());
+		govId.setPhilHealthNumber(philhealthField.getText());
+		govId.setTinNumber(tinField.getText());
+		govId.setPagibigNumber(pagibigField.getText());
+
+		// Set compensation information
+		compensation.setBasicSalary(Double.parseDouble(basicSalaryField.getText()));
+		compensation.setRiceSubsidy(Double.parseDouble(riceSubsidyField.getText()));
+		compensation.setPhoneAllowance(Double.parseDouble(phoneAllowanceField.getText()));
+		compensation.setClothingAllowance(Double.parseDouble(clothingAllowanceField.getText()));
+		compensation.setGrossSemiMonthlyRate(Double.parseDouble(grossSemiMonthlyRateField.getText()));
+		compensation.setHourlyRate(Double.parseDouble(hourlyRateField.getText()));
+
+		// Update the database
+		boolean updated = EmployeeDAO.updateEmployee(employee, govId, compensation);
+		
+		// Update username in the users table based on first and last name
+		String username = (firstNameField.getText() + "." + lastNameField.getText()).toLowerCase();
+		UserDAO.updateUsername(employeeNumToUpdate, username);
+
+		return updated;
 	}
 
 	private void errorDialogPane(StringBuilder errorMessage, String title) {
 		JOptionPane.showMessageDialog(new JFrame(""), errorMessage, title, JOptionPane.ERROR_MESSAGE);
 	}
 
-	private void goBackToEmployeeListButtonActionPerformed(java.awt.event.ActionEvent evt) throws IOException {
+	private void goBackToEmployeeListButtonActionPerformed(java.awt.event.ActionEvent evt) {
 		// Go back to the employee list page
 		java.awt.EventQueue.invokeLater(new Runnable() {
 			public void run() {

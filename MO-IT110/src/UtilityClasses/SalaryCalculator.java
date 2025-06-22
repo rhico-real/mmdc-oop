@@ -3,15 +3,102 @@ package UtilityClasses;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
+import Classes.Compensation;
+import DAO.EmployeeDAO;
+
 public class SalaryCalculator {
 
 	private SalaryCalculator() {
 		throw new AssertionError();
+	}
+
+	/**
+	 * Calculate comprehensive salary information for an employee
+	 * @param employeeNumber Employee number as string
+	 * @param daysWorked Number of days worked in the period
+	 * @param overtimeHours Number of overtime hours
+	 * @param month Month (1-12)
+	 * @param year Year
+	 * @return Map containing all salary calculation details
+	 */
+	public static Map<String, Object> calculateSalary(String employeeNumber, int daysWorked, 
+			double overtimeHours, int month, int year) {
+		
+		Map<String, Object> salaryData = new HashMap<>();
+		
+		try {
+			// Get employee compensation information
+			Compensation compensation = EmployeeDAO.getEmployeeCompensation(employeeNumber);
+			if (compensation == null) {
+				throw new RuntimeException("Employee compensation data not found for employee: " + employeeNumber);
+			}
+			
+			// Get basic salary information
+			double monthlySalary = compensation.getBasicSalary();
+			double hourlyRate = compensation.getHourlyRate();
+			
+			// Calculate basic salary based on days worked
+			// Assuming 22 working days per month (standard business month)
+			double dailyRate = monthlySalary / 22.0;
+			double basicSalary = dailyRate * daysWorked;
+			
+			// Calculate overtime pay (1.25x hourly rate for overtime)
+			double overtimePay = hourlyRate * overtimeHours * 1.25;
+			
+			// Calculate allowances (prorated based on days worked)
+			double workRatio = daysWorked / 22.0; // Ratio of days worked to full month
+			double riceSubsidy = compensation.getRiceSubsidy() * workRatio;
+			double phoneAllowance = compensation.getPhoneAllowance() * workRatio;
+			double clothingAllowance = compensation.getClothingAllowance() * workRatio;
+			
+			// Calculate gross pay
+			double grossPay = basicSalary + overtimePay + riceSubsidy + phoneAllowance + clothingAllowance;
+			
+			// Calculate deductions based on gross pay
+			double sssDeduction = getSSS(grossPay);
+			double philhealthDeduction = getPhilHealth(grossPay);
+			double pagibigDeduction = getPagibig(grossPay);
+			double withholdingTax = getWithholding(grossPay);
+			
+			// Calculate total deductions and net pay
+			double totalDeductions = sssDeduction + philhealthDeduction + pagibigDeduction + withholdingTax;
+			double netPay = grossPay - totalDeductions;
+			
+			// Store all calculated values in the result map
+			salaryData.put("basicSalary", basicSalary);
+			salaryData.put("overtimePay", overtimePay);
+			salaryData.put("riceSubsidy", riceSubsidy);
+			salaryData.put("phoneAllowance", phoneAllowance);
+			salaryData.put("clothingAllowance", clothingAllowance);
+			salaryData.put("grossPay", grossPay);
+			salaryData.put("sssDeduction", sssDeduction);
+			salaryData.put("philhealthDeduction", philhealthDeduction);
+			salaryData.put("pagibigDeduction", pagibigDeduction);
+			salaryData.put("withholdingTax", withholdingTax);
+			salaryData.put("totalDeductions", totalDeductions);
+			salaryData.put("netPay", netPay);
+			
+			// Additional information
+			salaryData.put("daysWorked", daysWorked);
+			salaryData.put("overtimeHours", overtimeHours);
+			salaryData.put("month", month);
+			salaryData.put("year", year);
+			salaryData.put("employeeNumber", employeeNumber);
+			
+		} catch (Exception e) {
+			System.err.println("Error calculating salary for employee " + employeeNumber + ": " + e.getMessage());
+			e.printStackTrace();
+			throw new RuntimeException("Failed to calculate salary: " + e.getMessage(), e);
+		}
+		
+		return salaryData;
 	}
 
 	public static int getNumberOfElements(JsonArray json, String ENKey, String employeeNumber, Month month) {

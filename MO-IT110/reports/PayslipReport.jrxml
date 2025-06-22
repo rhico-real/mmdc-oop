@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.20.6.final using JasperReports Library version 6.20.6-5c96b723 -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PayslipReport" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="13acf49e-4913-4d1b-bccc-113817ad15d1">
+	<parameter name="employeeNumber" class="java.lang.String"/>
+	<parameter name="employeeName" class="java.lang.String"/>
+	<parameter name="position" class="java.lang.String"/>
+	<parameter name="address" class="java.lang.String"/>
+	<parameter name="phoneNumber" class="java.lang.String"/>
+	<parameter name="supervisor" class="java.lang.String"/>
+	<parameter name="sssNumber" class="java.lang.String"/>
+	<parameter name="philhealthNumber" class="java.lang.String"/>
+	<parameter name="tinNumber" class="java.lang.String"/>
+	<parameter name="pagibigNumber" class="java.lang.String"/>
+	<parameter name="payPeriod" class="java.lang.String"/>
+	<parameter name="month" class="java.lang.Integer"/>
+	<parameter name="year" class="java.lang.Integer"/>
+	<parameter name="daysWorked" class="java.lang.Integer"/>
+	<parameter name="overtimeHours" class="java.lang.Double"/>
+	<parameter name="basicSalary" class="java.lang.String"/>
+	<parameter name="riceSubsidy" class="java.lang.String"/>
+	<parameter name="phoneAllowance" class="java.lang.String"/>
+	<parameter name="clothingAllowance" class="java.lang.String"/>
+	<parameter name="overtimePay" class="java.lang.String"/>
+	<parameter name="grossPay" class="java.lang.String"/>
+	<parameter name="sssDeduction" class="java.lang.String"/>
+	<parameter name="philhealthDeduction" class="java.lang.String"/>
+	<parameter name="pagibigDeduction" class="java.lang.String"/>
+	<parameter name="withholdingTax" class="java.lang.String"/>
+	<parameter name="totalDeductions" class="java.lang.String"/>
+	<parameter name="netPay" class="java.lang.String"/>
+	<parameter name="generatedDate" class="java.lang.String"/>
+	<parameter name="generatedTime" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="79" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="555" height="30" uuid="84212a75-7d41-4124-8c1d-8c97de145c53"/>
+				<textElement textAlignment="Center">
+					<font size="20" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MotorPH Payslip]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="40" width="555" height="30" uuid="4e9c8d7b-2f1a-4d8f-9c5e-1a2b3c4d5e6f"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Pay Period: " + $P{payPeriod}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="150" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="555" height="20" uuid="c5e4f3a2-1b8c-4d9e-a6f7-1a2b3c4d5e70"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Employee Information]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="35" width="100" height="15" uuid="1a2b3c4d-5e6f-7890-abcd-1234567890ef"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Employee Number:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="35" width="150" height="15" uuid="2b3c4d5e-6f78-90ab-cdef-234567890123"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{employeeNumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="300" y="35" width="80" height="15" uuid="3c4d5e6f-7890-abcd-ef12-34567890abcd"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Employee Name:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="380" y="35" width="175" height="15" uuid="4d5e6f78-90ab-cdef-1234-567890abcdef"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{employeeName}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="55" width="100" height="15" uuid="5e6f7890-abcd-ef12-3456-7890abcdef12"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Position:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="55" width="150" height="15" uuid="6f789012-3456-7890-abcd-ef1234567890"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{position}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="300" y="55" width="80" height="15" uuid="78901234-5678-90ab-cdef-123456789012"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Supervisor:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="380" y="55" width="175" height="15" uuid="89012345-6789-0abc-def1-23456789abcd"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{supervisor}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="75" width="100" height="15" uuid="90123456-789a-bcde-f123-456789abcdef"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Address:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="75" width="250" height="15" uuid="01234567-89ab-cdef-1234-56789abcdef0"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{address}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="95" width="100" height="15" uuid="12345678-9abc-def1-2345-6789abcdef01"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Phone Number:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="95" width="150" height="15" uuid="23456789-abcd-ef12-3456-789abcdef012"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{phoneNumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="115" width="100" height="15" uuid="3456789a-bcde-f123-4567-89abcdef0123"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Days Worked:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="115" width="50" height="15" uuid="456789ab-cdef-1234-5678-9abcdef01234"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{daysWorked}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="200" y="115" width="100" height="15" uuid="56789abc-def1-2345-6789-abcdef012345"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Overtime Hours:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="300" y="115" width="50" height="15" uuid="6789abcd-ef12-3456-789a-bcdef0123456"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{overtimeHours}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="555" height="20" uuid="789abcde-f123-4567-89ab-cdef01234567"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Earnings and Deductions]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="400" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="10" width="200" height="20" uuid="89abcdef-1234-5678-9abc-def012345678"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[EARNINGS:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="35" width="120" height="15" uuid="9abcdef0-1234-5678-9abc-def012345679"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Basic Salary:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="130" y="35" width="100" height="15" uuid="abcdef01-2345-6789-abcd-ef012345678a"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{basicSalary}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="55" width="120" height="15" uuid="bcdef012-3456-789a-bcde-f012345678ab"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Rice Subsidy:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="130" y="55" width="100" height="15" uuid="cdef0123-4567-89ab-cdef-012345678abc"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{riceSubsidy}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="75" width="120" height="15" uuid="def01234-5678-9abc-def0-12345678abcd"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Phone Allowance:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="130" y="75" width="100" height="15" uuid="ef012345-6789-abcd-ef01-2345678abcde"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{phoneAllowance}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="95" width="120" height="15" uuid="f0123456-789a-bcde-f012-345678abcdef"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Clothing Allowance:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="130" y="95" width="100" height="15" uuid="01234567-89ab-cdef-0123-45678abcdef0"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{clothingAllowance}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="115" width="120" height="15" uuid="12345678-9abc-def0-1234-5678abcdef01"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Overtime Pay:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="130" y="115" width="100" height="15" uuid="23456789-abcd-ef01-2345-678abcdef012"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{overtimePay}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="135" width="230" height="1" uuid="3456789a-bcde-f012-3456-78abcdef0123"/>
+			</line>
+			<staticText>
+				<reportElement x="0" y="140" width="120" height="15" uuid="456789ab-cdef-0123-4567-8abcdef01234"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Gross Pay:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="130" y="140" width="100" height="15" uuid="56789abc-def0-1234-5678-abcdef012345"/>
+				<textElement textAlignment="Right">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{grossPay}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="300" y="10" width="200" height="20" uuid="6789abcd-ef01-2345-6789-bcdef0123456"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DEDUCTIONS:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="300" y="35" width="120" height="15" uuid="789abcde-f012-3456-789a-cdef01234567"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[SSS Contribution:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="430" y="35" width="100" height="15" uuid="89abcdef-0123-4567-89ab-def012345678"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{sssDeduction}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="300" y="55" width="120" height="15" uuid="9abcdef0-1234-5678-9abc-ef0123456789"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[PhilHealth Contribution:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="430" y="55" width="100" height="15" uuid="abcdef01-2345-6789-abcd-f012345678ab"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{philhealthDeduction}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="300" y="75" width="120" height="15" uuid="bcdef012-3456-789a-bcde-012345678abc"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Pag-IBIG Contribution:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="430" y="75" width="100" height="15" uuid="cdef0123-4567-89ab-cdef-12345678abcd"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{pagibigDeduction}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="300" y="95" width="120" height="15" uuid="def01234-5678-9abc-def0-2345678abcde"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Withholding Tax:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="430" y="95" width="100" height="15" uuid="ef012345-6789-abcd-ef01-345678abcdef"/>
+				<textElement textAlignment="Right">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{withholdingTax}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="300" y="115" width="230" height="1" uuid="f0123456-789a-bcde-f012-45678abcdef0"/>
+			</line>
+			<staticText>
+				<reportElement x="300" y="120" width="120" height="15" uuid="01234567-89ab-cdef-0123-5678abcdef01"/>
+				<textElement>
+					<font size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Deductions:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="430" y="120" width="100" height="15" uuid="12345678-9abc-def0-1234-678abcdef012"/>
+				<textElement textAlignment="Right">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{totalDeductions}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="180" width="530" height="2" uuid="23456789-abcd-ef01-2345-78abcdef0123"/>
+				<graphicElement>
+					<pen lineWidth="2.0"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="200" y="190" width="100" height="20" uuid="3456789a-bcde-f012-3456-8abcdef01234"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[NET PAY:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="310" y="190" width="120" height="20" uuid="456789ab-cdef-0123-4567-abcdef012345"/>
+				<textElement textAlignment="Center">
+					<font size="14" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA["₱" + $P{netPay}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="230" width="200" height="20" uuid="56789abc-def0-1234-5678-bcdef0123456"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Government IDs:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="255" width="100" height="15" uuid="6789abcd-ef01-2345-6789-cdef01234567"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[SSS Number:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="255" width="120" height="15" uuid="789abcde-f012-3456-789a-def012345678"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{sssNumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="250" y="255" width="100" height="15" uuid="89abcdef-0123-4567-89ab-ef0123456789"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[PhilHealth Number:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="350" y="255" width="120" height="15" uuid="9abcdef0-1234-5678-9abc-f012345678ab"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{philhealthNumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="275" width="100" height="15" uuid="abcdef01-2345-6789-abcd-012345678abc"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[TIN:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="100" y="275" width="120" height="15" uuid="bcdef012-3456-789a-bcde-12345678abcd"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{tinNumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="250" y="275" width="100" height="15" uuid="cdef0123-4567-89ab-cdef-2345678abcde"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<text><![CDATA[Pag-IBIG Number:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="350" y="275" width="120" height="15" uuid="def01234-5678-9abc-def0-345678abcdef"/>
+				<textElement>
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{pagibigNumber}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="20" width="277" height="15" uuid="ef012345-6789-abcd-ef01-45678abcdef0"/>
+				<textElement>
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Generated on: " + $P{generatedDate} + " at " + $P{generatedTime}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="455" y="20" width="100" height="15" uuid="f0123456-789a-bcde-f012-5678abcdef01"/>
+				<textElement textAlignment="Right">
+					<font size="8"/>
+				</textElement>
+				<textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

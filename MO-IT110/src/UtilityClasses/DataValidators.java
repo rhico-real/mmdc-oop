@@ -38,6 +38,11 @@ public class DataValidators {
 			return false;
 		}
 
+		// Check if the format matches MM/dd/yyyy pattern
+		if (!dateStr.matches("\\d{2}/\\d{2}/\\d{4}")) {
+			return false;
+		}
+
 		SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
 		sdf.setLenient(false);
 

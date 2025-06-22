@@ -1,7 +1,6 @@
 package Classes;
 
-import UtilityClasses.JsonFileHandler;
-import java.io.IOException;
+import DAO.UserDAO;
 import java.util.Date;
 import com.google.gson.annotations.SerializedName;
 
@@ -14,9 +13,11 @@ public class User {
 	private Boolean isVerified 	= false;
 	private Boolean loginStatus = false;
 	private Boolean isAdmin 	= false;
+	private Boolean isHR 		= false;
+	private Boolean isFinance 	= false;
 	private Date 	dateRegistered;
 
-	public User(String userId, String password) throws IOException {
+	public User(String userId, String password) {
 		this.userId 	= userId;
 		this.password 	= password;
 		if (!userId.equals("") && !password.equals("")) {
@@ -32,6 +33,8 @@ public class User {
 	public Boolean 	getIsVerified	 () { return isVerified;		}
 	public Boolean 	getLoginStatus	 () { return loginStatus;		}
 	public Boolean 	getIsAdmin		 () { return isAdmin;			}
+	public Boolean 	getIsHR			 () { return isHR;			}
+	public Boolean 	getIsFinance	 () { return isFinance;		}
 	public Date 	getDateRegistered() { return dateRegistered;	}
 
 	public void setEmployeeNumber(String  employeeNum	) {	this.employeeNumber = employeeNum; 	  }
@@ -40,17 +43,22 @@ public class User {
 	public void setIsVerified	 (Boolean isVerified	) {	this.isVerified 	= isVerified;	  }
 	public void setLoginStatus	 (Boolean loginStatus	) {	this.loginStatus 	= loginStatus;	  }
 	public void setIsAdmin		 (Boolean value			) {	this.isAdmin 		= value;		  }
+	public void setIsHR			 (Boolean value			) {	this.isHR 			= value;		  }
+	public void setIsFinance	 (Boolean value			) {	this.isFinance 		= value;		  }
 	public void setDateRegistered(Date    dateRegistered) {	this.dateRegistered = dateRegistered; }
 
-	public void authenticateLogin() throws IOException {
+	public void authenticateLogin() {
 		if (!userId.equals("admin")) {
-			// Set the employee number if the user is not an admin
-			setEmployeeNumber(JsonFileHandler.nameIterator(JsonFileHandler.getLoginCredentialsJSON(), "username",
-					userId, "employeeNum"));
-
-			// Check the login status
-			setLoginStatus(JsonFileHandler.compareLoginCredentials(JsonFileHandler.getLoginCredentialsJSON(),
-					"username", userId, "password", password));
+			// Use UserDAO for authentication - authenticate with database
+			User user = UserDAO.authenticateUser(userId, password);
+			if (user != null) {
+				setEmployeeNumber(user.getEmployeeNumber());
+				setLoginStatus(true);
+				setIsVerified(true);
+				setIsAdmin(user.getIsAdmin());
+				setIsHR(user.getIsHR());
+				setIsFinance(user.getIsFinance());
+			}
 			return;
 		}
 

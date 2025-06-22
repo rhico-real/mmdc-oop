@@ -4,12 +4,19 @@ import javax.swing.GroupLayout.Alignment;
 import javax.swing.GroupLayout;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import java.awt.Font;
+import java.io.IOException;
+
+import Classes.Compensation;
+import Classes.GovernmentIdentification;
+import DAO.EmployeeDAO;
 
 @SuppressWarnings("serial")
 public class ViewPayslipPage extends javax.swing.JFrame {
     
     // Declare fields to hold employee data
     private String employeeNo;
+    private GovernmentIdentification employeeGI;
+    private Compensation employeeComp;
     private String employeeName;
     private String address;
     private String immediateSupervisor;
@@ -542,8 +549,7 @@ public class ViewPayslipPage extends javax.swing.JFrame {
      btnBack.setFont(new Font("Tahoma", Font.BOLD, 12));
      btnBack.addActionListener(new java.awt.event.ActionListener() {
          public void actionPerformed(java.awt.event.ActionEvent evt) {
-             // For example, you can close this window or navigate to another page
-             dispose(); // This will close the current window
+             goBackToEmployeeDashboard();
          }
      });
      
@@ -589,7 +595,34 @@ public class ViewPayslipPage extends javax.swing.JFrame {
         pack();
     }
 
+    private void goBackToEmployeeDashboard() {
+        // Initialize employeeGI and employeeComp if they haven't been set yet
+        if (employeeGI == null) {
+            employeeGI = new GovernmentIdentification(employeeNo);
+        }
+        if (employeeComp == null) {
+            employeeComp = new Compensation(employeeNo);
+        }
+        
+        // Initialize the employee information
+        GovernmentIdentification.setEmployeeInformationObject(employeeNo, employeeGI, employeeComp);
+        
+        // Close this window
+        dispose();
+        
+        // Create and show the EmployeeDashboard
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                new EmployeeDashboard(employeeGI, employeeComp).setVisible(true);
+            }
+        });
+    }
+    
     private void populateFields() {
+        // Create and initialize employeeGI and employeeComp objects
+        this.employeeGI = new GovernmentIdentification(employeeNo);
+        this.employeeComp = new Compensation(employeeNo);
+        
         // Populate the text fields with the employee data
         txtEmployeeNo.setText(employeeNo);
         txtEmployeeName.setText(employeeName);

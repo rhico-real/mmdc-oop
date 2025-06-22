@@ -1,0 +1,373 @@
+package GUI.finance;
+
+import javax.swing.table.*;
+
+import Classes.Compensation;
+import Classes.EmployeeInformation;
+import Classes.GovernmentIdentification;
+import DAO.EmployeeDAO;
+import DAO.UserDAO;
+
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
+import javax.swing.*;
+
+@SuppressWarnings("serial")
+public class FinanceEmployeeListPage extends JFrame {
+
+    private JScrollPane jScrollPane1;
+    private JButton jButton1;
+    private JTable jTable1;
+    private int numberOfColumns = 9;
+    private JButton addEmployeeButton;
+    private int selectedRow;
+    private String employeeNum;
+
+    // Instantiate two of the user's important information
+    GovernmentIdentification employeeGI;
+    Compensation employeeComp;
+
+    public FinanceEmployeeListPage() {
+        initComponents();
+        loadEmployeeData();
+    }
+
+    private void initComponents() {
+
+        // Set JFrame
+        setTitle("MotorPH Payroll System | Finance - Employee List");
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setSize(1366,768);
+        setResizable(false);
+
+        // Instantiate Table
+        jTable1 = new JTable();
+
+        addEmployeeButton = new JButton();
+
+        // Instantiate Button Component
+        jButton1 = new JButton();
+        jButton1.setText("Go Back to Dashboard");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        // Create an empty default table model
+        DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] { "Employee Number",
+                "Last Name", "First Name", "SSS No.", "PhilHealth No.", "TIN", "Pagibig No.", "View", "Edit", "Delete" }) {
+            @Override
+            public Class<?> getColumnClass(int columnIndex) {
+                // Return the appropriate class for the last three columns (buttons)
+                return (columnIndex >= getColumnCount() - 3) ? JButton.class : Object.class;
+            }
+
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                // Allow editing only for the last three columns
+                return column >= getColumnCount() - 3;
+            }
+        };
+
+        // Modify Table Row Height
+        jTable1 = new JTable(model);
+        jTable1.setRowHeight(30);
+
+        // Modify the width of the first column
+        TableColumn firstColumn = jTable1.getColumnModel().getColumn(0);
+        firstColumn.setPreferredWidth(90);
+
+        // Modify the width of the action columns
+        TableColumn viewColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 3);
+        viewColumn.setPreferredWidth(80);
+
+        TableColumn editColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 2);
+        editColumn.setPreferredWidth(60);
+
+        TableColumn deleteColumn = jTable1.getColumnModel().getColumn(numberOfColumns - 1);
+        deleteColumn.setPreferredWidth(70);
+
+        // Set custom renderer and editor for the View Employee column
+        jTable1.getColumnModel().getColumn(model.getColumnCount() - 3)
+                .setCellRenderer(new ButtonRenderer("View"));
+        jTable1.getColumnModel().getColumn(model.getColumnCount() - 3)
+                .setCellEditor(new ButtonEditor(0, "View", "ViewEmployeeDetailsPage"));
+
+        // Set custom renderer and editor for the Edit Column
+        jTable1.getColumnModel().getColumn(model.getColumnCount() - 2).setCellRenderer(new ButtonRenderer("Edit"));
+        jTable1.getColumnModel().getColumn(model.getColumnCount() - 2)
+                .setCellEditor(new ButtonEditor(0, "Edit", "UpdateEmployeeDetailsPage"));
+
+        // Set a custom renderer and editor for the Delete Column
+        jTable1.getColumnModel().getColumn(model.getColumnCount() - 1).setCellRenderer(new ButtonRenderer("Delete"));
+        jTable1.getColumnModel().getColumn(model.getColumnCount() - 1)
+                .setCellEditor(new ButtonEditor(0, "Delete", "DeleteDialogPane"));
+
+        // Set custom renderer for the header cells to make them bold
+        JTableHeader header = jTable1.getTableHeader();
+        header.setDefaultRenderer(new BoldHeaderRenderer(header.getDefaultRenderer()));
+
+        jScrollPane1 = new JScrollPane(jTable1);
+
+        addEmployeeButton.setText("Add Employee");
+        addEmployeeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addEmployeeButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createSequentialGroup().addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 996, Short.MAX_VALUE)
+                                .addGroup(layout.createSequentialGroup().addComponent(jButton1)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
+                                                javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(addEmployeeButton)))
+                        .addContainerGap()));
+        layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addGroup(
+                javax.swing.GroupLayout.Alignment.TRAILING,
+                layout.createSequentialGroup().addContainerGap(13, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(jButton1).addComponent(addEmployeeButton))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 428,
+                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap()));
+
+        pack();
+
+        // Make the window appear in the middle
+        setLocationRelativeTo(null);
+    }
+
+    private void loadEmployeeData() {
+        try {
+            // Get all employees from the database
+            List<EmployeeInformation> employees = EmployeeDAO.getAllEmployees();
+            
+            // Get the table model
+            DefaultTableModel model = (DefaultTableModel) ((JTable) jScrollPane1.getViewport().getView()).getModel();
+            
+            // Clear existing data
+            model.setRowCount(0);
+            
+            // Auto increment employeeNum for record creation
+            if (!employees.isEmpty()) {
+                int maxEmployeeNum = 0;
+                for (EmployeeInformation emp : employees) {
+                    int currentEmpNum = Integer.parseInt(emp.getEmployeeNumber());
+                    if (currentEmpNum > maxEmployeeNum) {
+                        maxEmployeeNum = currentEmpNum;
+                    }
+                }
+                employeeNum = String.valueOf(maxEmployeeNum + 1);
+            } else {
+                employeeNum = "10001"; // Start with 10001 if no employees exist
+            }
+            
+            // Add data to the table
+            for (EmployeeInformation employee : employees) {
+                GovernmentIdentification govId = EmployeeDAO.getEmployeeGovId(employee.getEmployeeNumber());
+                
+                // Add the data to the table model
+                model.addRow(new Object[] { 
+                    employee.getEmployeeNumber(), 
+                    employee.getLastName(),
+                    employee.getFirstName(), 
+                    govId != null ? govId.getSSSNumber() : "", 
+                    govId != null ? govId.getPhilHealthNumber() : "",
+                    govId != null ? govId.getTinNumber() : "", 
+                    govId != null ? govId.getPagibigNumber() : "", 
+                    "View",
+                    "Edit",
+                    "Delete"
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Error loading employee data: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Click event of Go Back to Dashboard Button
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                // Remove the EmployeesPage Window
+                dispose();
+
+                // Go back to the dashboard page
+                new FinanceDashboard().setVisible(true);
+            }
+        });
+    }
+
+    private void addEmployeeButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                // Close the employee list
+                dispose();
+
+                // Go to add employee page
+                new FinanceAddEmployeePage().setVisible(true);
+            }
+        });
+    }
+
+    private void deleteEmployeeButtonActionPerformed(String employeeNumToRemove) {
+        try {
+            // Delete the employee from the database using EmployeeDAO
+            if (EmployeeDAO.deleteEmployee(employeeNumToRemove)) {
+                JOptionPane.showMessageDialog(this, 
+                    "Employee deleted successfully.", 
+                    "Success", 
+                    JOptionPane.INFORMATION_MESSAGE);
+                    
+                java.awt.EventQueue.invokeLater(new Runnable() {
+                    public void run() {
+                        // Remove the EmployeesPage Window
+                        dispose();
+
+                        // Refresh the Employees Page
+                        new FinanceEmployeeListPage().setVisible(true);
+                    }
+                });
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Failed to delete employee.", 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Error deleting employee: " + e.getMessage(), 
+                "Database Error", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Custom on-render look for the button column
+    private class ButtonRenderer extends JButton implements TableCellRenderer {
+        private String buttonLabel;
+
+        public ButtonRenderer(String buttonLabel) {
+            this.buttonLabel = buttonLabel;
+            setOpaque(true);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
+            setText(buttonLabel);
+            return this;
+        }
+    }
+
+    // Custom click-event look for the button column
+    private class ButtonEditor extends AbstractCellEditor implements TableCellEditor {
+        private JButton button;
+        private int targetColumn;
+        private String buttonLabel;
+
+        public ButtonEditor(int targetColumn, String buttonLabel, String page) {
+            this.targetColumn = targetColumn;
+            this.buttonLabel = buttonLabel;
+            button = new JButton(this.buttonLabel);
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    java.awt.EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            if (!page.equals("DeleteDialogPane"))
+                                dispose();
+
+                            // Check what page to go to
+                            switch (page) {
+                            case "ViewEmployeeDetailsPage":
+                                // Go to the employees information page
+                                new FinanceViewEmployeeDetailsPage(employeeGI, employeeComp).setVisible(true);
+                                break;
+                            case "UpdateEmployeeDetailsPage":
+                                // Go to the employees information page
+                                new FinanceUpdateEmployeeDetailsPage(employeeGI, employeeComp).setVisible(true);
+                                break;
+                            case "DeleteDialogPane":
+                                // Display a confirmation dialog
+                                int result = JOptionPane.showConfirmDialog(null, "Do you want to proceed?",
+                                        "Confirmation", JOptionPane.YES_NO_OPTION);
+
+                                // Check the user's choice
+                                if (result == JOptionPane.YES_OPTION) {
+                                    deleteEmployeeButtonActionPerformed(
+                                        jTable1.getValueAt(selectedRow, targetColumn).toString());
+                                }
+                                break;
+                            default:
+                                new FinanceViewEmployeeDetailsPage(employeeGI, employeeComp).setVisible(true);
+                                break;
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                int column) {
+
+            // Call constructor
+            employeeGI = new GovernmentIdentification(jTable1.getValueAt(row, 0).toString());
+            employeeComp = new Compensation(jTable1.getValueAt(row, 0).toString());
+
+            selectedRow = row;
+
+            // Set all the important information to be passed
+            EmployeeInformation.setEmployeeInformationObject(jTable1.getValueAt(row, 0).toString(),
+                    employeeGI, employeeComp);
+
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return buttonLabel;
+        }
+    }
+
+    // Make the column headers bold
+    private static class BoldHeaderRenderer implements TableCellRenderer {
+
+        private final TableCellRenderer defaultRenderer;
+
+        public BoldHeaderRenderer(TableCellRenderer defaultRenderer) {
+            this.defaultRenderer = defaultRenderer;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
+                int row, int column) {
+            Component c = defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row,
+                    column);
+
+            if (c instanceof JLabel) {
+                JLabel label = (JLabel) c;
+                Font font = label.getFont();
+                label.setFont(font.deriveFont(font.getStyle() | Font.BOLD));
+            }
+
+            return c;
+        }
+    }
+}
