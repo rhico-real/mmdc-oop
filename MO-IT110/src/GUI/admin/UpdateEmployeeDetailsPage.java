@@ -370,7 +370,8 @@ public class UpdateEmployeeDetailsPage extends JFrame {
 				CustomTooltip.hideCustomTooltip();
 			}
 		});
-
+		
+		
 		javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
 		jPanel3.setLayout(jPanel3Layout);
 		jPanel3Layout.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

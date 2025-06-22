@@ -17,6 +17,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import java.text.DecimalFormat;
 import Classes.Compensation;
@@ -98,11 +102,12 @@ public class CalculatorPage extends JFrame {
 
 	// Net Salary
 	private double netSalary;
+	private JLabel netSalaryTitle = new JLabel ("Calculated Net");
 	private JLabel netSalaryLabel = new JLabel("Net Salary ");
 	private JLabel netSalaryValue = new JLabel("");
 
 	// Buttons
-	private JButton calculateSalaryButton = new JButton("Calculate");
+	private JButton calculateSalaryButton = new JButton("=");
 	
 	// Mandated Deductions Subtitle
 	private JLabel mandatedSubtitle = new JLabel("Deductions");
@@ -154,6 +159,7 @@ public class CalculatorPage extends JFrame {
 		setDataOnRender(employeeComp);
 	}
 	
+	// CUSTOM FONT ASSIGNMENT
 	private static Font loadCustomFont(String fontPath, float size) {
 	    try {
 	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
@@ -166,6 +172,7 @@ public class CalculatorPage extends JFrame {
 	    }
 	}
 	
+	// BORDER THICKNESS OF ROUNDED PANEL
 	static class RoundedPanel extends JPanel {
 	    private int cornerRadius;
 	    private Color borderColor = Color.BLACK; // Default border color
@@ -187,7 +194,8 @@ public class CalculatorPage extends JFrame {
 	        this.borderThickness = thickness;
 	        repaint();
 	    }
-
+	    
+	    // ROUNDED PANEL LAYOUT
 	    @Override
 	    protected void paintComponent(Graphics g) {
 	        super.paintComponent(g);
@@ -230,10 +238,13 @@ public class CalculatorPage extends JFrame {
 
 		Font poppinsTitleBoldFont = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 35f);
 		Font poppinsTitleSemiBold = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 28f);
+		Font poppinsRegular28f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 28f);
+		Font poppinsRegular24f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 24f);
+		Font poppinsSemiBold24f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 24f);
+		Font poppinsCalculatorButton = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 35);
 		Font poppinsSubTitleSemiBold = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
 		Font poppinsRegularFont = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 18f);
 		Font poppinsBoldFont = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
-		Font poppinsSemiBoldFont28 = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 28f);
 		
 
 		grossSalaryComputationLabel = new javax.swing.JLabel();
@@ -252,7 +263,7 @@ public class CalculatorPage extends JFrame {
 		mainPanel.setBackground(Color.decode("#f5f5f5"));
 		add(mainPanel);
 
-		// 🔹 Menubar Panel
+		// Menubar Panel
 		menubarPanel = new JPanel(new GridBagLayout());
 		menubarPanel.setBackground(Color.decode("#153969"));
 		GridBagConstraints menubarGBC = new GridBagConstraints();
@@ -263,7 +274,7 @@ public class CalculatorPage extends JFrame {
 		menubarGBC.fill = GridBagConstraints.BOTH;
 		mainPanel.add(menubarPanel, menubarGBC);
 
-		// 🔹 Dashboard Panel
+		// Dashboard Panel
 		dashboardPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints dashboardGBC = new GridBagConstraints();
 		dashboardGBC.gridx = 0;
@@ -273,7 +284,7 @@ public class CalculatorPage extends JFrame {
 		dashboardGBC.fill = GridBagConstraints.BOTH;
 		mainPanel.add(dashboardPanel, dashboardGBC);
 
-		// 🔹 Net Salary Panel
+		// Net Salary Panel
 		netSalaryPanel = new JPanel(new GridBagLayout());
 		netSalaryPanel.setBackground(Color.BLUE);
 		GridBagConstraints netSalaryGBC = new GridBagConstraints();
@@ -284,7 +295,7 @@ public class CalculatorPage extends JFrame {
 		netSalaryGBC.fill = GridBagConstraints.BOTH;
 		dashboardPanel.add(netSalaryPanel, netSalaryGBC);
 
-		// 🔹 Title Net Salary Panel
+		// Title Net Salary Panel
 		titleNetSalPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints titleNetSalGBC = new GridBagConstraints();
 		titleNetSalGBC.gridx = 0;
@@ -294,7 +305,7 @@ public class CalculatorPage extends JFrame {
 		titleNetSalGBC.fill = GridBagConstraints.BOTH;
 		netSalaryPanel.add(titleNetSalPanel, titleNetSalGBC);
 
-		// 🔹 Boxes Panel
+		// Boxes Panel
 		boxesPanel = new JPanel(new GridBagLayout());
 		GridBagConstraints boxesGBC = new GridBagConstraints();
 		boxesGBC.gridx = 0;
@@ -304,7 +315,7 @@ public class CalculatorPage extends JFrame {
 		boxesGBC.fill = GridBagConstraints.BOTH;
 		netSalaryPanel.add(boxesPanel, boxesGBC);
 
-		// 🔸 Mandated Deduction Panel
+		// Mandated Deduction Panel
 		mandatedDedPanel.setBackground(Color.WHITE);
 		GridBagConstraints mandatedGBC = new GridBagConstraints();
 		mandatedGBC.gridx = 0;
@@ -315,7 +326,7 @@ public class CalculatorPage extends JFrame {
 		mandatedGBC.insets = new Insets (15,30,15,15);
 		boxesPanel.add(mandatedDedPanel, mandatedGBC);
 
-		// 🔸 Taxes Deduction Panel
+		// Taxes Deduction Panel
 		taxesDedPanel.setBackground(Color.WHITE);
 		GridBagConstraints taxesGBC = new GridBagConstraints();
 		taxesGBC.gridx = 1;
@@ -326,7 +337,7 @@ public class CalculatorPage extends JFrame {
 		taxesGBC.insets = new Insets (15,15,15,15);
 		boxesPanel.add(taxesDedPanel, taxesGBC);
 
-		// 🔸 Allowance Deduction Panel
+		// Allowance Deduction Panel
 		allowanceDedPanel.setBackground(Color.WHITE);
 		GridBagConstraints allowanceGBC = new GridBagConstraints();
 		allowanceGBC.gridx = 0;
@@ -337,7 +348,7 @@ public class CalculatorPage extends JFrame {
 		allowanceGBC.insets = new Insets (15,30,30,15);
 		boxesPanel.add(allowanceDedPanel, allowanceGBC);
 
-		// 🔸 Net Salary Result Panel
+		// Net Salary Result Panel
 		netSalResultPanel.setBackground(Color.WHITE);
 		GridBagConstraints netResultGBC = new GridBagConstraints();
 		netResultGBC.gridx = 1;
@@ -348,7 +359,7 @@ public class CalculatorPage extends JFrame {
 		netResultGBC.insets = new Insets (15,15,30,15);
 		boxesPanel.add(netSalResultPanel, netResultGBC);
 
-		// 🔹 Gross Salary Panel
+		// Gross Salary Panel
 		grossSalaryPanel = new JPanel(new GridBagLayout());
 		grossSalaryPanel.setBackground(Color.decode("#dbdbdb"));
 		GridBagConstraints grossGBC = new GridBagConstraints();
@@ -360,7 +371,7 @@ public class CalculatorPage extends JFrame {
 		grossGBC.insets = new Insets (15,15,15,15);
 		dashboardPanel.add(grossSalaryPanel, grossGBC);
 
-		// 🔸 Calculator Panel
+		// Calculator Panel
 		calculatorPanel = new JPanel(new GridBagLayout());
 		calculatorPanel.setBackground(Color.WHITE);
 		GridBagConstraints calcGBC = new GridBagConstraints();
@@ -374,18 +385,19 @@ public class CalculatorPage extends JFrame {
 
 		// 🔸 Result Panel
 		resultPanel = new JPanel(new GridBagLayout());
-		resultPanel.setBackground(Color.ORANGE);
+		resultPanel.setBackground(Color.WHITE);
 		GridBagConstraints resultGBC = new GridBagConstraints();
 		resultGBC.gridx = 0;
 		resultGBC.gridy = 1;
 		resultGBC.weightx = 1;
 		resultGBC.weighty = 0.3;
 		resultGBC.fill = GridBagConstraints.BOTH;
-		resultGBC.insets = new Insets (75,75,75,75);
+		resultGBC.insets = new Insets (0,75,75,75);
 		grossSalaryPanel.add(resultPanel, resultGBC);
-						// gross salary label
-						// value
-					
+
+		// MENUBAR LAYOUT
+		
+		// add the logos
 		ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
         JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
         ImageIcon admindisplayLogo = new ImageIcon("resources/images/Admin-Logo.png");
@@ -414,7 +426,7 @@ public class CalculatorPage extends JFrame {
 		
 		
 
-		
+		// DEDUCTION BOX PANEL
 		mandatedSubtitle.setFont(poppinsTitleSemiBold);
 		sssDeductionsLabel.setFont(poppinsRegularFont); // NOI18N
 		sssDeductionsValue.setFont(poppinsRegularFont); // NOI18N
@@ -441,6 +453,7 @@ public class CalculatorPage extends JFrame {
 		            .addComponent(emptyTextLabel1)
 		            .addComponent(totalDeductionsLabel)
 		        )
+		        .addGap(40)
 		        .addGroup(gl_mandatedDedPanel.createParallelGroup(GroupLayout.Alignment.LEADING)
 		            .addComponent(emptyTextValue1)
 		            .addComponent(emptyTextValue1)
@@ -454,7 +467,7 @@ public class CalculatorPage extends JFrame {
 
 		gl_mandatedDedPanel.setVerticalGroup(
 			gl_mandatedDedPanel.createSequentialGroup()
-		        .addGap(30) // Top padding
+		        .addGap(15) // Top padding
 		        .addGroup(gl_mandatedDedPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		            .addComponent(mandatedSubtitle)
 		            .addGap(0)
@@ -489,7 +502,8 @@ public class CalculatorPage extends JFrame {
 		        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 		);
 		
-		
+		// TAXES BOX PANEL
+		// set font size and color
 		taxesSubtitle.setFont(poppinsTitleSemiBold); // NOI18N
 		taxableSalaryLabel.setFont(poppinsRegularFont); // NOI18N
 		taxableSalaryValue.setFont(poppinsRegularFont); // NOI18N
@@ -512,6 +526,7 @@ public class CalculatorPage extends JFrame {
 		            .addComponent(withHoldingTaxLabel)
 		            .addComponent(salaryAfterTaxLabel)
 		        )
+		        .addGap(50)
 		        .addGroup(gl_taxesDedPanel.createParallelGroup(GroupLayout.Alignment.LEADING)
 		            .addGap(0)  // For the row with taxesSubtitle, nothing in column 2
 		            .addComponent(taxableSalaryValue)
@@ -523,7 +538,7 @@ public class CalculatorPage extends JFrame {
 		// Define vertical group (4 rows)
 		gl_taxesDedPanel.setVerticalGroup(
 				gl_taxesDedPanel.createSequentialGroup()
-				.addGap(30)
+				.addGap(15)
 		        .addGroup(gl_taxesDedPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
 		            .addComponent(taxesSubtitle)
 		            .addGap(0)  // No value in column 2 for this row
@@ -544,7 +559,8 @@ public class CalculatorPage extends JFrame {
 		        )
 		);
 		
-		
+		// ALLOWANCE BOX PANEL
+		// set font size and color
 		allowancesLabel.setFont(poppinsTitleSemiBold); // NOI18N
 		allowancesLabel.setText("Allowance");
 		riceSubsidyLabel.setFont(poppinsRegularFont); // NOI18N
@@ -582,7 +598,7 @@ public class CalculatorPage extends JFrame {
 
 			gl_allowanceDedPanel.setVerticalGroup(
 					gl_allowanceDedPanel.createSequentialGroup()
-			        .addGap(30) // Top padding
+			        .addGap(15) // Top padding
 			        .addGroup(gl_allowanceDedPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
 			            .addComponent(allowancesLabel)
 			            .addGap(0)
@@ -612,51 +628,65 @@ public class CalculatorPage extends JFrame {
 			        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 			);
 		
-		
-			netSalaryLabel.setFont(poppinsTitleSemiBold); // NOI18N
-			netSalaryValue.setFont(poppinsSemiBoldFont28); // NOI18N
 			
-		
-			GridBagConstraints netSalaryLabelGBC = new GridBagConstraints();
-			netSalaryLabelGBC.gridx = 0;
-			netSalaryLabelGBC.gridy = 0;
-			netSalaryLabelGBC.weightx = 1;
-			netSalaryLabelGBC.weighty = 0.3;
-			netSalaryLabelGBC.fill = GridBagConstraints.BOTH;
-			netSalaryLabelGBC.insets = new Insets (-50,20,0,0);
-			netSalResultPanel.add(netSalaryLabel, netSalaryLabelGBC);
+			// NET SALARY COMPUTATION RESULT BOX PANEL
+			// set font size and color
+			netSalaryTitle.setFont(poppinsTitleSemiBold);
+			netSalaryLabel.setFont(poppinsBoldFont); // NOI18N
+			netSalaryValue.setFont(poppinsRegularFont); // NOI18N
 			
-			GridBagConstraints netSalaryValueGBC = new GridBagConstraints();
-			netSalaryValueGBC.gridx = 0;
-			netSalaryValueGBC.gridy = 1;
-			netSalaryValueGBC.weightx = 1;
-			netSalaryValueGBC.weighty = 0.7;
-			netSalaryValueGBC.fill = GridBagConstraints.CENTER;
-			//netSalaryValuePanelGBC.insets = new Insets (5,60,60,60);
-			netSalResultPanel.add(netSalaryValue, netSalaryValueGBC);
+			GroupLayout gl_netSalResultPanel = new GroupLayout(netSalResultPanel);
+			netSalResultPanel.setLayout(gl_netSalResultPanel);
+
+
+			gl_netSalResultPanel.setHorizontalGroup(
+					gl_netSalResultPanel.createSequentialGroup()
+					.addGap(30)
+			        .addGroup(gl_netSalResultPanel.createParallelGroup(GroupLayout.Alignment.LEADING)
+		        		.addComponent(netSalaryTitle)
+	        			.addComponent(netSalaryLabel)
+			        )
+			        .addGroup(gl_netSalResultPanel.createParallelGroup(GroupLayout.Alignment.LEADING)
+			        		.addGap(0)
+		        			.addComponent(netSalaryValue)
+			        )
+			);
+
+			// Define vertical group (4 rows)
+			gl_netSalResultPanel.setVerticalGroup(
+					gl_netSalResultPanel.createSequentialGroup()
+					.addGap(15)
+			        .addGroup(gl_netSalResultPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(netSalaryTitle)
+		        		.addGap(0)
+			        )
+			        .addGap(25)
+			        .addGroup(gl_netSalResultPanel.createParallelGroup(GroupLayout.Alignment.BASELINE)
+				            .addComponent(netSalaryLabel)
+			        		.addComponent(netSalaryValue)
+				    )
+			);
 			
-			netSalaryValuePanel = new JPanel(new GridBagLayout());
-			GridBagConstraints netSalaryValuePanelGBC = new GridBagConstraints();
-			netSalaryValuePanel.setBackground(Color.decode("#f5f5f5"));
-			netSalaryValuePanelGBC.gridx = 0;
-			netSalaryValuePanelGBC.gridy = 1;
-			netSalaryValuePanelGBC.weightx = 1;
-			netSalaryValuePanelGBC.weighty = 0.7;
-			netSalaryValuePanelGBC.fill = GridBagConstraints.BOTH;
-			netSalaryValuePanelGBC.insets = new Insets (5,60,60,60);
-			netSalResultPanel.add(netSalaryValuePanel, netSalaryValuePanelGBC);
+			// GROSS SALARY CALCULATOR PANEL
+			// set border size
+			Border hoursRenderedFieldBorder = new LineBorder(Color.GRAY, 2, true); // outer border
+			Border innerPadding = new EmptyBorder(5, 9, 5, 10); // inner border
+			hoursRenderedField.setBorder(new CompoundBorder(hoursRenderedFieldBorder, innerPadding));
+			calculatorPanel.setBorder(new LineBorder(Color.BLACK,3, true));
+			calculateSalaryButton.setBorder(new LineBorder(Color.decode("#ca7842"),2, true));
+			hoursRenderedField.setPreferredSize(new Dimension(50, 10));
+			calculateSalaryButton.setPreferredSize(new Dimension(100, 40));
 			
-			
-			
-			
-			
+			// set font size and color
 			grossSalaryComputationLabel.setFont(poppinsTitleSemiBold);
 			grossSalaryComputationLabel.setText("Gross Salary Calculator");
-			hourlyRateLabel.setFont(poppinsRegularFont); // NOI18N
+			hourlyRateLabel.setFont(poppinsRegularFont);
 			hourlyRateValue.setFont(poppinsRegularFont);
+			hoursRenderedLabel.setForeground(Color.GRAY);
 			hoursRenderedLabel.setFont(poppinsRegularFont);
-			// field
-			// button
+			hoursRenderedField.setFont(poppinsRegular28f);
+			calculateSalaryButton.setFont(poppinsCalculatorButton);
+			calculateSalaryButton.setBackground(Color.decode("#ffbf78"));
 			
 			GridBagConstraints grossSalaryComputationLabelGBC = new GridBagConstraints();
 			grossSalaryComputationLabelGBC.gridx = 0;
@@ -665,7 +695,7 @@ public class CalculatorPage extends JFrame {
 			grossSalaryComputationLabelGBC.weighty = 0.0;
 			grossSalaryComputationLabelGBC.gridwidth = GridBagConstraints.REMAINDER;
 			grossSalaryComputationLabelGBC.fill = GridBagConstraints.CENTER;
-			grossSalaryComputationLabelGBC.insets = new Insets (20,0,-20,0);
+			grossSalaryComputationLabelGBC.insets = new Insets (20,0,0,0);
 			calculatorPanel.add(grossSalaryComputationLabel, grossSalaryComputationLabelGBC);
 			
 			GridBagConstraints hourlyRateLabelGBC = new GridBagConstraints();
@@ -691,11 +721,11 @@ public class CalculatorPage extends JFrame {
 			GridBagConstraints hoursRenderedLabelGBC = new GridBagConstraints();
 			hoursRenderedLabelGBC.gridx = 0;
 			hoursRenderedLabelGBC.gridy = 2;
-			hoursRenderedLabelGBC.weightx = 1;
-			hoursRenderedLabelGBC.weighty = 0.7;
+			hoursRenderedLabelGBC.weightx = 0.7;
+			hoursRenderedLabelGBC.weighty = 0.3;
 			hoursRenderedLabelGBC.gridwidth = 1;
 			hoursRenderedLabelGBC.fill = GridBagConstraints.BOTH;
-			hoursRenderedLabelGBC.insets = new Insets (0,40,0,0);
+			hoursRenderedLabelGBC.insets = new Insets (0,30,20,5);
 			calculatorPanel.add(hoursRenderedLabel, hoursRenderedLabelGBC);
 			
 			GridBagConstraints hoursRenderedFieldGBC = new GridBagConstraints();
@@ -724,17 +754,18 @@ public class CalculatorPage extends JFrame {
 				}
 			});
 
-			calculateSalaryButton.setText("Calculate");
+			calculateSalaryButton.setText("=");
 			calculateSalaryButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
 					calculateSalaryButtonActionPerformed(evt, employeeComp);
 				}
 			});
 			
+			// GROSS SALARY CALCULATOR RESULT PANEL
 			
-			
-			grossSalaryLabel.setFont(poppinsSubTitleSemiBold); // NOI18N
-			grossSalaryValue.setFont(poppinsRegularFont); // NOI18N
+			resultPanel.setBorder(new LineBorder(Color.BLACK,3, true));
+			grossSalaryLabel.setFont(poppinsSemiBold24f); // NOI18N
+			grossSalaryValue.setFont(poppinsRegular24f); // NOI18N
 		
 			GridBagConstraints grossSalaryLabelGBC = new GridBagConstraints();
 			grossSalaryLabelGBC.gridx = 0;
@@ -742,7 +773,7 @@ public class CalculatorPage extends JFrame {
 			grossSalaryLabelGBC.weightx = 0.5;
 			grossSalaryLabelGBC.weighty = 1;
 			grossSalaryLabelGBC.fill = GridBagConstraints.BOTH;
-			grossSalaryLabelGBC.insets = new Insets (0,0,0,0);
+			grossSalaryLabelGBC.insets = new Insets (0,50,0,-50);
 			resultPanel.add(grossSalaryLabel, grossSalaryLabelGBC);
 			
 			GridBagConstraints ggrossSalaryValueGBC = new GridBagConstraints();
