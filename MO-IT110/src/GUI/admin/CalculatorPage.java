@@ -784,41 +784,7 @@ public class CalculatorPage extends JFrame {
 			ggrossSalaryValueGBC.fill = GridBagConstraints.BOTH;
 			ggrossSalaryValueGBC.insets = new Insets (0,0,0,0);
 			resultPanel.add(grossSalaryValue, ggrossSalaryValueGBC);
-		
-		
-		
-		
-		
-		
-// -----------------------------------------------------------------------------------
-		 // NOI18N
-		 // NOI18N
-		
-		
-		 // NOI18N
-		
 
-		
-		
-
-
-		
-		
-	
-// -----------------------------------------------------------------------------------
-
-	
-
-		
-		
-		
-		
-		
-
-
-		
-		
-		
 		add(mainPanel);
 		pack();
 		setSize(1366,788);
