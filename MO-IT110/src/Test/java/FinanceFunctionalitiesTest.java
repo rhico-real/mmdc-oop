@@ -77,8 +77,8 @@ public class FinanceFunctionalitiesTest {
         financeUser.authenticateLogin();
         financeUser.setIsFinance(true); // Grant Finance privileges
         
-        // Generate unique but shorter test employee number (max 20 chars)
-        testEmployeeNumber = "TEST_FIN_" + (System.currentTimeMillis() % 100000000L);
+        // Generate unique but shorter test employee number (max 10 chars to fit varchar(20))
+        testEmployeeNumber = "FIN" + (System.currentTimeMillis() % 100000000L);
         testCompensation = null;
     }
     
@@ -166,7 +166,8 @@ public class FinanceFunctionalitiesTest {
             testCompensation.setNetSalary(7920.0); // After deductions
             
             // Test creating employee with compensation (may fail due to database constraints)
-            String username = testEmployee.getFirstName().toLowerCase() + "." + testEmployee.getLastName().toLowerCase();
+            long timestamp = System.currentTimeMillis();
+            String username = "testfinance.testemployee." + timestamp; // Make username unique
             String password = "temp123";
             String positionTitle = testEmployee.getPosition();
             String departmentName = "Finance Department"; // Default department for test
@@ -246,19 +247,21 @@ public class FinanceFunctionalitiesTest {
         
         // Test net salary calculation (with sample deductions)
         double grossMonthly = testCompensation.getBasicSalary() + totalAllowances;
-        double sssDeduction = grossMonthly * 0.045; // 4.5% SSS
-        double philhealthDeduction = grossMonthly * 0.0175; // 1.75% PhilHealth
-        double pagibigDeduction = grossMonthly * 0.02; // 2% Pag-IBIG
-        double withholdingTax = grossMonthly * 0.05; // 5% withholding tax (simplified)
+        double sssDeduction = grossMonthly * 0.045; // 4.5% SSS = 337.50
+        double philhealthDeduction = grossMonthly * 0.0175; // 1.75% PhilHealth = 131.25
+        double pagibigDeduction = grossMonthly * 0.02; // 2% Pag-IBIG = 150.00
+        double withholdingTax = grossMonthly * 0.05; // 5% withholding tax = 375.00
         
         double totalDeductions = sssDeduction + philhealthDeduction + pagibigDeduction + withholdingTax;
+        // Total deductions = 337.50 + 131.25 + 150.00 + 375.00 = 993.75
         double netSalary = grossMonthly - totalDeductions;
+        // Net salary = 7500.00 - 993.75 = 6506.25
         
         testCompensation.setNetSalary(netSalary);
         
         assertTrue(netSalary > 0, "Net salary should be positive");
         assertTrue(netSalary < grossMonthly, "Net salary should be less than gross salary");
-        assertEquals(6781.25, netSalary, 1.0, "Net salary calculation should account for all deductions");
+        assertEquals(6506.25, netSalary, 1.0, "Net salary calculation should account for all deductions");
     }
     
     @Test
