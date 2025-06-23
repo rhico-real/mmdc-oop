@@ -11,17 +11,17 @@
 	<classpathentry kind="lib" path="libs/jgoodies-common-1.2.0.jar"/>
 	<classpathentry kind="lib" path="libs/jgoodies-looks-2.4.1.jar"/>
 	<classpathentry kind="lib" path="libs/postgresql-42.7.5.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-beanutils-1.9.4.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-collections4-4.4.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-digester-2.1.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/commons-logging-1.2.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/itext-2.1.7.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/jasperreports-6.17.0.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/junit jars/junit-jupiter-api-5.10.0.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/junit jars/junit-jupiter-engine-5.10.0.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/junit jars/junit-platform-commons-1.10.0.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/junit jars/junit-platform-engine_1.10.0.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/junit jars/junit-platform-launcher_1.10.0.jar"/>
-	<classpathentry kind="lib" path="/Users/systech/Downloads/junit jars/opentest4j-1.3.0.jar"/>
+	<classpathentry kind="lib" path="libs/commons-beanutils-1.9.4.jar"/>
+	<classpathentry kind="lib" path="libs/commons-collections4-4.4.jar"/>
+	<classpathentry kind="lib" path="libs/commons-digester-2.1.jar"/>
+	<classpathentry kind="lib" path="libs/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="libs/itext-2.1.7.jar"/>
+	<classpathentry kind="lib" path="libs/jasperreports-6.17.0.jar"/>
+	<classpathentry kind="lib" path="libs/junit-jupiter-api-5.10.0.jar"/>
+	<classpathentry kind="lib" path="libs/junit-jupiter-engine-5.10.0.jar"/>
+	<classpathentry kind="lib" path="libs/junit-platform-commons-1.10.0.jar"/>
+	<classpathentry kind="lib" path="libs/junit-platform-engine-1.10.0.jar"/>
+	<classpathentry kind="lib" path="libs/junit-platform-launcher-1.10.0.jar"/>
+	<classpathentry kind="lib" path="libs/opentest4j-1.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
