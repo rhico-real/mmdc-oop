@@ -2,6 +2,9 @@ package GUI.hr;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -19,92 +22,148 @@ public class HRDashboard extends JFrame {
         setSize(1366, 768);
         setResizable(false);
         
+        String navyBlue = "#153969";
+        String lightGray = "#f5f5f5";
+        String lightRed ="#ff5757";
+        
+        Font poppinsRegular14f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 14f);
+        Font poppinsRegular24f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 24f);
+        Font poppinsBold40f = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 45f);
+        
         // Main panel with padding
-        JPanel mainPanel = new JPanel();
-        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        mainPanel.setLayout(new BorderLayout());
+        JPanel mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setBackground(Color.decode("#f5f5f5"));
         
-        // Title panel
-        JPanel titlePanel = new JPanel();
-        titlePanel.setBackground(new Color(77, 77, 105));
-        titlePanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+        // Nav Bar Panel
+        JPanel navBarPanel = new JPanel(new GridBagLayout());
+        navBarPanel.setBackground(Color.decode("#153969"));
+        navBarPanel.setBorder(new EmptyBorder(0, 20, 0, 20));
+        GridBagConstraints navBarPanelGBC = new GridBagConstraints();
+        navBarPanelGBC.gridx = 0;
+        navBarPanelGBC.gridy = 0;
+        navBarPanelGBC.fill = GridBagConstraints.BOTH;
+        mainPanel.add(navBarPanel, navBarPanelGBC);
         
-        JLabel titleLabel = new JLabel("HR Dashboard");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setForeground(Color.BLACK);
-        titlePanel.add(titleLabel);
+        // motorph logo
+        ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+        JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
+        GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
+        motorPHLogoGBC.gridx = 0;
+        motorPHLogoGBC.gridy = 0;
+        motorPHLogoGBC.insets = new Insets(0, 0, 0, 850);
+        navBarPanel.add(motorPHLogo, motorPHLogoGBC);
         
-        // Content panel
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new GridBagLayout());
-        contentPanel.setBorder(new EmptyBorder(30, 20, 20, 20));
+        // logout button
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.setBackground(Color.decode(lightGray));
+        logoutButton.setForeground(Color.decode(navyBlue));
+        logoutButton.setPreferredSize(new Dimension(85,35));
+        logoutButton.setFont(poppinsRegular14f);
+        logoutButton.addActionListener(e -> logout());
+        GridBagConstraints logoutButtonGBC = new GridBagConstraints();
+        logoutButtonGBC.gridx = 1; 
+        logoutButtonGBC.gridy = 0; 
+        logoutButtonGBC.anchor = GridBagConstraints.CENTER;
+        navBarPanel.add(logoutButton, logoutButtonGBC);
         
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        // finance logo
+        ImageIcon financeLogo = new ImageIcon("resources/images/Finance-Logo.png");
+        JLabel financeLogoLabel = new JLabel(financeLogo);
+        GridBagConstraints financeLogoLabelGBC = new GridBagConstraints();
+        financeLogoLabelGBC.gridx = 2;
+        financeLogoLabelGBC.gridy = 0;
+        financeLogoLabelGBC.insets = new Insets(0, -15, 0, 0);
+        navBarPanel.add(financeLogoLabel, financeLogoLabelGBC);
         
-        // Welcome message
-        JLabel welcomeLabel = new JLabel("Welcome to HR Management System");
-        welcomeLabel.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        contentPanel.add(welcomeLabel, gbc);
+        // Content Panel
+        JPanel contentPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints contentPanelGBC = new GridBagConstraints();
+        contentPanelGBC.gridx = 0;
+        contentPanelGBC.gridy = 1;
+        contentPanelGBC.weightx = 1;
+        contentPanelGBC.weighty = 0.9;
+        contentPanelGBC.fill = GridBagConstraints.BOTH;
+        mainPanel.add(contentPanel, contentPanelGBC);
         
-        // Search Employee button
-        JButton searchEmployeeBtn = createStyledButton("Search Employee & Create Payslip");
-        searchEmployeeBtn.addActionListener(e -> openSearchEmployee());
-        gbc.gridx = 0; gbc.gridy = 1; gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        contentPanel.add(searchEmployeeBtn, gbc);
+        // left content panel
+        JPanel leftContentPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints leftContentPanelGBC = new GridBagConstraints();
+        leftContentPanelGBC.gridx = 0;
+        leftContentPanelGBC.gridy = 0;
+        leftContentPanelGBC.weightx = 0.5;
+        leftContentPanelGBC.weighty = 1;
+        leftContentPanelGBC.fill = GridBagConstraints.BOTH;
+        contentPanel.add(leftContentPanel, leftContentPanelGBC);
         
-        // View All Employees button
-        JButton viewAllEmployeesBtn = createStyledButton("View All Employees & Payslips");
-        viewAllEmployeesBtn.addActionListener(e -> openViewAllEmployees());
-        gbc.gridx = 1; gbc.gridy = 1;
-        contentPanel.add(viewAllEmployeesBtn, gbc);
+        // right content panel
+        JPanel rightContentPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints rightContentPanelGBC = new GridBagConstraints();
+        rightContentPanelGBC.gridx = 1;
+        rightContentPanelGBC.gridy = 0;
+        rightContentPanelGBC.weightx = 0.5;
+        rightContentPanelGBC.weighty = 1;
+        rightContentPanelGBC.fill = GridBagConstraints.BOTH;
+        contentPanel.add(rightContentPanel, rightContentPanelGBC);
         
-        // Logout button
-        JButton logoutBtn = createStyledButton("Logout");
-        logoutBtn.setBackground(new Color(220, 53, 69));
-        logoutBtn.addActionListener(e -> logout());
-        gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.anchor = GridBagConstraints.CENTER;
-        contentPanel.add(logoutBtn, gbc);
+        // Title
+        JLabel titleLabel = new JLabel("<html><b>Human Resource<br>Management<br>System<br><br>Welcome!</b></html>");
+        titleLabel.setFont(poppinsBold40f);
+        titleLabel.setForeground(Color.decode(navyBlue));
+        GridBagConstraints titleLabelGBC = new GridBagConstraints();
+        titleLabelGBC.gridx = 0;
+        titleLabelGBC.gridy = 0;
+        titleLabelGBC.insets = new Insets (-50,15,0,0);
+        titleLabelGBC.anchor = GridBagConstraints.WEST;
+        leftContentPanel.add(titleLabel,titleLabelGBC);
         
-        // Add panels to main panel
-        mainPanel.add(titlePanel, BorderLayout.NORTH);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
+        // search employee button
+        JButton searchEmployeeButton = new JButton("Search Employee and Create Payslip");
+        searchEmployeeButton.addActionListener(e -> openSearchEmployee());
+        searchEmployeeButton.setPreferredSize(new Dimension(500,120));
+        searchEmployeeButton.setBorder(new LineBorder(Color.GRAY,2, true));
+        searchEmployeeButton.setFont(poppinsRegular24f);
+        searchEmployeeButton.setBackground(Color.WHITE);
+        GridBagConstraints searchEmployeeButtonGBC = new GridBagConstraints();
+        searchEmployeeButtonGBC.gridx = 0; 
+        searchEmployeeButtonGBC.gridy = 0; 
+        searchEmployeeButtonGBC.insets = new Insets (0,0,15,0);
+        searchEmployeeButtonGBC.fill = GridBagConstraints.HORIZONTAL;
+        rightContentPanel.add(searchEmployeeButton, searchEmployeeButtonGBC);
         
+        // view all employees and payslips button
+        JButton viewAllEmployeesButtonn = new JButton("View All Employees and Payslips");
+        viewAllEmployeesButtonn.addActionListener(e -> openViewAllEmployees());
+        viewAllEmployeesButtonn.setPreferredSize(new Dimension(500,120));
+        viewAllEmployeesButtonn.setBorder(new LineBorder(Color.GRAY,2, true));
+        viewAllEmployeesButtonn.setFont(poppinsRegular24f);
+        viewAllEmployeesButtonn.setBackground(Color.WHITE);
+        GridBagConstraints viewAllEmployeesButtonGBC = new GridBagConstraints();
+        viewAllEmployeesButtonGBC.gridx = 0; 
+        viewAllEmployeesButtonGBC.gridy = 1; 
+        viewAllEmployeesButtonGBC.insets = new Insets (15,0,0,0);
+        viewAllEmployeesButtonGBC.fill = GridBagConstraints.HORIZONTAL;
+        rightContentPanel.add(viewAllEmployeesButtonn, viewAllEmployeesButtonGBC);
+        
+        // assemble jframe
         add(mainPanel);
+		pack();
+		setSize(1366,788);
+		setVisible(true);
+		setLocationRelativeTo(null);
     }
     
-    private JButton createStyledButton(String text) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        button.setBackground(new Color(40, 167, 69));
-        button.setForeground(Color.BLACK);
-        button.setPreferredSize(new Dimension(250, 50));
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createRaisedBevelBorder());
-        
-        // Add hover effect
-        button.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                button.setBackground(button.getBackground().darker());
-            }
-            
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if (text.equals("Logout")) {
-                    button.setBackground(new Color(220, 53, 69));
-                } else {
-                    button.setBackground(new Color(40, 167, 69));
-                }
-            }
-        });
-        
-        return button;
-    }
+    // custom font
+    private static Font loadCustomFont(String fontPath, float size) {
+	    try {
+	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        ge.registerFont(font);
+	        return font;
+	    } catch (FontFormatException | IOException e) {
+	        System.err.println("Error loading font: " + e.getMessage());
+	        return null;
+	    }
+	}
     
     private void openSearchEmployee() {
         dispose();
