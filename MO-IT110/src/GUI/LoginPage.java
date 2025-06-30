@@ -48,11 +48,8 @@ private static Font loadCustomFont(String fontPath, float size) {
 		setSize(1366, 768); setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
-		
-		Font poppinsRegularBase = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 12f);
-		Font poppinsSemiBoldBase = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 12f);
-		Font poppinsBoldBase = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 12f);
-		
+
+		// custom font
 		Font poppinsHeader = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 60f);
 		Font poppinsSubHeader = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf",16f);
 		Font poppinsText = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 14f);

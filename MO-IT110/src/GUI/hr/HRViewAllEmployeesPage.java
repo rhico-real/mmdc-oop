@@ -79,7 +79,6 @@ public class HRViewAllEmployeesPage extends JFrame {
         // search button
         ImageIcon filterButtonImage = new ImageIcon("resources/images/filter-button.png");
         searchBtn = new JButton(filterButtonImage);
-        searchBtn.setFont(poppinsRegular14f);
         searchBtn.setBorder(null);
         searchBtn.setContentAreaFilled(false); 
         searchBtn.setFocusPainted(false);
@@ -101,8 +100,6 @@ public class HRViewAllEmployeesPage extends JFrame {
         searchLabelGBC.anchor = GridBagConstraints.WEST;
         searchLabelGBC.insets = new Insets (0,20,0,0);
         navBarPanel.add(searchLabel, searchLabelGBC);
-        
-        
         
         // search field 
         searchField = new JTextField(20);

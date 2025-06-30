@@ -7,11 +7,18 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import javax.swing.*;
@@ -55,49 +62,50 @@ public class FinanceDashboard extends JFrame {
     	headerPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
 
     	JLabel titleLabel = new JLabel("HR Department - Employee Management");
-    	titleLabel.setFont(new Font("Sans Serif", Font.BOLD, 20));
+    	titleLabel.setFont(FontLoader.poppinsBold25f);
     	titleLabel.setForeground(Color.WHITE);
     	headerPanel.add(titleLabel, BorderLayout.WEST);
 
     	// Search panel
-    	JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-    	searchPanel.setOpaque(false);
-
+    	JPanel searchPanel = new JPanel(new GridBagLayout());
+    	
+    	// search button
+    	ImageIcon searchButtonImage = new ImageIcon("resources/images/search-button-small.png");
+    	searchButton = new JButton(searchButtonImage);
+    	searchButton.setBorder(null);
+        searchButton.setContentAreaFilled(false); 
+        searchButton.setFocusPainted(false);
+        GridBagConstraints searchButtonGBC = new GridBagConstraints(); 
+        searchButtonGBC.gridx = 0;
+        searchButtonGBC.gridy = 0;
+        searchButtonGBC.fill = GridBagConstraints.BOTH;
+        searchButtonGBC.anchor = GridBagConstraints.EAST;
+        searchButtonGBC.insets = new Insets (0,0,0,0);
+        searchPanel.add(searchButton,searchButtonGBC);
+    	
+    	// search field
     	searchField = new JTextField(20);
     	searchField.setPreferredSize(new Dimension(300, 32)); 
-    	searchField.setFont(new Font("Sans Serif", Font.PLAIN, 14));
-
-    	// Custom styled buttons
-    	Color primaryBlue = new Color(33, 150, 243);
-    	Color hoverBlue = new Color(30, 136, 229);
-
-    	searchButton = new JButton("Search");
-    	clearButton = new JButton("Clear");
-
-    	JButton[] navButtons = { searchButton, clearButton };
-    	for (JButton btn : navButtons) {
-    	    btn.setFont(new Font("Sans Serif", Font.PLAIN, 15));
-    	    btn.setBackground(primaryBlue);
-    	    btn.setForeground(Color.WHITE);
-    	    btn.setFocusPainted(false);
-    	    btn.setBorder(BorderFactory.createEmptyBorder(8, 15, 8, 15));
-    	    btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    	    btn.setOpaque(true);
-
-    	    btn.addMouseListener(new java.awt.event.MouseAdapter() {
-    	        public void mouseEntered(java.awt.event.MouseEvent evt) {
-    	            btn.setBackground(hoverBlue);
-    	        }
-
-    	        public void mouseExited(java.awt.event.MouseEvent evt) {
-    	            btn.setBackground(primaryBlue);
-    	        }
-    	    });
-    	}
+    	searchField.setFont(FontLoader.poppinsRegular14f);
+    	GridBagConstraints searchFieldGBC = new GridBagConstraints(); 
+    	searchFieldGBC.gridx = 0;
+    	searchFieldGBC.gridy = 0;
+    	searchFieldGBC.fill = GridBagConstraints.BOTH;
+    	searchFieldGBC.insets = new Insets (0,0,0,0);
+        searchPanel.add(searchField,searchFieldGBC);
     	
-    	searchPanel.add(searchField);
-    	searchPanel.add(searchButton);
-    	searchPanel.add(clearButton);
+        // clear button
+    	clearButton = new JButton("Clear");
+    	GridBagConstraints clearButtonGBC = new GridBagConstraints(); 
+    	clearButtonGBC.gridx = 1;
+    	clearButtonGBC.gridy = 0;
+    	clearButtonGBC.fill = GridBagConstraints.BOTH;
+    	clearButtonGBC.insets = new Insets (0,0,0,0);
+        searchPanel.add(clearButton,clearButtonGBC);
+    	
+    	searchPanel.add(searchField, searchFieldGBC);
+    	searchPanel.add(searchButton, searchButtonGBC);
+    	searchPanel.add(clearButton, clearButtonGBC);
 
     	headerPanel.add(searchPanel, BorderLayout.EAST);
 
@@ -134,7 +142,7 @@ public class FinanceDashboard extends JFrame {
     	    }
     	};
 
-    	employeeTable.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	employeeTable.setFont(FontLoader.poppinsRegular14f);
     	employeeTable.setRowHeight(35);
     	employeeTable.setShowGrid(true);
     	employeeTable.setGridColor(Color.LIGHT_GRAY);
@@ -147,9 +155,9 @@ public class FinanceDashboard extends JFrame {
     	employeeTable.getColumnModel().getColumn(3).setPreferredWidth(150);
     	employeeTable.getColumnModel().getColumn(4).setPreferredWidth(80);
     	employeeTable.getColumnModel().getColumn(5).setPreferredWidth(100);
-    	employeeTable.getColumnModel().getColumn(6).setPreferredWidth(70);
-    	employeeTable.getColumnModel().getColumn(7).setPreferredWidth(70);
-    	employeeTable.getColumnModel().getColumn(8).setPreferredWidth(70);
+    	employeeTable.getColumnModel().getColumn(6).setPreferredWidth(35);
+    	employeeTable.getColumnModel().getColumn(7).setPreferredWidth(35);
+    	employeeTable.getColumnModel().getColumn(8).setPreferredWidth(35);
 
     	// Button renderers/editors
     	employeeTable.getColumnModel().getColumn(6).setCellRenderer(new ButtonRenderer("View"));
@@ -163,7 +171,7 @@ public class FinanceDashboard extends JFrame {
 
     	// Header font
     	JTableHeader header = employeeTable.getTableHeader();
-    	header.setFont(new Font("Sans Serif", Font.BOLD, 20));
+    	header.setFont(FontLoader.poppinsSemiBold18f);
 
     	// Scroll pane
     	JScrollPane scrollPane = new JScrollPane(employeeTable);
@@ -173,8 +181,8 @@ public class FinanceDashboard extends JFrame {
     	addEmployeeButton = new JButton("Add New Employee");
     	refreshButton = new JButton("Refresh Data");
 
-    	addEmployeeButton.setFont(new Font("Sans Serif", Font.PLAIN, 14));
-    	refreshButton.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	addEmployeeButton.setFont(FontLoader.poppinsRegular14f);
+    	refreshButton.setFont(FontLoader.poppinsRegular14f);
 
     	buttonPanel.add(addEmployeeButton);
     	buttonPanel.add(refreshButton);
@@ -184,10 +192,10 @@ public class FinanceDashboard extends JFrame {
     	statusPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
 
     	statusLabel = new JLabel("Ready");
-    	statusLabel.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	statusLabel.setFont(FontLoader.poppinsRegular14f);
     	
     	logoutButton = new JButton("Logout");
-    	logoutButton.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+    	logoutButton.setFont(FontLoader.poppinsRegular14f);
     	logoutButton.setBackground(Color.RED);
     	logoutButton.setForeground(Color.WHITE);
     	logoutButton.setFocusPainted(false);
@@ -487,6 +495,29 @@ public class FinanceDashboard extends JFrame {
         public boolean stopCellEditing() {
             isPushed = false;
             return super.stopCellEditing();
+        }
+    }
+    
+    // custom font
+    public class FontLoader {
+
+        // Public static font variable (accessible from anywhere)
+        public static final Font poppinsRegular14f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 14f);
+        public static final Font poppinsRegular20f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 20f);
+        public static final Font poppinsSemiBold18f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
+        public static final Font poppinsBold25f = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 25f);
+
+        // Font loading utility
+        private static Font loadCustomFont(String fontPath, float size) {
+            try {
+                Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                ge.registerFont(font);
+                return font;
+            } catch (FontFormatException | IOException e) {
+                System.err.println("Error loading font: " + e.getMessage());
+                return new Font("SansSerif", Font.PLAIN, (int) size); // fallback font
+            }
         }
     }
 }
