@@ -2,6 +2,9 @@ package GUI.hr;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
@@ -17,7 +20,7 @@ public class HRViewAllEmployeesPage extends JFrame {
     private JTextField searchField;
     private JButton searchBtn;
     private JButton refreshBtn;
-    private JButton backBtn;
+    private JButton backButton;
     
     public HRViewAllEmployeesPage() {
         initComponents();
@@ -29,69 +32,104 @@ public class HRViewAllEmployeesPage extends JFrame {
         setTitle("All Employees & Payslips - HR Portal");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1366, 768);
-        setResizable(true);
+        setResizable(false);
+        
+        // custom colors
+        String navyBlue = "#153969";
+        String lightGray = "#f5f5f5";
+        String lightRed ="#ff5757";
+        
+        // custom fonts
+        Font poppinsRegular14f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 14f);
+        Font poppinsRegular16f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f);
+        Font poppinsSemiBold20f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 20f);
+        Font poppinsBold30f = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 30f);
         
         // Main panel
         JPanel mainPanel = new JPanel(new BorderLayout());
         
-        // Title panel
-        JPanel titlePanel = new JPanel();
-        titlePanel.setBackground(new Color(77, 77, 105));
-        titlePanel.setBorder(new EmptyBorder(15, 20, 15, 20));
-        titlePanel.setLayout(new BorderLayout());
+        // nav bar panel
+        JPanel navBarPanel = new JPanel(new GridBagLayout());
+        navBarPanel.setBackground(Color.decode(navyBlue));
+        navBarPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
         
-        JLabel titleLabel = new JLabel("All Employees & Payslips");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        titleLabel.setForeground(Color.BLACK);
+        // back button
+        ImageIcon backButtonImage = new ImageIcon("resources/images/back-button-navbar.png");
+        backButton = new JButton(backButtonImage);
+        backButton.setFocusPainted(false);
+        backButton.setBorder(null);
+        backButton.setContentAreaFilled(false);   
+        backButton.addActionListener(e -> goBackToDashboard());
+        GridBagConstraints backButtonGBC = new GridBagConstraints();
+        backButtonGBC.gridx = 0;
+        backButtonGBC.gridy = 0;
+        backButtonGBC.insets = new Insets (0,-10,0,0);
+        navBarPanel.add(backButton, backButtonGBC);
         
-        backBtn = new JButton("Back to Dashboard");
-        backBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        backBtn.setBackground(new Color(108, 117, 125));
-        backBtn.setForeground(Color.BLACK);
-        backBtn.setFocusPainted(false);
-        backBtn.addActionListener(e -> goBackToDashboard());
+        // title 
+        JLabel titleLabel = new JLabel("Employees and Payslips");
+        titleLabel.setFont(poppinsBold30f);
+        titleLabel.setForeground(Color.WHITE);
+        GridBagConstraints titleLabelGBC = new GridBagConstraints();
+        titleLabelGBC.gridx = 1;
+        titleLabelGBC.gridy = 0;
+        titleLabelGBC.insets = new Insets (0,0,0,520);
+        navBarPanel.add(titleLabel, titleLabelGBC);
         
-        titlePanel.add(titleLabel, BorderLayout.WEST);
-        titlePanel.add(backBtn, BorderLayout.EAST);
-        
-        // Search panel
-        JPanel searchPanel = new JPanel();
-        searchPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
-        searchPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-        
-        JLabel searchLabel = new JLabel("Filter by Name or Employee #:");
-        searchLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        
-        searchField = new JTextField(20);
-        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        searchField.setPreferredSize(new Dimension(200, 25));
-        
-        searchBtn = new JButton("Filter");
-        searchBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        searchBtn.setBackground(new Color(40, 167, 69));
-        searchBtn.setForeground(Color.BLACK);
+        // search button
+        ImageIcon filterButtonImage = new ImageIcon("resources/images/filter-button.png");
+        searchBtn = new JButton(filterButtonImage);
+        searchBtn.setBorder(null);
+        searchBtn.setContentAreaFilled(false); 
         searchBtn.setFocusPainted(false);
         searchBtn.addActionListener(e -> filterEmployees());
+        GridBagConstraints searchBtnGBC = new GridBagConstraints();
+        searchBtnGBC.gridx = 2;
+        searchBtnGBC.gridy = 0;
+        searchBtnGBC.anchor = GridBagConstraints.EAST;
+        searchBtnGBC.insets = new Insets (0,0,0,-10);
+        navBarPanel.add(searchBtn, searchBtnGBC);
+  
+        // search label
+        JLabel searchLabel = new JLabel("Search or Filter");
+        searchLabel.setFont(poppinsRegular14f);
+        searchLabel.setForeground(Color.GRAY);
+        GridBagConstraints searchLabelGBC = new GridBagConstraints();
+        searchLabelGBC.gridx = 2;
+        searchLabelGBC.gridy = 0;
+        searchLabelGBC.anchor = GridBagConstraints.WEST;
+        searchLabelGBC.insets = new Insets (0,20,0,0);
+        navBarPanel.add(searchLabel, searchLabelGBC);
         
-        refreshBtn = new JButton("Show All");
-        refreshBtn.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        refreshBtn.setBackground(new Color(108, 117, 125));
+        // search field 
+        searchField = new JTextField(20);
+        searchField.setFont(poppinsRegular14f);
+        searchField.setPreferredSize(new Dimension(200, 30));
+        searchField.addActionListener(e -> filterEmployees());
+        GridBagConstraints searchFieldGBC = new GridBagConstraints();
+        searchFieldGBC.gridx = 2;
+        searchFieldGBC.gridy = 0;
+        searchFieldGBC.insets = new Insets (0,0,0,0);
+        navBarPanel.add(searchField, searchFieldGBC);
+        
+        // clear button
+        refreshBtn = new JButton("Clear");
+        refreshBtn.setFont(poppinsRegular14f);
+        refreshBtn.setBackground(Color.decode(lightGray));
         refreshBtn.setForeground(Color.BLACK);
         refreshBtn.setFocusPainted(false);
         refreshBtn.addActionListener(e -> loadEmployees());
-        
-        // Add enter key listener to search field
-        searchField.addActionListener(e -> filterEmployees());
-        
-        searchPanel.add(searchLabel);
-        searchPanel.add(searchField);
-        searchPanel.add(searchBtn);
-        searchPanel.add(refreshBtn);
+        GridBagConstraints refreshBtnGBC = new GridBagConstraints();
+        refreshBtnGBC.gridx = 3;
+        refreshBtnGBC.gridy = 0;
+        refreshBtnGBC.insets = new Insets (0,10,0,0);
+        navBarPanel.add(refreshBtn, refreshBtnGBC);
+
         
         // Table setup
         String[] columnNames = {
             "Employee #", "Name", "Position", "Status", 
-            "Basic Salary", "Phone", "View Details", "Create Payslip"
+            "Basic Salary", "Phone", "Details", "Payslip"
         };
         
         tableModel = new DefaultTableModel(columnNames, 0) {
@@ -102,40 +140,38 @@ public class HRViewAllEmployeesPage extends JFrame {
         };
         
         employeeTable = new JTable(tableModel);
-        employeeTable.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        employeeTable.setFont(poppinsRegular16f);
         employeeTable.setRowHeight(35);
         employeeTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         // Set column widths
         employeeTable.getColumnModel().getColumn(0).setPreferredWidth(100); // Employee #
-        employeeTable.getColumnModel().getColumn(1).setPreferredWidth(200); // Name
+        employeeTable.getColumnModel().getColumn(1).setPreferredWidth(150); // Name
         employeeTable.getColumnModel().getColumn(2).setPreferredWidth(150); // Position
         employeeTable.getColumnModel().getColumn(3).setPreferredWidth(100); // Status
         employeeTable.getColumnModel().getColumn(4).setPreferredWidth(120); // Basic Salary
         employeeTable.getColumnModel().getColumn(5).setPreferredWidth(120); // Phone
-        employeeTable.getColumnModel().getColumn(6).setPreferredWidth(100); // View Details
-        employeeTable.getColumnModel().getColumn(7).setPreferredWidth(120); // Create Payslip
+        employeeTable.getColumnModel().getColumn(6).setPreferredWidth(40); // View Details
+        employeeTable.getColumnModel().getColumn(7).setPreferredWidth(40); // Create Payslip
         
         // Custom header renderer
         JTableHeader header = employeeTable.getTableHeader();
-        header.setDefaultRenderer(new BoldHeaderRenderer());
-        header.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        header.setFont(poppinsSemiBold20f);
         
         // Button renderers and editors
-        employeeTable.getColumn("View Details").setCellRenderer(new ButtonRenderer("View Details"));
-        employeeTable.getColumn("View Details").setCellEditor(new ButtonEditor("View Details"));
+        employeeTable.getColumn("Details").setCellRenderer(new ButtonRenderer("View"));
+        employeeTable.getColumn("Details").setCellEditor(new ButtonEditor("View Details"));
         
-        employeeTable.getColumn("Create Payslip").setCellRenderer(new ButtonRenderer("Create Payslip"));
-        employeeTable.getColumn("Create Payslip").setCellEditor(new ButtonEditor("Create Payslip"));
+        employeeTable.getColumn("Payslip").setCellRenderer(new ButtonRenderer("Create"));
+        employeeTable.getColumn("Payslip").setCellEditor(new ButtonEditor("Create Payslip"));
         
         // Table scroll pane
         JScrollPane scrollPane = new JScrollPane(employeeTable);
-        scrollPane.setBorder(new EmptyBorder(0, 20, 20, 20));
+        scrollPane.setBorder(new EmptyBorder(0, 20, 20, 0));
         
         // Add components to main panel
-        mainPanel.add(titlePanel, BorderLayout.NORTH);
-        mainPanel.add(searchPanel, BorderLayout.CENTER);
-        mainPanel.add(scrollPane, BorderLayout.SOUTH);
+        mainPanel.add(navBarPanel, BorderLayout.NORTH);
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
         
         add(mainPanel);
     }
@@ -281,6 +317,19 @@ public class HRViewAllEmployeesPage extends JFrame {
         detailDialog.setVisible(true);
     }
     
+    // custom font method
+    private static Font loadCustomFont(String fontPath, float size) {
+	    try {
+	        Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+	        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	        ge.registerFont(font);
+	        return font;
+	    } catch (FontFormatException | IOException e) {
+	        System.err.println("Error loading font: " + e.getMessage());
+	        return null;
+	    }
+	}
+    
     private void addDetailRow(JPanel panel, String label, String value, GridBagConstraints gbc, int row) {
         gbc.gridx = 0; gbc.gridy = row; gbc.gridwidth = 1;
         gbc.anchor = GridBagConstraints.WEST;
@@ -322,15 +371,17 @@ public class HRViewAllEmployeesPage extends JFrame {
         private String buttonText;
         
         public ButtonRenderer(String text) {
+        	Font poppinsRegular16f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f);
+        	
             this.buttonText = text;
             setOpaque(true);
-            setFont(new Font("Segoe UI", Font.BOLD, 10));
+            setFont(poppinsRegular16f);
             setFocusPainted(false);
             
             if (text.equals("Create Payslip")) {
-                setBackground(new Color(0, 123, 255));
+                setBackground(Color.decode("#dbdbdb"));
             } else {
-                setBackground(new Color(108, 117, 125));
+            	setBackground(Color.decode("#dbdbdb"));
             }
             setForeground(Color.BLACK);
         }
@@ -350,18 +401,20 @@ public class HRViewAllEmployeesPage extends JFrame {
         private boolean isPushed;
         private int selectedRow;
         
+        Font poppinsRegular16f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f);
+        
         public ButtonEditor(String text) {
             super(new JCheckBox());
             this.label = text;
             button = new JButton();
             button.setOpaque(true);
-            button.setFont(new Font("Segoe UI", Font.BOLD, 10));
+            button.setFont(poppinsRegular16f);
             button.setFocusPainted(false);
             
             if (text.equals("Create Payslip")) {
-                button.setBackground(new Color(0, 123, 255));
+                button.setBackground(Color.decode("#dbdbdb"));
             } else {
-                button.setBackground(new Color(108, 117, 125));
+                button.setBackground(Color.decode("#dbdbdb"));
             }
             button.setForeground(Color.BLACK);
             
