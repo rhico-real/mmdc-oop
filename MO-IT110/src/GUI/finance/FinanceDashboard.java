@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.*;
 
 import Classes.Compensation;
@@ -51,23 +54,31 @@ public class FinanceDashboard extends JFrame {
     	setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     	setSize(1366, 768);
     	setLocationRelativeTo(null);
+    	
+    	// custom colors
+    	String navyBlue = "#153969";
+        String lightGray = "#f5f5f5";
+        String lightRed ="#ff5757";
 
     	// Main panel
     	JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
     	mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
     	// Header panel (Navbar)
-    	JPanel headerPanel = new JPanel(new BorderLayout());
-    	headerPanel.setBackground(Color.decode("#153969"));
-    	headerPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-
+    	JPanel headerPanel = new JPanel(new GridBagLayout());
+    	headerPanel.setBackground(Color.decode(navyBlue));
+    	headerPanel.setBorder(new EmptyBorder(5, 0, 5, 0));
+    	
+    	// title label
     	JLabel titleLabel = new JLabel("HR Department - Employee Management");
     	titleLabel.setFont(FontLoader.poppinsBold25f);
     	titleLabel.setForeground(Color.WHITE);
-    	headerPanel.add(titleLabel, BorderLayout.WEST);
-
-    	// Search panel
-    	JPanel searchPanel = new JPanel(new GridBagLayout());
+    	GridBagConstraints titleLabelGBC = new GridBagConstraints(); 
+    	titleLabelGBC.gridx = 0;
+    	titleLabelGBC.gridy = 0;
+    	titleLabelGBC.fill = GridBagConstraints.BOTH;
+    	titleLabelGBC.insets = new Insets (0,-100,0,390);
+        headerPanel.add(titleLabel,titleLabelGBC);
     	
     	// search button
     	ImageIcon searchButtonImage = new ImageIcon("resources/images/search-button-small.png");
@@ -76,39 +87,47 @@ public class FinanceDashboard extends JFrame {
         searchButton.setContentAreaFilled(false); 
         searchButton.setFocusPainted(false);
         GridBagConstraints searchButtonGBC = new GridBagConstraints(); 
-        searchButtonGBC.gridx = 0;
+        searchButtonGBC.gridx = 2;
         searchButtonGBC.gridy = 0;
-        searchButtonGBC.fill = GridBagConstraints.BOTH;
         searchButtonGBC.anchor = GridBagConstraints.EAST;
-        searchButtonGBC.insets = new Insets (0,0,0,0);
-        searchPanel.add(searchButton,searchButtonGBC);
-    	
+        searchButtonGBC.insets = new Insets (0,0,5,0);
+        headerPanel.add(searchButton,searchButtonGBC);
+        
+        // search label
+        JLabel searchLabel = new JLabel ("Search");
+        searchLabel.setFont(FontLoader.poppinsRegular14f);
+        searchLabel.setForeground(Color.GRAY);
+        GridBagConstraints searchLabelGBC = new GridBagConstraints(); 
+        searchLabelGBC.gridx = 2;
+        searchLabelGBC.gridy = 0;
+        searchLabelGBC.anchor = GridBagConstraints.WEST;
+        searchLabelGBC.fill = GridBagConstraints.BOTH;
+        searchLabelGBC.insets = new Insets (0,10,0,0);
+        headerPanel.add(searchLabel,searchLabelGBC);
+        
     	// search field
-    	searchField = new JTextField(20);
-    	searchField.setPreferredSize(new Dimension(300, 32)); 
-    	searchField.setFont(FontLoader.poppinsRegular14f);
-    	GridBagConstraints searchFieldGBC = new GridBagConstraints(); 
-    	searchFieldGBC.gridx = 0;
-    	searchFieldGBC.gridy = 0;
-    	searchFieldGBC.fill = GridBagConstraints.BOTH;
-    	searchFieldGBC.insets = new Insets (0,0,0,0);
-        searchPanel.add(searchField,searchFieldGBC);
+        searchField = new JTextField(20);
+        searchField.setFont(FontLoader.poppinsRegular14f);
+        searchField.setPreferredSize(new Dimension(200, 30));
+        GridBagConstraints searchFieldGBC = new GridBagConstraints();
+        searchFieldGBC.gridx = 2;
+        searchFieldGBC.gridy = 0;
+        searchLabelGBC.fill = GridBagConstraints.BOTH;
+        searchFieldGBC.insets = new Insets (0,0,0,0);
+        headerPanel.add(searchField, searchFieldGBC);
     	
         // clear button
     	clearButton = new JButton("Clear");
+    	clearButton.setBackground(Color.decode("#718bab"));
+    	clearButton.setForeground(Color.WHITE);
+    	clearButton.setFont(FontLoader.poppinsRegular14f);
     	GridBagConstraints clearButtonGBC = new GridBagConstraints(); 
-    	clearButtonGBC.gridx = 1;
+    	clearButtonGBC.gridx = 3;
     	clearButtonGBC.gridy = 0;
     	clearButtonGBC.fill = GridBagConstraints.BOTH;
-    	clearButtonGBC.insets = new Insets (0,0,0,0);
-        searchPanel.add(clearButton,clearButtonGBC);
-    	
-    	searchPanel.add(searchField, searchFieldGBC);
-    	searchPanel.add(searchButton, searchButtonGBC);
-    	searchPanel.add(clearButton, clearButtonGBC);
-
-    	headerPanel.add(searchPanel, BorderLayout.EAST);
-
+    	clearButtonGBC.insets = new Insets (7,5,7,-90);
+    	headerPanel.add(clearButton,clearButtonGBC);
+  
     	// Table setup
     	String[] columnNames = {
     	    "Employee ID", "Last Name", "First Name", "Position",
