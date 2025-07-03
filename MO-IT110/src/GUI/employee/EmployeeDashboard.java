@@ -1,9 +1,24 @@
 package GUI.employee;
 
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -12,13 +27,21 @@ import java.time.Month;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -27,6 +50,7 @@ import com.google.gson.JsonObject;
 import Classes.Compensation;
 import Classes.GovernmentIdentification;
 import GUI.LoginPage;
+//import GUI.admin.CalculatorPage.RoundedPanel;
 import UtilityClasses.JsonFileHandler;
 import UtilityClasses.SalaryCalculator;
 import DAO.AttendanceDAO;
@@ -38,6 +62,25 @@ import java.time.YearMonth;
 public class EmployeeDashboard extends JFrame {
 
 	// Variables declaration - do not modify
+	
+	private RoundedPanel grossSalaryPanel = new RoundedPanel(20);
+	private RoundedPanel allowancesPanel = new RoundedPanel(20);
+	private RoundedPanel addressPanel = new RoundedPanel(20);
+	private RoundedPanel netSalaryPanel = new RoundedPanel(20);
+	private RoundedPanel myInformationPanel = new RoundedPanel(20);
+	private RoundedPanel employmentPanel = new RoundedPanel(20);
+	private RoundedPanel governmentIDPanel = new RoundedPanel(20);
+	
+	private javax.swing.JPanel mainPanel;
+	private javax.swing.JPanel menuBar ;
+	private javax.swing.JPanel contentPanel; 
+	private javax.swing.JPanel titlePanel;
+	private javax.swing.JLabel titleLabel;
+	private javax.swing.JLabel profileName;
+	private javax.swing.JLabel profilePic;
+	private javax.swing.JPanel informationPanel;
+	private javax.swing.JLabel myInformationLabel;
+	
 	private javax.swing.JLabel address;
 	private javax.swing.JLabel addressValue;
 	private javax.swing.JLabel allowancesLabel;
@@ -66,15 +109,6 @@ public class EmployeeDashboard extends JFrame {
 	private javax.swing.JLabel hoursRenderedValue;
 	private javax.swing.JLabel immediateSupervisor;
 	private javax.swing.JLabel immediateSupervisorValue;
-	private javax.swing.JPanel jPanel1;
-	private javax.swing.JPanel jPanel11;
-	private javax.swing.JPanel jPanel12;
-	private javax.swing.JPanel jPanel3;
-	private javax.swing.JPanel jPanel31;
-	private javax.swing.JPanel jPanel32;
-	private javax.swing.JPanel jPanel33;
-	private javax.swing.JPanel jPanel4;
-	private javax.swing.JPanel jPanel5;
 	private javax.swing.JScrollPane jScrollPane1;
 	private javax.swing.JLabel lastName;
 	private javax.swing.JLabel lastNameValue;
@@ -156,14 +190,20 @@ public class EmployeeDashboard extends JFrame {
 	// @SuppressWarnings("unchecked")
 	// <editor-fold defaultstate="collapsed" desc="Generated Code">
 	private void initComponents() {
+		
+		mainPanel = new javax.swing.JPanel(new BorderLayout());
+		menuBar = new javax.swing.JPanel(new GridBagLayout());
+		contentPanel = new javax.swing.JPanel(new BorderLayout());
+		titlePanel = new javax.swing.JPanel(new GridBagLayout());
+		titleLabel = new javax.swing.JLabel();
+		profileName = new javax.swing.JLabel();
+		profilePic = new javax.swing.JLabel();
+		informationPanel = new javax.swing.JPanel(new GridBagLayout());
+		myInformationLabel = new javax.swing.JLabel();
 
-		jPanel1 = new javax.swing.JPanel();
 		jScrollPane1 = new javax.swing.JScrollPane();
-		jPanel12 = new javax.swing.JPanel();
-		jPanel5 = new javax.swing.JPanel();
 		address = new javax.swing.JLabel();
 		addressValue = new javax.swing.JLabel();
-		jPanel31 = new javax.swing.JPanel();
 		hoursRenderedLabel = new javax.swing.JLabel();
 		grossSalaryComputationLabel = new javax.swing.JLabel();
 		hourlyRateLabel = new javax.swing.JLabel();
@@ -171,7 +211,6 @@ public class EmployeeDashboard extends JFrame {
 		hourlyRateLabel1 = new javax.swing.JLabel();
 		grossSalaryValue = new javax.swing.JLabel();
 		hoursRenderedValue = new javax.swing.JLabel();
-		jPanel32 = new javax.swing.JPanel();
 		netSalaryComputationLabel = new javax.swing.JLabel();
 		sssDeductionsLabel = new javax.swing.JLabel();
 		sssDeductionsValue = new javax.swing.JLabel();
@@ -195,7 +234,6 @@ public class EmployeeDashboard extends JFrame {
 		totalAllowancesValue1 = new javax.swing.JLabel();
 		netSalaryLabel = new javax.swing.JLabel();
 		netSalaryValue = new javax.swing.JLabel();
-		jPanel33 = new javax.swing.JPanel();
 		riceSubsidyLabel = new javax.swing.JLabel();
 		riceSubsidyValue = new javax.swing.JLabel();
 		phoneAllowanceLabel = new javax.swing.JLabel();
@@ -205,7 +243,6 @@ public class EmployeeDashboard extends JFrame {
 		allowancesLabel = new javax.swing.JLabel();
 		clothingAllowanceLabel = new javax.swing.JLabel();
 		clothingAllowanceValue = new javax.swing.JLabel();
-		jPanel11 = new javax.swing.JPanel();
 		firstName = new javax.swing.JLabel();
 		firstNameValue = new javax.swing.JLabel();
 		lastName = new javax.swing.JLabel();
@@ -214,7 +251,6 @@ public class EmployeeDashboard extends JFrame {
 		birthdayValue = new javax.swing.JLabel();
 		phoneNumber = new javax.swing.JLabel();
 		phoneNumberValue = new javax.swing.JLabel();
-		jPanel3 = new javax.swing.JPanel();
 		status = new javax.swing.JLabel();
 		statusValue = new javax.swing.JLabel();
 		position = new javax.swing.JLabel();
@@ -223,7 +259,6 @@ public class EmployeeDashboard extends JFrame {
 		immediateSupervisorValue = new javax.swing.JLabel();
 		hourlyRate = new javax.swing.JLabel();
 		hourlyRateValue = new javax.swing.JLabel();
-		jPanel4 = new javax.swing.JPanel();
 		sssNumber = new javax.swing.JLabel();
 		sssNumberValue = new javax.swing.JLabel();
 		philhealthNumber = new javax.swing.JLabel();
@@ -246,547 +281,830 @@ public class EmployeeDashboard extends JFrame {
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setSize(1366,768);
 		setResizable(false);
+		
+		// custom colors
+		String navyBlue = "#153969";
+		String lightGray = "#f5f5f5";
+		String lightRed ="#ff5757";
+		
+		//mainPanel
+		add(mainPanel);
+		
+		// menubar panel
+		menuBar.setBackground(Color.white);
+		menuBar.setBorder(new EmptyBorder(0, 60, 0, 60));
+		mainPanel.add(menuBar, BorderLayout.WEST);
+		
+		// motorph logo
+		ImageIcon companyLogo = new ImageIcon("resources/images/motorph-employee-gui-logo.png");
+		JLabel companyLogoLabel = new JLabel(companyLogo);
+		GridBagConstraints companyLogoLabelGBC = new GridBagConstraints();
+		companyLogoLabelGBC.gridx = 0;
+		companyLogoLabelGBC.gridy = 0;
+		companyLogoLabelGBC.anchor = GridBagConstraints.WEST;
+		companyLogoLabelGBC.insets = new Insets (-370,-65,-50,0);
+		menuBar.add(companyLogoLabel, companyLogoLabelGBC);
+		
+		// compute button
+		computeButton.setFont(FontLoader.poppinsRegular14f);
+		computeButton.setForeground(Color.decode(navyBlue));
+		computeButton.setBackground(Color.decode(lightGray));
+		computeButton.setPreferredSize(new Dimension(80,25));
+		computeButton.setBorder(null);
+		computeButton.setFocusPainted(false);
+		computeButton.setContentAreaFilled(false); 
+		
+		GridBagConstraints computeButtonGBC = new GridBagConstraints();
+		computeButtonGBC.gridx = 0;
+		computeButtonGBC.gridy = 1;
+		computeButtonGBC.anchor= GridBagConstraints.WEST;
+		computeButtonGBC.insets = new Insets (0,-5,5,0);
+		menuBar.add(computeButton, computeButtonGBC);
+		
+		// month dropdown
+		monthDropdown.setBackground(Color.decode(lightGray));
+		monthDropdown.setFont(FontLoader.poppinsRegular20f);
+		monthDropdown.setPreferredSize(new Dimension(150,40));
+		monthDropdown.setBorder(null);
+		monthDropdown.setFocusable(false);
+		monthDropdown.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		
+		GridBagConstraints monthDropdownGBC = new GridBagConstraints();
+		monthDropdownGBC.gridx = 0;
+		monthDropdownGBC.gridy = 2;
+		monthDropdownGBC.anchor = GridBagConstraints.WEST;
+		monthDropdownGBC.insets = new Insets (0,0,0,0);
+		menuBar.add(monthDropdown, monthDropdownGBC);
+		
+		// year dropdown
+		yearDropdown.setBackground(Color.decode(lightGray));
+		yearDropdown.setFont(FontLoader.poppinsRegular20f);
+		yearDropdown.setPreferredSize(new Dimension(100,40));
+		yearDropdown.setBorder(null);
+		yearDropdown.setFocusable(false);
+		yearDropdown.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		
+		GridBagConstraints yearDropdownGBC = new GridBagConstraints();
+		yearDropdownGBC.gridx = 0;
+		yearDropdownGBC.insets = new Insets (0,0,0,0);
+		yearDropdownGBC.anchor = GridBagConstraints.EAST;
+		menuBar.add(yearDropdown, yearDropdownGBC);
+		
+		// menu label
+		JLabel menuLabel = new JLabel ("<html><b>Menu</b></html>");
+		menuLabel.setForeground(Color.decode(navyBlue));
+		menuLabel.setFont(FontLoader.poppinsRegular20f);
+		GridBagConstraints menuLabelGBC = new GridBagConstraints();
+		menuLabelGBC.gridx = 0;
+		menuLabelGBC.gridy = 4;
+		menuLabelGBC.anchor = GridBagConstraints.WEST;
+		menuLabelGBC.insets = new Insets (70,-15,20,0);
+		menuBar.add(menuLabel, menuLabelGBC);
+		
+		//submit leave button
+		submitLeaveRequestButton.setFont(FontLoader.poppinsRegular18f);
+		submitLeaveRequestButton.setForeground(Color.decode(navyBlue));
+		submitLeaveRequestButton.setSize(new Dimension(120,25));
+		submitLeaveRequestButton.setFocusPainted(false);
+		submitLeaveRequestButton.setBorder(null);
+		submitLeaveRequestButton.setContentAreaFilled(false); 
+		
+		GridBagConstraints submitLeaveRequestButtonGBC = new GridBagConstraints();
+		submitLeaveRequestButtonGBC.gridx = 0;
+		submitLeaveRequestButtonGBC.gridy = 5;
+		submitLeaveRequestButtonGBC.anchor = GridBagConstraints.WEST;
+		submitLeaveRequestButtonGBC.insets = new Insets (5,-15,0,0);
+		menuBar.add(submitLeaveRequestButton, submitLeaveRequestButtonGBC);
+		
+		// overtime button
+		submitOvertimeButton.setFont(FontLoader.poppinsRegular18f);
+		submitOvertimeButton.setForeground(Color.decode(navyBlue));
+		submitOvertimeButton.setText("My Overtime");
+		submitOvertimeButton.setSize(new Dimension(120,25));
+		submitOvertimeButton.setFocusPainted(false);
+		submitOvertimeButton.setBorder(null);
+		submitOvertimeButton.setContentAreaFilled(false); 
+		
+		GridBagConstraints submitOvertimeButtonGBC = new GridBagConstraints();
+		submitOvertimeButtonGBC.gridx = 0;
+		submitOvertimeButtonGBC.gridy = 6;
+		submitOvertimeButtonGBC.anchor = GridBagConstraints.WEST;
+		submitOvertimeButtonGBC.insets = new Insets (5,-15,0,0);
+		menuBar.add(submitOvertimeButton, submitOvertimeButtonGBC);
+		
+		// payslip button
+		submitPayslipButton.setFont(FontLoader.poppinsRegular18f);
+		submitPayslipButton.setForeground(Color.decode(navyBlue));
+		submitPayslipButton.setSize(new Dimension(120,25));
+		submitPayslipButton.setFocusPainted(false);
+		submitPayslipButton.setBorder(null);
+		submitPayslipButton.setContentAreaFilled(false); 
+		
+		GridBagConstraints submitPayslipButtonGBC = new GridBagConstraints();
+		submitPayslipButtonGBC.gridx = 0;
+		submitPayslipButtonGBC.gridy = 7;
+		submitPayslipButtonGBC.anchor = GridBagConstraints.WEST;
+		submitPayslipButtonGBC.insets = new Insets (5,-15,0,0);
+		menuBar.add(submitPayslipButton, submitPayslipButtonGBC);
+		
+		// update information
+		editInfoButton.setFont(FontLoader.poppinsRegular18f);
+		editInfoButton.setForeground(Color.decode(navyBlue));
+		editInfoButton.setSize(new Dimension(120,25));
+		editInfoButton.setFocusPainted(false);
+		editInfoButton.setBorder(null);
+		editInfoButton.setContentAreaFilled(false); 
+		
+		GridBagConstraints editInfoButtonGBC = new GridBagConstraints();
+		editInfoButtonGBC.gridx = 0;
+		editInfoButtonGBC.gridy = 8;
+		editInfoButtonGBC.anchor = GridBagConstraints.WEST;
+		editInfoButtonGBC.insets = new Insets (5,-15,0,0);
+		menuBar.add(editInfoButton, editInfoButtonGBC);
+		
+		// logout button
+		logoutButton.setFont(FontLoader.poppinsRegular18f);
+		logoutButton.setForeground(Color.WHITE);
+		logoutButton.setBackground(Color.decode(lightRed));
+		Border outerBorder = new LineBorder(Color.decode(lightRed), 2, true); // outer border
+		Border innerPadding = new EmptyBorder(5, 9, 5, 10); // inner border
+		logoutButton.setBorder(new CompoundBorder(outerBorder, innerPadding));
+		GridBagConstraints logoutButtonGBC = new GridBagConstraints();
+		logoutButtonGBC.gridx = 0;
+		logoutButtonGBC.gridy = 9;
+		logoutButtonGBC.anchor = GridBagConstraints.WEST;
+		logoutButtonGBC.insets = new Insets (0,-15,-230,0);
+		menuBar.add(logoutButton, logoutButtonGBC);
+		
+		//-----------------------------------------------------------------------------
+		
+		// content panel
+		contentPanel.setBackground(Color.decode(lightGray));
+		mainPanel.add(contentPanel, BorderLayout.CENTER);
+		
+		// titlePanel
+		titlePanel.setBorder(new EmptyBorder(5, 20, -5, 20));
+		titlePanel.setBackground(Color.decode(lightGray));
+		contentPanel.add(titlePanel, BorderLayout.NORTH);
+		
+		//title label
+		titleLabel.setText("My Dashboard");
+		titleLabel.setFont(FontLoader.poppinsBold40f);
+		titleLabel.setForeground(Color.decode(navyBlue));
+		GridBagConstraints titleLabelGBC = new GridBagConstraints();
+		titleLabelGBC.gridx = 0;
+		titleLabelGBC.gridy = 0;
+		titleLabelGBC.insets = new Insets (10,0,0,450);
+		titlePanel.add(titleLabel, titleLabelGBC);
+		
+		// profilename
+		profileName.setFont(FontLoader.poppinsRegularUserFont);
+		profileName.setForeground(Color.decode(navyBlue));
+		profileName.setText(employeeGI.getFirstName() + " " + employeeGI.getLastName());
+		GridBagConstraints profileNameGBC = new GridBagConstraints();
+		profileNameGBC.gridx = 1;
+		profileNameGBC.gridy = 0;
+		profileNameGBC.insets = new Insets (0,0,0,0);
+		titlePanel.add(profileName, profileNameGBC);
+		
+		// profile picture
+		ImageIcon profilePicImage = new ImageIcon ("resources/images/profile-pic-user.png");
+		profilePic = new JLabel(profilePicImage);
+		GridBagConstraints profilePicImageGBC = new GridBagConstraints();
+		profilePicImageGBC.gridx = 2;
+		profilePicImageGBC.gridy = 0;
+		profilePicImageGBC.insets = new Insets (0,0,0,0);
+		titlePanel.add(profilePic, profilePicImageGBC);
+		
+		//-----------------------------------------------------------------
+		
+		// informationPanel
+		informationPanel.setBackground(Color.decode(lightGray));
+		contentPanel.add(informationPanel, BorderLayout.CENTER);
+		
+		// gross salary
+		grossSalaryPanel.setBackground(Color.WHITE);
+		GridBagConstraints grossSalaryPanelGBC = new GridBagConstraints();
+		grossSalaryPanelGBC.gridx = 0;
+		grossSalaryPanelGBC.gridy = 0;
+		grossSalaryPanelGBC.gridwidth = 1;
+		grossSalaryPanelGBC.gridheight = 1;
+		grossSalaryPanelGBC.insets = new Insets (5,5,5,5);
+		informationPanel.add(grossSalaryPanel, grossSalaryPanelGBC);
+		
+		// allowances 
+		allowancesPanel.setBackground(Color.WHITE);
+		GridBagConstraints allowancesPanelGBC = new GridBagConstraints();
+		allowancesPanelGBC.gridx = 0;
+		allowancesPanelGBC.gridy = 1;
+		allowancesPanelGBC.gridwidth = 1;
+		allowancesPanelGBC.gridheight = 1;
+		allowancesPanelGBC.insets = new Insets (0,5,5,5);
+		informationPanel.add(allowancesPanel, allowancesPanelGBC);
+		
+		// address
+		addressPanel.setBackground(Color.WHITE);
+		GridBagConstraints addressPanelGBC = new GridBagConstraints();
+		addressPanelGBC.gridx = 0;
+		addressPanelGBC.gridy = 2;
+		addressPanelGBC.gridwidth= 2;
+		addressPanelGBC.gridheight= 1;
+		addressPanelGBC.insets = new Insets (0,5,5,5);
+		informationPanel.add(addressPanel, addressPanelGBC);
+		
+		// net salary
+		netSalaryPanel.setBackground(Color.WHITE);
+		GridBagConstraints netSalaryPanelGBC = new GridBagConstraints();
+		netSalaryPanelGBC.gridx = 1;
+		netSalaryPanelGBC.gridy = 0;
+		netSalaryPanelGBC.gridwidth= 1;
+		netSalaryPanelGBC.gridheight= 2;
+		netSalaryPanelGBC.insets = new Insets (5,5,5,5);
+		informationPanel.add(netSalaryPanel, netSalaryPanelGBC);
+		
+		// my information
+		myInformationPanel.setBackground(Color.WHITE);
+		GridBagConstraints myInformationPanelGBC = new GridBagConstraints();
+		myInformationPanelGBC.gridx = 2;
+		myInformationPanelGBC.gridy = 0;
+		myInformationPanelGBC.gridwidth= 1;
+		myInformationPanelGBC.gridheight= 1;
+		myInformationPanelGBC.insets = new Insets (5,5,5,5);
+		informationPanel.add(myInformationPanel, myInformationPanelGBC);
+		
+		// employment
+		employmentPanel.setBackground(Color.WHITE);
+		GridBagConstraints employmentPanelGBC = new GridBagConstraints();
+		employmentPanelGBC.gridx = 2;
+		employmentPanelGBC.gridy = 1;
+		employmentPanelGBC.gridwidth= 1;
+		employmentPanelGBC.gridheight= 1;
+		employmentPanelGBC.insets = new Insets (0,5,5,5);
+		informationPanel.add(employmentPanel, employmentPanelGBC);
+		
+		// government id's
+		governmentIDPanel.setBackground(Color.WHITE);
+		GridBagConstraints governmentIDPanelGBC = new GridBagConstraints();
+		governmentIDPanelGBC.gridx = 2;
+		governmentIDPanelGBC.gridy = 2;
+		governmentIDPanelGBC.gridwidth= 1;
+		governmentIDPanelGBC.gridheight= 1;
+		governmentIDPanelGBC.insets = new Insets  (0,5,5,5);
+		informationPanel.add(governmentIDPanel, governmentIDPanelGBC);
+		
+		// gross salary layout
+		
+		grossSalaryComputationLabel.setFont(FontLoader.poppinsSemiBold24f); // NOI18N
+		grossSalaryComputationLabel.setText("Gross Salary");
+		hoursRenderedLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		hoursRenderedLabel.setText("Hours Rendered");
+		hourlyRateLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		hourlyRateLabel.setText("Hourly Rate");
+		grossSalaryLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		grossSalaryLabel.setText("Gross Salary");
+		hourlyRateLabel1.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		hourlyRateLabel1.setText(Double.toString(employeeComp.getHourlyRate()));
+		grossSalaryValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		grossSalaryValue.setText(" ");
+		hoursRenderedValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		hoursRenderedValue.setText(" ");
+		
+		GroupLayout grossSalaryPanelGL = new GroupLayout(grossSalaryPanel);
+		grossSalaryPanel.setLayout(grossSalaryPanelGL);
 
-		jPanel1.setBackground(new java.awt.Color(255, 255, 255));
+		// Define horizontal group (2 columns)
+		grossSalaryPanelGL.setHorizontalGroup(
+				grossSalaryPanelGL.createSequentialGroup()
+				.addGap(30)
+		        .addGroup(grossSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(grossSalaryComputationLabel)
+		            .addComponent(hoursRenderedLabel)
+		            .addComponent(hourlyRateLabel)
+		            .addComponent(grossSalaryLabel)
+		        )
+		        .addGap(50)
+		        .addGroup(grossSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addGap(30)  
+		            .addComponent(hoursRenderedValue)
+		            .addComponent(hourlyRateLabel1)
+		            .addComponent(grossSalaryValue)
+		        )
+		        .addGap(30)
+		);
 
-		jPanel5.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel5.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+		// Define vertical group (4 rows)
+		grossSalaryPanelGL.setVerticalGroup(
+				grossSalaryPanelGL.createSequentialGroup()
+				.addGap(15)
+		        .addGroup(grossSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(grossSalaryComputationLabel)
+		            .addGap(0)  // No value in column 2 for this row
+		        )
+		        .addGap(20)
+		        .addGroup(grossSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(hoursRenderedLabel)
+		            .addComponent(hoursRenderedValue)
+		        )
+		        .addGroup(grossSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(hourlyRateLabel)
+		            .addComponent(hourlyRateLabel1)
+		        )
+		        .addGap(30)
+		        .addGroup(grossSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(grossSalaryLabel)
+		            .addComponent(grossSalaryValue)
+		        )
+		        .addGap(30) 
+		);
+		
+		// -------------------------------------------------------------------------
+		
+		// allowances layout
+		allowancesLabel.setFont(FontLoader.poppinsSemiBold24f); // NOI18N
+		allowancesLabel.setText("Allowances");
+		riceSubsidyLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		riceSubsidyLabel.setText("Rice Subsidy");
+		riceSubsidyValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		riceSubsidyValue.setText(Double.toString(employeeComp.getRiceSubsidy()));
+		phoneAllowanceLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		phoneAllowanceLabel.setText("Phone Allowance");
+		phoneAllowanceValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		phoneAllowanceValue.setText(Double.toString(employeeComp.getPhoneAllowance()));
+		totalAllowanceLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		totalAllowanceLabel.setText("Total Allowances");
+		totalAllowanceValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		totalAllowanceValue.setText(numberFormat.format(totalAllowance));
+		clothingAllowanceLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		clothingAllowanceLabel.setText("Clothing Allowance");
+		clothingAllowanceValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		clothingAllowanceValue.setText(Double.toString(employeeComp.getClothingAllowance()));
+		
+		GroupLayout allowancesPanelGL = new GroupLayout(allowancesPanel);
+		allowancesPanel.setLayout(allowancesPanelGL);
 
-		address.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		// Define horizontal group (2 columns)
+		allowancesPanelGL.setHorizontalGroup(
+				allowancesPanelGL.createSequentialGroup()
+				.addGap(30)
+		        .addGroup(allowancesPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(allowancesLabel)
+		            .addComponent(riceSubsidyLabel)
+		            .addComponent(phoneAllowanceLabel)
+		            .addComponent(clothingAllowanceLabel)
+		            .addComponent(totalAllowanceLabel)
+		        )
+		        .addGap(50)
+		        .addGroup(allowancesPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+	        		.addGap(30) 
+		            .addComponent(riceSubsidyValue)
+		            .addComponent(phoneAllowanceValue)
+		            .addComponent(clothingAllowanceValue)
+		            .addComponent(totalAllowanceValue)
+		        )
+		        .addGap(30)
+		);
+
+		// Define vertical group (4 rows)
+		allowancesPanelGL.setVerticalGroup(
+				allowancesPanelGL.createSequentialGroup()
+				.addGap(15)
+		        .addGroup(allowancesPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(allowancesLabel)
+		            .addGap(0)  // No value in column 2 for this row
+		        )
+		        .addGap(20)
+		        .addGroup(allowancesPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(riceSubsidyLabel)
+		            .addComponent(riceSubsidyValue)
+		        )
+		        .addGroup(allowancesPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	        		.addComponent(phoneAllowanceLabel)
+	        		.addComponent(phoneAllowanceValue)
+		        )
+		        .addGroup(allowancesPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(clothingAllowanceLabel)
+		            .addComponent(clothingAllowanceValue)
+		        )
+		        .addGap(30)
+		        .addGroup(allowancesPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(totalAllowanceLabel)
+		            .addComponent(totalAllowanceValue)
+		        )
+		        .addGap(15)
+		);
+		
+		// -------------------------------------------------------------------------
+		
+		// address layout
+		address.setFont(FontLoader.poppinsSemiBold24f); // NOI18N
 		address.setText("Address");
-
-		addressValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		addressValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		addressValue.setText(employeeGI.getAddress());
 
-		javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-		jPanel5.setLayout(jPanel5Layout);
-		jPanel5Layout.setHorizontalGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel5Layout.createSequentialGroup().addGap(15, 15, 15)
-						.addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(address).addComponent(addressValue,
-										javax.swing.GroupLayout.PREFERRED_SIZE, 785,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)));
-		jPanel5Layout.setVerticalGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel5Layout.createSequentialGroup().addGap(12, 12, 12).addComponent(address)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(addressValue)
-						.addContainerGap(13, Integer.MAX_VALUE)));
+		GroupLayout addressPanelGL = new GroupLayout(addressPanel);
+		addressPanel.setLayout(addressPanelGL);
 
-		jPanel31.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel31.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+		// Define horizontal group (2 columns)
+		addressPanelGL.setHorizontalGroup(
+				addressPanelGL.createSequentialGroup()
+				.addGap(30)
+		        .addGroup(addressPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(address)
+		            .addComponent(addressValue)
+		        )
+		        .addGap(120)
+		);
 
-		hoursRenderedLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		hoursRenderedLabel.setText("Hours Rendered");
+		// Define vertical group (4 rows)
+		addressPanelGL.setVerticalGroup(
+				addressPanelGL.createSequentialGroup()
+				.addGap(15)
+		        .addGroup(addressPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(address)
+		        )
+		        .addGap(25)
+		        .addGroup(addressPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(addressValue)
+		        )
+		        .addGap(70)
+		);
 
-		grossSalaryComputationLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-		grossSalaryComputationLabel.setText("Gross Salary Computation");
-
-		hourlyRateLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		hourlyRateLabel.setText("Hourly Rate");
-
-		grossSalaryLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-		grossSalaryLabel.setText("Gross Salary");
-
-		hourlyRateLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		hourlyRateLabel1.setText(Double.toString(employeeComp.getHourlyRate()));
-
-		grossSalaryValue.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-		grossSalaryValue.setText(" ");
-
-		hoursRenderedValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		hoursRenderedValue.setText(" ");
-
-		javax.swing.GroupLayout jPanel31Layout = new javax.swing.GroupLayout(jPanel31);
-		jPanel31.setLayout(jPanel31Layout);
-		jPanel31Layout.setHorizontalGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel31Layout.createSequentialGroup().addGap(42, 42, 42)
-						.addGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(hourlyRateLabel).addComponent(hoursRenderedLabel)
-								.addComponent(grossSalaryLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-						javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-						.addGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(hourlyRateLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(grossSalaryValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(hoursRenderedValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(45, 45, 45))
-				.addGroup(jPanel31Layout.createSequentialGroup().addGap(14, 14, 14)
-						.addComponent(grossSalaryComputationLabel).addGap(0, 0, Integer.MAX_VALUE)));
-		jPanel31Layout
-				.setVerticalGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel31Layout.createSequentialGroup()
-								.addGap(14, 14, 14).addComponent(grossSalaryComputationLabel).addGap(28, 28, 28)
-								.addGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-										.addComponent(hoursRenderedLabel).addComponent(hoursRenderedValue))
-								.addGap(18, 18, 18)
-								.addGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-										.addComponent(hourlyRateLabel).addComponent(hourlyRateLabel1))
-								.addGap(18, 18, 18)
-								.addGroup(jPanel31Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-										.addComponent(grossSalaryLabel).addComponent(grossSalaryValue))
-								.addContainerGap(35, Integer.MAX_VALUE)));
-
-		jPanel32.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel32.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
-
-		netSalaryComputationLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-		netSalaryComputationLabel.setText("Net Salary Computation");
+	// -------------------------------------------------------------------------
 		
-		overtimeLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		// net salary layout
+		netSalaryComputationLabel.setFont(FontLoader.poppinsSemiBold24f); // NOI18N
+		netSalaryComputationLabel.setText("Net Salary");
+		overtimeLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		overtimeLabel.setText("Overtime");
-		
-		overtimeValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		overtimeValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		overtimeValue.setText(" ");
-		
-		sssDeductionsLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		sssDeductionsLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		sssDeductionsLabel.setText("SSS Deduction");
-
-		sssDeductionsValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		sssDeductionsValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		sssDeductionsValue.setText(" ");
-
-		philhealthDeductionsLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		philhealthDeductionsLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		philhealthDeductionsLabel.setText("PhilHealth Deduction");
-
-		philhealthDeductionsValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		philhealthDeductionsValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		philhealthDeductionsValue.setText(" ");
-
-		totalDeductionsLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		totalDeductionsLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		totalDeductionsLabel.setText("Total Deductions");
-
-		totalDeductionsValue.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		totalDeductionsValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		totalDeductionsValue.setText(" ");
-
-		pagibigDeductionsLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		pagibigDeductionsLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		pagibigDeductionsLabel.setText("Pag-ibig Deduction");
-
-		pagibigDeductionsValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		pagibigDeductionsValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		pagibigDeductionsValue.setText(" ");
-
-		grossSalaryLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		grossSalaryLabel1.setText("Gross Salary");
-
-		grossSalaryValue1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		grossSalaryValue1.setText(" ");
-
-		taxableSalaryLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		taxableSalaryLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		taxableSalaryLabel.setText("Taxable Salary");
-
-		taxableSalaryValue.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		taxableSalaryValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		taxableSalaryValue.setText(" ");
-
-		withHoldingTaxLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		withHoldingTaxLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		withHoldingTaxLabel.setText("Withholding Tax");
-
-		withHoldingTaxValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		withHoldingTaxValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		withHoldingTaxValue.setText(" ");
-
-		salaryAfterTaxLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		salaryAfterTaxLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		salaryAfterTaxLabel.setText("Salary After Tax");
-
-		salaryAfterTaxValue.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		salaryAfterTaxValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		salaryAfterTaxValue.setText(" ");
-
-		totalAllowancesLabel1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		totalAllowancesLabel1.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		totalAllowancesLabel1.setText("Total Allowances");
-
-		totalAllowancesValue1.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		totalAllowancesValue1.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		totalAllowancesValue1.setText(numberFormat.format(totalAllowance));
-
-		netSalaryLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		grossSalaryLabel1.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		grossSalaryLabel1.setText("Gross Salary");
+		grossSalaryValue1.setFont(FontLoader.poppinsRegular14f); // NOI18N
+		grossSalaryValue1.setText(" ");
+		netSalaryLabel.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		netSalaryLabel.setText("Net Salary");
-
-		netSalaryValue.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		netSalaryValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		netSalaryValue.setText(" ");
+		
+		GroupLayout netSalaryPanelGL = new GroupLayout(netSalaryPanel);
+		netSalaryPanel.setLayout(netSalaryPanelGL);
 
-		javax.swing.GroupLayout jPanel32Layout = new javax.swing.GroupLayout(jPanel32);
-		jPanel32.setLayout(jPanel32Layout);
-		jPanel32Layout.setHorizontalGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel32Layout.createSequentialGroup().addGap(15, 15, 15)
-						.addComponent(netSalaryComputationLabel)
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE))
-				.addGroup(jPanel32Layout.createSequentialGroup().addGap(48, 48, 48)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(overtimeLabel)
-								.addComponent(philhealthDeductionsLabel)
-								.addComponent(sssDeductionsLabel)
-								.addComponent(totalDeductionsLabel)
-								.addComponent(grossSalaryLabel1)
-								.addComponent(taxableSalaryLabel)
-								.addComponent(withHoldingTaxLabel)
-								.addComponent(salaryAfterTaxLabel)
-								.addComponent(netSalaryLabel)
-								.addComponent(totalAllowancesLabel1)
-								.addComponent(pagibigDeductionsLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Integer.MAX_VALUE)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(overtimeValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(netSalaryValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(totalAllowancesValue1, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(salaryAfterTaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(withHoldingTaxValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(taxableSalaryValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(grossSalaryValue1, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(totalDeductionsValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(pagibigDeductionsValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-										.addComponent(philhealthDeductionsValue, javax.swing.GroupLayout.PREFERRED_SIZE,
-												132, javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addComponent(sssDeductionsValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-												javax.swing.GroupLayout.PREFERRED_SIZE)))
-						.addGap(51, 51, 51)));
-		jPanel32Layout.setVerticalGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel32Layout.createSequentialGroup().addGap(14, 14, 14)
-						.addComponent(netSalaryComputationLabel).addGap(18, 18, 18)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(overtimeLabel).addComponent(overtimeValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(sssDeductionsLabel).addComponent(sssDeductionsValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(philhealthDeductionsLabel).addComponent(philhealthDeductionsValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(pagibigDeductionsLabel).addComponent(pagibigDeductionsValue))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(totalDeductionsLabel).addComponent(totalDeductionsValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(grossSalaryLabel1).addComponent(grossSalaryValue1))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(taxableSalaryLabel).addComponent(taxableSalaryValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(withHoldingTaxLabel).addComponent(withHoldingTaxValue))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(salaryAfterTaxLabel).addComponent(salaryAfterTaxValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(totalAllowancesLabel1).addComponent(totalAllowancesValue1))
-						.addGap(18, 18, 18)
-						.addGroup(jPanel32Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(netSalaryLabel).addComponent(netSalaryValue))
-						.addContainerGap(32, Integer.MAX_VALUE)));
+		// Define horizontal group (2 columns)
+		netSalaryPanelGL.setHorizontalGroup(
+				netSalaryPanelGL.createSequentialGroup()
+				.addGap(30)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(netSalaryComputationLabel)
+		            .addComponent(overtimeLabel)
+		            .addComponent(sssDeductionsLabel)
+		            .addComponent(philhealthDeductionsLabel)
+		            .addComponent(pagibigDeductionsLabel)
+		            .addComponent(totalDeductionsLabel)
+		            .addComponent(taxableSalaryLabel)
+		            .addComponent(withHoldingTaxLabel)
+		            .addComponent(salaryAfterTaxLabel)
+		            .addComponent(totalAllowancesLabel1)
+		            .addComponent(grossSalaryLabel1)
+		            .addComponent(netSalaryLabel)
+		        )
+		        .addGap(50)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addGap(30)  
+		            .addComponent(overtimeValue)
+		            .addComponent(sssDeductionsValue)
+		            .addComponent(philhealthDeductionsValue)
+		            .addComponent(pagibigDeductionsValue)
+		            .addComponent(totalDeductionsValue)
+		            .addComponent(taxableSalaryValue)
+		            .addComponent(withHoldingTaxValue)
+		            .addComponent(salaryAfterTaxValue)
+		            .addComponent(totalAllowancesValue1)
+		            .addComponent(grossSalaryValue1)
+		            .addComponent(netSalaryValue)
+		        )
+		        .addGap(30)
+		);
 
-		jPanel33.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel33.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
+		// Define vertical group (4 rows)
+		netSalaryPanelGL.setVerticalGroup(
+				netSalaryPanelGL.createSequentialGroup()
+				.addGap(15)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(netSalaryComputationLabel)
+		            .addGap(0)  // No value in column 2 for this row
+		        )
+		        .addGap(20)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(overtimeLabel)
+		            .addComponent(overtimeValue)
+		        )
+		        .addGap(20)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(sssDeductionsLabel)
+		            .addComponent(sssDeductionsValue)
+		        )
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(philhealthDeductionsLabel)
+		            .addComponent(philhealthDeductionsValue)
+		        )
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			            .addComponent(pagibigDeductionsLabel)
+			            .addComponent(pagibigDeductionsValue)
+			        )
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			            .addComponent(totalDeductionsLabel)
+			            .addComponent(totalDeductionsValue)
+			        )
+		        .addGap(20)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			            .addComponent(taxableSalaryLabel)
+			            .addComponent(taxableSalaryValue)
+			        )
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			            .addComponent(withHoldingTaxLabel)
+			            .addComponent(withHoldingTaxValue)
+			        )
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			            .addComponent(salaryAfterTaxLabel)
+			            .addComponent(salaryAfterTaxValue)
+			        )
+		        .addGap(20)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(totalAllowancesLabel1)
+		        		.addComponent(totalAllowancesValue1)
+		        		)
+		        .addGap(20)
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			            .addComponent(grossSalaryLabel1)
+			            .addComponent(grossSalaryValue1)
+			        )
+		        .addGroup(netSalaryPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+			            .addComponent(netSalaryLabel)
+			            .addComponent(netSalaryValue)
+			        )
+		        .addGap(15)
+		);
 
-		riceSubsidyLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		riceSubsidyLabel.setText("Rice Subsidy");
+		// -------------------------------------------------------------------------
 
-		riceSubsidyValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		riceSubsidyValue.setText(Double.toString(employeeComp.getRiceSubsidy()));
-
-		phoneAllowanceLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		phoneAllowanceLabel.setText("Phone Allowance");
-
-		phoneAllowanceValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		phoneAllowanceValue.setText(Double.toString(employeeComp.getPhoneAllowance()));
-
-		totalAllowanceLabel.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-		totalAllowanceLabel.setText("Total Allowances");
-
-		totalAllowanceValue.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
-		totalAllowanceValue.setText(numberFormat.format(totalAllowance));
-
-		allowancesLabel.setFont(new java.awt.Font("Arial", 1, 24)); // NOI18N
-		allowancesLabel.setText("Allowances");
-
-		clothingAllowanceLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		clothingAllowanceLabel.setText("Clothing Allowance");
-
-		clothingAllowanceValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
-		clothingAllowanceValue.setText(Double.toString(employeeComp.getClothingAllowance()));
-
-		javax.swing.GroupLayout jPanel33Layout = new javax.swing.GroupLayout(jPanel33);
-		jPanel33.setLayout(jPanel33Layout);
-		jPanel33Layout.setHorizontalGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel33Layout.createSequentialGroup().addGap(17, 17, 17).addComponent(allowancesLabel)
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE))
-				.addGroup(jPanel33Layout.createSequentialGroup().addGap(37, 37, 37)
-						.addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(phoneAllowanceLabel).addComponent(riceSubsidyLabel)
-								.addComponent(totalAllowanceLabel).addComponent(clothingAllowanceLabel))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 82, Integer.MAX_VALUE)
-						.addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(phoneAllowanceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(riceSubsidyValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(totalAllowanceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(clothingAllowanceValue, javax.swing.GroupLayout.PREFERRED_SIZE, 132,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(39, 39, 39)));
-		jPanel33Layout.setVerticalGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel33Layout.createSequentialGroup().addGap(12, 12, 12).addComponent(allowancesLabel)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(riceSubsidyLabel).addComponent(riceSubsidyValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(phoneAllowanceLabel).addComponent(phoneAllowanceValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(clothingAllowanceLabel).addComponent(clothingAllowanceValue))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 23, Integer.MAX_VALUE)
-						.addGroup(jPanel33Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(totalAllowanceLabel).addComponent(totalAllowanceValue))
-						.addGap(18, 18, 18)));
-
-		jPanel11.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel11.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
-		jPanel11.setPreferredSize(new java.awt.Dimension(280, 299));
-
-		firstName.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		// my information layout
+		myInformationLabel.setText("My Information");
+		myInformationLabel.setFont(FontLoader.poppinsSemiBold24f);
+		firstName.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		firstName.setText("First Name");
-
-		firstNameValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		firstNameValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		firstNameValue.setText(employeeGI.getFirstName());
-
-		lastName.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		lastName.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		lastName.setText("Last Name");
-
-		lastNameValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		lastNameValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		lastNameValue.setText(employeeGI.getLastName());
-
-		birthday.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		birthday.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		birthday.setText("Birthday");
-
-		birthdayValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		birthdayValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		birthdayValue.setText(employeeGI.getBirthday());
-
-		phoneNumber.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		phoneNumber.setFont(FontLoader.poppinsRegular14f);// NOI18N
 		phoneNumber.setText("Phone Number");
-
-		phoneNumberValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		phoneNumberValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		phoneNumberValue.setText(employeeGI.getPhoneNumber());
+		
+		GroupLayout myInformationPanelGL = new GroupLayout(myInformationPanel);
+		myInformationPanel.setLayout(myInformationPanelGL);
 
-		javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
-		jPanel11.setLayout(jPanel11Layout);
-		jPanel11Layout.setHorizontalGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel11Layout.createSequentialGroup().addGap(28, 28, 28).addGroup(jPanel11Layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-						.addComponent(phoneNumberValue, javax.swing.GroupLayout.PREFERRED_SIZE, 201,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-								.addComponent(phoneNumber).addComponent(birthday).addComponent(lastName)
-								.addComponent(firstName)
-								.addComponent(firstNameValue, javax.swing.GroupLayout.DEFAULT_SIZE, 201,
-										Integer.MAX_VALUE)
-								.addComponent(lastNameValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-								.addComponent(birthdayValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)))
-						.addContainerGap(62, Integer.MAX_VALUE)));
-		jPanel11Layout.setVerticalGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel11Layout.createSequentialGroup().addGap(28, 28, 28).addComponent(firstName)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(firstNameValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(lastName)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(lastNameValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(birthday)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(birthdayValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(phoneNumber)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(phoneNumberValue)
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)));
+		// Define horizontal group (2 columns)
+		myInformationPanelGL.setHorizontalGroup(
+				myInformationPanelGL.createSequentialGroup()
+				.addGap(30)
+		        .addGroup(myInformationPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(myInformationLabel)
+		            .addComponent(firstName)
+		            .addComponent(lastName)
+		            .addComponent(birthday)
+		            .addComponent(phoneNumber)
+		        )
+		        .addGap(30)
+		        .addGroup(myInformationPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addGap(30)
+		            .addComponent(firstNameValue)
+		            .addComponent(lastNameValue)
+		            .addComponent(birthdayValue)
+		            .addComponent(phoneNumberValue)
+		        )
+		        .addGap(30)
+		);
 
-		jPanel3.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel3.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
-		jPanel3.setPreferredSize(new java.awt.Dimension(280, 277));
+		// Define vertical group (4 rows)
+		myInformationPanelGL.setVerticalGroup(
+				myInformationPanelGL.createSequentialGroup()
+				.addGap(15)
+		        .addGroup(myInformationPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(myInformationLabel)
+		            .addGap(0)
+		        )
+		        .addGap(30)
+		        .addGroup(myInformationPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(firstName)
+		        		.addComponent(firstNameValue)
+        		)
+		        .addGroup(myInformationPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(lastName)
+		        		.addComponent(lastNameValue)
+        		)
+		        .addGroup(myInformationPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(birthday)
+		        		.addComponent(birthdayValue)
+        		)
+		        .addGroup(myInformationPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(phoneNumber)
+		        		.addComponent(phoneNumberValue)
+        		)
+		        .addGap(30)
+		 
+		);
+		
 
-		status.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		// -------------------------------------------------------------------------
+		
+		// employment layout
+		JLabel employmentLabel = new JLabel ("Employment");
+		employmentLabel.setFont(FontLoader.poppinsSemiBold24f);
+		status.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		status.setText("Status");
-
-		statusValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		statusValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		statusValue.setText(employeeGI.getStatus());
-
-		position.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		position.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		position.setText("Position");
-
-		positionValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		positionValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		positionValue.setText(employeeGI.getPosition());
-
-		immediateSupervisor.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		immediateSupervisor.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		immediateSupervisor.setText("Immediate Supervisor");
-
-		immediateSupervisorValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		immediateSupervisorValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		immediateSupervisorValue.setText(employeeGI.getSupervisor());
-
-		hourlyRate.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		hourlyRate.setFont(FontLoader.poppinsRegular14f);// NOI18N
 		hourlyRate.setText("Hourly Rate");
-
-		hourlyRateValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		hourlyRateValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		hourlyRateValue.setText(Double.toString(employeeComp.getHourlyRate()));
+		
+		GroupLayout employmentPanelGL = new GroupLayout(employmentPanel);
+		employmentPanel.setLayout(employmentPanelGL);
 
-		javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-		jPanel3.setLayout(jPanel3Layout);
-		jPanel3Layout.setHorizontalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel3Layout.createSequentialGroup().addGap(30, 30, 30)
-						.addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-								.addComponent(hourlyRate).addComponent(immediateSupervisor).addComponent(position)
-								.addComponent(status)
-								.addComponent(statusValue, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Integer.MAX_VALUE)
-								.addComponent(positionValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-								.addComponent(immediateSupervisorValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-								.addComponent(hourlyRateValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE))
-						.addContainerGap(60, Integer.MAX_VALUE)));
-		jPanel3Layout.setVerticalGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel3Layout.createSequentialGroup().addGap(29, 29, 29).addComponent(status)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(statusValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(position)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED).addComponent(positionValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(immediateSupervisor)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(immediateSupervisorValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(hourlyRate)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(hourlyRateValue)
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)));
+		// Define horizontal group (2 columns)
+		employmentPanelGL.setHorizontalGroup(
+				employmentPanelGL.createSequentialGroup()
+				.addGap(30)
+		        .addGroup(employmentPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(employmentLabel)
+		            .addComponent(status)
+		            .addComponent(position)
+		            .addComponent(immediateSupervisor)
+		            .addComponent(hourlyRate)
+		        )
+		        .addGap(50)
+		        .addGroup(employmentPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		        		.addGap(30)
+		        		.addComponent(statusValue)
+		        		.addComponent(positionValue)
+		        		.addComponent(immediateSupervisorValue)
+		        		.addComponent(hourlyRateValue)
+        		)
+		        .addGap(35)
+		);
 
-		jPanel4.setBackground(new java.awt.Color(255, 255, 255));
-		jPanel4.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
-		jPanel4.setPreferredSize(new java.awt.Dimension(280, 277));
+		// Define vertical group (4 rows)
+		employmentPanelGL.setVerticalGroup(
+				employmentPanelGL.createSequentialGroup()
+				.addGap(15)
+		        .addGroup(employmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(employmentLabel)
+		            .addGap(0)
+		        )
+		        .addGap(40)
+		        .addGroup(employmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(status)
+		            .addComponent(statusValue)
+		        )
+		        .addGroup(employmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(position)
+		            .addComponent(positionValue)
+		        )
+		        .addGroup(employmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	        		.addComponent(immediateSupervisor)
+		            .addComponent(immediateSupervisorValue)
+		        )
+		        .addGroup(employmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	        		.addComponent(hourlyRate)
+		            .addComponent(hourlyRateValue)
+		        )
+		        .addGap(30)
+		);
 
-		sssNumber.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		// -------------------------------------------------------------------------
+		
+		// deduction layout
+		JLabel governmentPanelLabel = new JLabel ("Government ID's");
+		governmentPanelLabel.setFont(FontLoader.poppinsSemiBold24f);
+		sssNumber.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		sssNumber.setText("SSS Number");
-
-		sssNumberValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		sssNumberValue.setFont(FontLoader.poppinsRegular14f);// NOI18N
 		sssNumberValue.setText(employeeGI.getSSSNumber());
-
-		philhealthNumber.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		philhealthNumber.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		philhealthNumber.setText("PhilHealth Number");
-
-		philhealthNumberValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		philhealthNumberValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		philhealthNumberValue.setText(employeeGI.getPhilHealthNumber());
-
-		pagibigNumber.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		pagibigNumber.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		pagibigNumber.setText("Pag-ibig Number");
-
-		pagibigNumberValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		pagibigNumberValue.setFont(FontLoader.poppinsRegular14f);// NOI18N
 		pagibigNumberValue.setText(employeeGI.getPagibigNumber());
-
-		tinNumber.setFont(new java.awt.Font("Arial", 1, 18)); // NOI18N
+		tinNumber.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		tinNumber.setText("TIN Number");
-
-		tinNumberValue.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
+		tinNumberValue.setFont(FontLoader.poppinsRegular14f); // NOI18N
 		tinNumberValue.setText(employeeGI.getTinNumber());
+		
+		GroupLayout governmentPanelGL = new GroupLayout(governmentIDPanel);
+		governmentIDPanel.setLayout(governmentPanelGL);
 
-		javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-		jPanel4.setLayout(jPanel4Layout);
-		jPanel4Layout.setHorizontalGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel4Layout.createSequentialGroup().addGap(33, 33, 33).addGroup(jPanel4Layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false).addComponent(tinNumber)
-						.addComponent(pagibigNumber).addComponent(philhealthNumber).addComponent(sssNumber)
-						.addComponent(sssNumberValue, javax.swing.GroupLayout.DEFAULT_SIZE, 201, Integer.MAX_VALUE)
-						.addComponent(philhealthNumberValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-						.addComponent(pagibigNumberValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-						.addComponent(tinNumberValue, javax.swing.GroupLayout.DEFAULT_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE))
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)));
-		jPanel4Layout.setVerticalGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel4Layout.createSequentialGroup().addGap(29, 29, 29).addComponent(sssNumber)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(sssNumberValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(philhealthNumber)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(philhealthNumberValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addComponent(pagibigNumber).addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(pagibigNumberValue)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED).addComponent(tinNumber)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(tinNumberValue)
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)));
+		// Define horizontal group (2 columns)
+		governmentPanelGL.setHorizontalGroup(
+				governmentPanelGL.createSequentialGroup()
+				.addGap(30)
+		        .addGroup(governmentPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		            .addComponent(governmentPanelLabel)
+		            .addComponent(sssNumber)
+		            .addComponent(philhealthNumber)
+		            .addComponent(pagibigNumber)
+		            .addComponent(hourlyRate)
+		        )
+		        .addGroup(governmentPanelGL.createParallelGroup(GroupLayout.Alignment.LEADING)
+		        		.addGap(30)
+		        		.addComponent(sssNumberValue)
+		        		.addComponent(philhealthNumberValue)
+		        		.addComponent(pagibigNumberValue)
+		        		.addComponent(hourlyRateValue)
+        		)
+		        .addGap(20)
+		);
 
-		javax.swing.GroupLayout jPanel12Layout = new javax.swing.GroupLayout(jPanel12);
-		jPanel12.setLayout(jPanel12Layout);
-		jPanel12Layout.setHorizontalGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel12Layout.createSequentialGroup().addContainerGap().addGroup(jPanel12Layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-						.addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-						.addGroup(jPanel12Layout.createSequentialGroup()
-								.addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, 297,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 297,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 293, Integer.MAX_VALUE))
-						.addGroup(jPanel12Layout.createSequentialGroup().addGroup(jPanel12Layout
-								.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-								.addComponent(jPanel31, javax.swing.GroupLayout.DEFAULT_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-								.addComponent(jPanel33, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-								.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jPanel32, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)));
-		jPanel12Layout.setVerticalGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel12Layout.createSequentialGroup().addContainerGap().addGroup(jPanel12Layout
-						.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-						.addGroup(jPanel12Layout.createSequentialGroup()
-								.addComponent(jPanel31, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-								.addComponent(jPanel33, javax.swing.GroupLayout.PREFERRED_SIZE,
-										javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addComponent(jPanel32, javax.swing.GroupLayout.PREFERRED_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addGroup(jPanel12Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-								.addComponent(jPanel11, javax.swing.GroupLayout.DEFAULT_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-								.addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Integer.MAX_VALUE)
-								.addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, 299, Integer.MAX_VALUE))
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-						.addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)));
+		// Define vertical group (4 rows)
+		governmentPanelGL.setVerticalGroup(
+				governmentPanelGL.createSequentialGroup()
+				.addGap(15)
+		        .addGroup((governmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(governmentPanelLabel)
+		        		.addGap(0))
+		        )
+		        .addGap(20)
+		        .addGroup(governmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		            .addComponent(sssNumber)
+		            .addComponent(sssNumberValue)
+		        )
+		        .addGroup(governmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	        		.addComponent(philhealthNumber)
+	        		.addComponent(philhealthNumberValue)
+        		)
+		        .addGroup(governmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+	        		.addComponent(pagibigNumber)
+	        		.addComponent(pagibigNumberValue)
+        		)
+		        .addGroup(governmentPanelGL.createParallelGroup(GroupLayout.Alignment.BASELINE)
+		        		.addComponent(hourlyRate)
+		        		.addComponent(hourlyRateValue)
+        		)
+		        .addGap(15)
+		);
 
-		jScrollPane1.setViewportView(jPanel12);
-
-		// Get the vertical scrollbar from the JScrollPane
-		JScrollBar verticalScrollBar = jScrollPane1.getVerticalScrollBar();
-
-		// Reduce the unit increment for slower scrolling
-		int newUnitIncrement = 10;
-		verticalScrollBar.setUnitIncrement(newUnitIncrement);
-
-		// Add an AdjustmentListener to the vertical scrollbar
-		verticalScrollBar.addAdjustmentListener(new AdjustmentListener() {
-			@Override
-			public void adjustmentValueChanged(AdjustmentEvent e) {
-				// Adjust the block increment if needed
-				int newBlockIncrement = 50;
-				verticalScrollBar.setBlockIncrement(newBlockIncrement);
-			}
-		});
+		// -------------------------------------------------------------------------
 
 		monthDropdown.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "January", "February", "March",
 				"April", "May", "June", "July", "August", "September", "October", "November", "December" }));
@@ -824,7 +1142,7 @@ public class EmployeeDashboard extends JFrame {
 			}
 		});
 
-		submitLeaveRequestButton.setText("Submit Leave Request");
+		submitLeaveRequestButton.setText("My Leave Request");
 		submitLeaveRequestButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				backToEmployeeListButtonActionPerformed(evt);
@@ -832,14 +1150,14 @@ public class EmployeeDashboard extends JFrame {
 		});
 		
 		submitOvertimeButton = new javax.swing.JButton();
-		submitOvertimeButton.setText("Submit Overtime");
+		submitOvertimeButton.setText("My Overtime");
 		submitOvertimeButton.addActionListener(new java.awt.event.ActionListener() {
 		    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		        submitOvertimeButtonActionPerformed(evt);
 		    }
 		});
 		
-		submitPayslipButton.setText("View Payslip");
+		submitPayslipButton.setText("My Payslip");
 		submitPayslipButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				viewPayslipButtonActionPerformed(evt);
@@ -863,79 +1181,6 @@ public class EmployeeDashboard extends JFrame {
 				logoutButtonActionPerformed(evt);
 			}
 		});
-
-		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-		jPanel1.setLayout(jPanel1Layout);
-		jPanel1Layout.setHorizontalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel1Layout.createSequentialGroup().addContainerGap(41, Integer.MAX_VALUE)
-						.addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-								.addComponent(welcomeLabel)
-								.addGroup(jPanel1Layout
-										.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-										.addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING,
-												javax.swing.GroupLayout.PREFERRED_SIZE, 948,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addGroup(jPanel1Layout.createSequentialGroup()
-												.addComponent(submitLeaveRequestButton,
-														javax.swing.GroupLayout.PREFERRED_SIZE, 154,
-														javax.swing.GroupLayout.PREFERRED_SIZE)
-												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED,
-												javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-												.addComponent(submitOvertimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Integer.MAX_VALUE)
-												.addComponent(submitPayslipButton, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-												.addComponent(editInfoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-												.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE,
-														120, javax.swing.GroupLayout.PREFERRED_SIZE)
-												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-												.addComponent(yearDropdown, javax.swing.GroupLayout.PREFERRED_SIZE,
-														70, javax.swing.GroupLayout.PREFERRED_SIZE)
-												.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-												.addComponent(computeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 89,
-														javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addContainerGap(41, Short.MAX_VALUE)))
-				.addGroup(javax.swing.GroupLayout.Alignment.TRAILING,
-						jPanel1Layout.createSequentialGroup()
-								.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 94,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addContainerGap()))));
-		jPanel1Layout.setVerticalGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(jPanel1Layout.createSequentialGroup().addContainerGap()
-						.addComponent(logoutButton, javax.swing.GroupLayout.PREFERRED_SIZE, 21,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGap(18, 18, Short.MAX_VALUE).addComponent(welcomeLabel)
-						.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-						.addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-								.addComponent(computeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(monthDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(yearDropdown, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(submitLeaveRequestButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(submitOvertimeButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(submitPayslipButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-										javax.swing.GroupLayout.PREFERRED_SIZE)
-								.addComponent(editInfoButton, javax.swing.GroupLayout.PREFERRED_SIZE, 33,
-										javax.swing.GroupLayout.PREFERRED_SIZE))
-						.addGap(12, 12, 12).addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 438,
-								javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGap(27, 27, 27)));
-
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-		getContentPane().setLayout(layout);
-		layout.setHorizontalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING).addComponent(
-				jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE));
-		layout.setVerticalGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-				.addGroup(layout.createSequentialGroup()
-						.addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE,
-								javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-						.addGap(0, 0, Integer.MAX_VALUE)));
 
 		pack();
 
@@ -1394,5 +1639,84 @@ public class EmployeeDashboard extends JFrame {
 				new EmployeeEditInfoPage(employeeGI, employeeComp).setVisible(true);
 			}
 		});
+	}
+	
+	public class FontLoader {
+
+        // Public static font variable (accessible from anywhere)
+        public static final Font poppinsRegular14f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 14f); // regular text size
+        public static final Font poppinsRegular20f = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 20f); // regular text size
+        public static final Font poppinsRegular18f= loadCustomFont("resources/fonts/Poppins-Regular.ttf", 16f); // regular text size
+        public static final Font poppinsRegularUserFont = loadCustomFont("resources/fonts/Poppins-Regular.ttf", 20f); // profile name
+        public static final Font poppinsSemiBold24f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 24f); // panel title
+        public static final Font poppinsBold40f = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 40f); // title 
+
+        // Font loading utility
+        private static Font loadCustomFont(String fontPath, float size) {
+            try {
+                Font font = Font.createFont(Font.TRUETYPE_FONT, new File(fontPath)).deriveFont(size);
+                GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                ge.registerFont(font);
+                return font;
+            } catch (FontFormatException | IOException e) {
+                System.err.println("Error loading font: " + e.getMessage());
+                return new Font("SansSerif", Font.PLAIN, (int) size); // fallback font
+            }
+        }
+    }
+	
+	
+	// rounded panel
+	static class RoundedPanel extends JPanel {
+	    private int cornerRadius;
+	    private Color borderColor = Color.BLACK; // Default border color
+	    private int borderThickness = 2;         // Border thickness
+
+	    public RoundedPanel(int radius) {
+	        this.cornerRadius = radius;
+	        setOpaque(false); // Keep this false to allow rounded shape
+	        setBackground(Color.WHITE); // Explicitly set background to white
+	    }
+
+	    // Setter for border color
+	    public void setBorderColor(Color color) {
+	        this.borderColor = color;
+	        repaint();
+	    }
+
+	    // Setter for border thickness
+	    public void setBorderThickness(int thickness) {
+	        this.borderThickness = thickness;
+	        repaint();
+	    }
+
+	    @Override
+	    protected void paintComponent(Graphics g) {
+	        // Do NOT call super.paintComponent if setOpaque(false)
+	        // It can interfere with custom painting
+	        Graphics2D g2 = (Graphics2D) g.create();
+	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+	        int width = getWidth();
+	        int height = getHeight();
+
+	        // Draw filled rounded rectangle with the background color
+	        g2.setColor(getBackground());
+	        g2.fillRoundRect(0, 0, width, height, cornerRadius, cornerRadius);
+
+	        // Draw border
+	        g2.setColor(borderColor);
+	        g2.setStroke(new BasicStroke(borderThickness));
+	        g2.drawRoundRect(
+	            borderThickness / 2,
+	            borderThickness / 2,
+	            width - borderThickness,
+	            height - borderThickness,
+	            cornerRadius,
+	            cornerRadius
+	        );
+
+	        g2.dispose();
+	    }
 	}
 }

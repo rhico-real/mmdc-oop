@@ -172,7 +172,8 @@ public class CalculatorPage extends JFrame {
 	    }
 	}
 	
-	// BORDER THICKNESS OF ROUNDED PANEL
+
+	// rounded panel
 	static class RoundedPanel extends JPanel {
 	    private int cornerRadius;
 	    private Color borderColor = Color.BLACK; // Default border color
