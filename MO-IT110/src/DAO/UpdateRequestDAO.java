@@ -1,10 +1,11 @@
 package DAO;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,51 +17,47 @@ import Database.DatabaseConnection;
 
 public class UpdateRequestDAO {
     
-    // Make sure the table exists before any operation
-    static {
-        DatabaseStructureDAO.ensureUpdateRequestsTableExists();
-    }
-    
     /**
      * Create a new update request
      * @param request UpdateRequest object
      * @return true if creation successful, false otherwise
      */
     public static boolean createUpdateRequest(UpdateRequest request) {
-        String sql = """
-            INSERT INTO employee_update_requests 
-            (employee_number, first_name, last_name, birthday, address, phone_number, 
-             sss_number, philhealth_number, tin_number, pagibig_number, request_date, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?)
-        """;
+        // Using the stored procedure sp_create_update_request
+        String sql = "{CALL sp_create_update_request(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, request.getEmployeeNumber());
-            pstmt.setString(2, request.getFirstName());
-            pstmt.setString(3, request.getLastName());
-            pstmt.setString(4, request.getBirthday());
-            pstmt.setString(5, request.getAddress());
-            pstmt.setString(6, request.getPhoneNumber());
-            pstmt.setString(7, request.getSssNumber());
-            pstmt.setString(8, request.getPhilhealthNumber());
-            pstmt.setString(9, request.getTinNumber());
-            pstmt.setString(10, request.getPagibigNumber());
-            pstmt.setString(11, request.getStatus());
+            // Set input parameters
+            cstmt.setString(1, request.getEmployeeNumber());
+            cstmt.setString(2, request.getFirstName());
+            cstmt.setString(3, request.getLastName());
+            cstmt.setString(4, request.getBirthday());
+            cstmt.setString(5, request.getAddress());
+            cstmt.setString(6, request.getPhoneNumber());
+            cstmt.setString(7, request.getSssNumber());
+            cstmt.setString(8, request.getPhilhealthNumber());
+            cstmt.setString(9, request.getTinNumber());
+            cstmt.setString(10, request.getPagibigNumber());
+            cstmt.setString(11, request.getStatus() != null ? request.getStatus() : "PENDING");
             
-            int rowsAffected = pstmt.executeUpdate();
+            // Register output parameters
+            cstmt.registerOutParameter(12, Types.INTEGER); // request_id
+            cstmt.registerOutParameter(13, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(14, Types.VARCHAR); // error_message
             
-            // Get the generated request ID
-            if (rowsAffected > 0) {
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        request.setRequestId(rs.getInt(1));
-                    }
-                }
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(13);
+            if (success) {
+                request.setRequestId(cstmt.getInt(12));
+            } else {
+                String errorMessage = cstmt.getString(14);
+                System.err.println("Error creating update request: " + errorMessage);
             }
             
-            return rowsAffected > 0;
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error creating update request: " + e.getMessage());
@@ -77,17 +74,13 @@ public class UpdateRequestDAO {
     public static List<UpdateRequest> getUpdateRequests(String status) {
         List<UpdateRequest> requests = new ArrayList<>();
         
-        String sql = """
-            SELECT * FROM employee_update_requests 
-        """ + (status != null ? " WHERE status = ? " : "") + 
-        " ORDER BY request_date DESC";
+        // Using the stored procedure sp_get_update_requests
+        String sql = "SELECT * FROM sp_get_update_requests(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            if (status != null) {
-                pstmt.setString(1, status);
-            }
+            pstmt.setString(1, status);
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -110,7 +103,8 @@ public class UpdateRequestDAO {
      * @return UpdateRequest object if found, null otherwise
      */
     public static UpdateRequest getUpdateRequestById(int requestId) {
-        String sql = "SELECT * FROM employee_update_requests WHERE request_id = ?";
+        // Using the stored procedure sp_get_update_request_by_id
+        String sql = "SELECT * FROM sp_get_update_request_by_id(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -139,17 +133,30 @@ public class UpdateRequestDAO {
      * @return true if update successful, false otherwise
      */
     public static boolean updateRequestStatus(int requestId, String status, String adminNotes) {
-        String sql = "UPDATE employee_update_requests SET status = ?, admin_notes = ? WHERE request_id = ?";
+        // Using the stored procedure sp_update_request_status
+        String sql = "{CALL sp_update_request_status(?, ?, ?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, status);
-            pstmt.setString(2, adminNotes);
-            pstmt.setInt(3, requestId);
+            // Set input parameters
+            cstmt.setInt(1, requestId);
+            cstmt.setString(2, status);
+            cstmt.setString(3, adminNotes);
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(4, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(5, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(4);
+            if (!success) {
+                String errorMessage = cstmt.getString(5);
+                System.err.println("Error updating request status: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error updating request status: " + e.getMessage());
@@ -165,86 +172,34 @@ public class UpdateRequestDAO {
      * @return true if approval successful, false otherwise
      */
     public static boolean approveUpdateRequest(int requestId, String adminNotes) {
-        Connection conn = null;
-        try {
-            conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false);
+        // Using the stored procedure sp_approve_update_request
+        String sql = "{CALL sp_approve_update_request(?, ?, ?, ?)}";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            // Get the update request
-            UpdateRequest request = getUpdateRequestById(requestId);
-            if (request == null) {
-                return false;
+            // Set input parameters
+            cstmt.setInt(1, requestId);
+            cstmt.setString(2, adminNotes);
+            
+            // Register output parameters
+            cstmt.registerOutParameter(3, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(4, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(3);
+            if (!success) {
+                String errorMessage = cstmt.getString(4);
+                System.err.println("Error approving update request: " + errorMessage);
             }
             
-            // Create employee objects with the updated information
-            EmployeeInformation employee = new EmployeeInformation(request.getEmployeeNumber());
-            GovernmentIdentification govId = new GovernmentIdentification(request.getEmployeeNumber());
-            
-            // Set updated employee information
-            employee.setFirstName(request.getFirstName());
-            employee.setLastName(request.getLastName());
-            employee.setBirthday(request.getBirthday());
-            employee.setAddress(request.getAddress());
-            employee.setPhoneNumber(request.getPhoneNumber());
-            
-            // Get current employee data for fields that shouldn't change
-            EmployeeInformation currentEmployee = EmployeeDAO.getEmployeeByNumber(request.getEmployeeNumber());
-            employee.setStatus(currentEmployee.getStatus());
-            employee.setPosition(currentEmployee.getPosition());
-            employee.setSupervisor(currentEmployee.getSupervisor());
-            employee.setHourlyRate(currentEmployee.getHourlyRate());
-            
-            // Set updated government ID information
-            govId.setSSSNumber(request.getSssNumber());
-            govId.setPhilHealthNumber(request.getPhilhealthNumber());
-            govId.setTinNumber(request.getTinNumber());
-            govId.setPagibigNumber(request.getPagibigNumber());
-            
-            // Get compensation data (unchanged)
-            Compensation compensation = EmployeeDAO.getEmployeeCompensation(request.getEmployeeNumber());
-            
-            // Update the employee in the database
-            boolean employeeUpdated = EmployeeDAO.updateEmployee(employee, govId, compensation);
-            
-            if (employeeUpdated) {
-                // Update username in the users table if name has changed
-                String newUsername = (request.getFirstName() + "." + request.getLastName()).toLowerCase();
-                UserDAO.updateUsername(request.getEmployeeNumber(), newUsername);
-                
-                // Update the request status
-                boolean statusUpdated = updateRequestStatus(requestId, "APPROVED", adminNotes);
-                
-                if (statusUpdated) {
-                    conn.commit();
-                    return true;
-                }
-            }
-            
-            conn.rollback();
-            return false;
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error approving update request: " + e.getMessage());
             e.printStackTrace();
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    System.err.println("Error rolling back transaction: " + ex.getMessage());
-                    ex.printStackTrace();
-                }
-            }
             return false;
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    System.err.println("Error closing connection: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
         }
     }
     
@@ -255,7 +210,35 @@ public class UpdateRequestDAO {
      * @return true if rejection successful, false otherwise
      */
     public static boolean rejectUpdateRequest(int requestId, String adminNotes) {
-        return updateRequestStatus(requestId, "REJECTED", adminNotes);
+        // Using the stored procedure sp_reject_update_request
+        String sql = "{CALL sp_reject_update_request(?, ?, ?, ?)}";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
+            
+            // Set input parameters
+            cstmt.setInt(1, requestId);
+            cstmt.setString(2, adminNotes);
+            
+            // Register output parameters
+            cstmt.registerOutParameter(3, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(4, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(3);
+            if (!success) {
+                String errorMessage = cstmt.getString(4);
+                System.err.println("Error rejecting update request: " + errorMessage);
+            }
+            
+            return success;
+            
+        } catch (SQLException e) {
+            System.err.println("Error rejecting update request: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
     
     /**
@@ -264,7 +247,8 @@ public class UpdateRequestDAO {
      * @return true if there are pending requests, false otherwise
      */
     public static boolean hasEmployeePendingRequests(String employeeNumber) {
-        String sql = "SELECT COUNT(*) FROM employee_update_requests WHERE employee_number = ? AND status = 'PENDING'";
+        // Using the stored function sp_has_employee_pending_requests
+        String sql = "SELECT sp_has_employee_pending_requests(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -273,7 +257,7 @@ public class UpdateRequestDAO {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt(1) > 0;
+                    return rs.getBoolean(1);
                 }
             }
             

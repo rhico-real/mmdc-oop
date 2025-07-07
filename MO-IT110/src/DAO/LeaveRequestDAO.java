@@ -1,9 +1,11 @@
 package DAO;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,8 @@ public class LeaveRequestDAO {
      * @return LeaveRequest object if found, null otherwise
      */
     public static LeaveRequest getLeaveRequestById(String id) {
-        String sql = "SELECT * FROM leave_requests WHERE id = ?";
+        // Using the stored procedure sp_get_leave_request_by_id
+        String sql = "SELECT * FROM sp_get_leave_request_by_id(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -43,16 +46,9 @@ public class LeaveRequestDAO {
      */
     public static List<LeaveRequest> getAllLeaveRequests() {
         List<LeaveRequest> leaveRequests = new ArrayList<>();
-        String sql = """
-            SELECT lr.request_number as id, e.employee_number as employee_num,
-                   pi.first_name, pi.last_name, lr.start_date, lr.end_date,
-                   lr.reason as notes, lt.leave_name as leave_type, lr.status as approved
-            FROM leave_requests lr
-            JOIN employees e ON lr.employee_id = e.employee_id
-            LEFT JOIN personal_information pi ON e.employee_id = pi.employee_id
-            LEFT JOIN leave_types lt ON lr.leave_type_id = lt.leave_type_id
-            ORDER BY lr.created_at DESC
-        """;
+        
+        // Using the stored procedure sp_get_all_leave_requests
+        String sql = "SELECT * FROM sp_get_all_leave_requests()";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -76,12 +72,14 @@ public class LeaveRequestDAO {
      */
     public static List<LeaveRequest> getLeaveRequestsByEmployee(String employeeNum) {
         List<LeaveRequest> leaveRequests = new ArrayList<>();
-        String sql = "SELECT * FROM leave_requests WHERE employee_num = ? ORDER BY created_at DESC";
+        
+        // Using the stored procedure sp_get_leave_requests_by_employee
+        String sql = "SELECT * FROM sp_get_leave_requests_by_employee(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
-            pstmt.setInt(1, Integer.parseInt(employeeNum));
+            pstmt.setString(1, employeeNum);
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
@@ -102,7 +100,9 @@ public class LeaveRequestDAO {
      */
     public static List<LeaveRequest> getPendingLeaveRequests() {
         List<LeaveRequest> leaveRequests = new ArrayList<>();
-        String sql = "SELECT * FROM leave_requests WHERE approved = 'Not Approved Yet' ORDER BY created_at ASC";
+        
+        // Using the stored procedure sp_get_pending_leave_requests
+        String sql = "SELECT * FROM sp_get_pending_leave_requests()";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -125,28 +125,35 @@ public class LeaveRequestDAO {
      * @return true if creation successful, false otherwise
      */
     public static boolean createLeaveRequest(LeaveRequest leaveRequest) {
-        String sql = """
-            INSERT INTO leave_requests (
-                id, employee_num, first_name, last_name, start_date, end_date, 
-                notes, leave_type, approved
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+        // Using the stored procedure sp_create_leave_request
+        String sql = "{CALL sp_create_leave_request(?, ?, ?, ?, ?, ?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, leaveRequest.getId());
-            pstmt.setInt(2, Integer.parseInt(leaveRequest.getEmployeeNum()));
-            pstmt.setString(3, leaveRequest.getFirstName());
-            pstmt.setString(4, leaveRequest.getLastName());
-            pstmt.setString(5, leaveRequest.getStartDate());
-            pstmt.setString(6, leaveRequest.getEndDate());
-            pstmt.setString(7, leaveRequest.getNotes());
-            pstmt.setString(8, leaveRequest.getLeaveType());
-            pstmt.setString(9, leaveRequest.isApproved());
+            // Set input parameters
+            cstmt.setString(1, leaveRequest.getEmployeeNum());
+            cstmt.setString(2, leaveRequest.getLeaveType());
+            cstmt.setString(3, leaveRequest.getStartDate());
+            cstmt.setString(4, leaveRequest.getEndDate());
+            cstmt.setString(5, leaveRequest.getNotes());
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(6, Types.VARCHAR); // request_number
+            cstmt.registerOutParameter(7, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(8, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(7);
+            if (success) {
+                leaveRequest.setId(cstmt.getString(6)); // Set the generated request number
+            } else {
+                String errorMessage = cstmt.getString(8);
+                System.err.println("Error creating leave request: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error creating leave request: " + e.getMessage());
@@ -156,42 +163,7 @@ public class LeaveRequestDAO {
     }
     
     /**
-     * Update leave request
-     * @param leaveRequest LeaveRequest object with updated information
-     * @return true if update successful, false otherwise
-     */
-    public static boolean updateLeaveRequest(LeaveRequest leaveRequest) {
-        String sql = """
-            UPDATE leave_requests SET 
-                first_name = ?, last_name = ?, start_date = ?, end_date = ?, 
-                notes = ?, leave_type = ?, approved = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        """;
-        
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
-            pstmt.setString(1, leaveRequest.getFirstName());
-            pstmt.setString(2, leaveRequest.getLastName());
-            pstmt.setString(3, leaveRequest.getStartDate());
-            pstmt.setString(4, leaveRequest.getEndDate());
-            pstmt.setString(5, leaveRequest.getNotes());
-            pstmt.setString(6, leaveRequest.getLeaveType());
-            pstmt.setString(7, leaveRequest.isApproved());
-            pstmt.setString(8, leaveRequest.getId());
-            
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
-            
-        } catch (SQLException e) {
-            System.err.println("Error updating leave request: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-    }
-    
-    /**
-     * Approve or reject leave request
+     * Update leave request status
      * @param id Leave request ID
      * @param status Approval status ("Approved" or "Rejected")
      * @return true if update successful, false otherwise
@@ -202,73 +174,31 @@ public class LeaveRequestDAO {
         System.out.println("[DEBUG] ID: " + id);
         System.out.println("[DEBUG] New Status: " + status);
         
-        // Validate inputs
-        if (id == null || id.trim().isEmpty()) {
-            System.err.println("[ERROR] Leave request ID is null or empty");
-            return false;
-        }
-        
-        if (status == null || status.trim().isEmpty()) {
-            System.err.println("[ERROR] Status is null or empty");
-            return false;
-        }
-        
-        // First, check if the leave request exists
-        String checkSql = "SELECT id, approved FROM leave_requests WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
-            
-            checkStmt.setString(1, id);
-            try (ResultSet rs = checkStmt.executeQuery()) {
-                if (rs.next()) {
-                    String currentStatus = rs.getString("approved");
-                    System.out.println("[DEBUG] Found leave request. Current status: " + currentStatus);
-                } else {
-                    System.err.println("[ERROR] Leave request with ID " + id + " not found in database");
-                    return false;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("[ERROR] Error checking leave request existence: " + e.getMessage());
-            e.printStackTrace();
-            return false;
-        }
-        
-        // Now perform the update
-        String sql = "UPDATE leave_requests SET approved = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?";
+        // Using the stored procedure sp_update_leave_request_status
+        String sql = "{CALL sp_update_leave_request_status(?, ?, NULL, NULL, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, status);
-            pstmt.setString(2, id);
+            // Set input parameters
+            cstmt.setString(1, id);
+            cstmt.setString(2, status);
             
-            System.out.println("[DEBUG] Executing SQL: " + sql);
-            System.out.println("[DEBUG] Parameters: status=" + status + ", id=" + id);
+            // Register output parameters
+            cstmt.registerOutParameter(3, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(4, Types.VARCHAR); // error_message
             
-            int rowsAffected = pstmt.executeUpdate();
+            cstmt.execute();
             
-            System.out.println("[DEBUG] Rows affected: " + rowsAffected);
-            
-            if (rowsAffected > 0) {
-                System.out.println("[DEBUG] Update successful!");
-                
-                // Verify the update
-                try (PreparedStatement verifyStmt = conn.prepareStatement(checkSql)) {
-                    verifyStmt.setString(1, id);
-                    try (ResultSet rs = verifyStmt.executeQuery()) {
-                        if (rs.next()) {
-                            String newStatus = rs.getString("approved");
-                            System.out.println("[DEBUG] Verified new status: " + newStatus);
-                            return status.equals(newStatus);
-                        }
-                    }
-                }
+            boolean success = cstmt.getBoolean(3);
+            if (!success) {
+                String errorMessage = cstmt.getString(4);
+                System.err.println("[ERROR] Error updating leave request status: " + errorMessage);
             } else {
-                System.err.println("[ERROR] No rows were affected by the update");
+                System.out.println("[DEBUG] Leave request status updated successfully!");
             }
             
-            return rowsAffected > 0;
+            return success;
             
         } catch (SQLException e) {
             System.err.println("[ERROR] Error updating leave request status: " + e.getMessage());
@@ -285,15 +215,28 @@ public class LeaveRequestDAO {
      * @return true if deletion successful, false otherwise
      */
     public static boolean deleteLeaveRequest(String id) {
-        String sql = "DELETE FROM leave_requests WHERE id = ?";
+        // Using the stored procedure sp_delete_leave_request
+        String sql = "{CALL sp_delete_leave_request(?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, id);
+            // Set input parameters
+            cstmt.setString(1, id);
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(2, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(3, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(2);
+            if (!success) {
+                String errorMessage = cstmt.getString(3);
+                System.err.println("Error deleting leave request: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error deleting leave request: " + e.getMessage());
@@ -309,7 +252,9 @@ public class LeaveRequestDAO {
      */
     public static List<LeaveRequest> getLeaveRequestsByStatus(String status) {
         List<LeaveRequest> leaveRequests = new ArrayList<>();
-        String sql = "SELECT * FROM leave_requests WHERE approved = ? ORDER BY created_at DESC";
+        
+        // Using the stored procedure sp_get_leave_requests_by_status
+        String sql = "SELECT * FROM sp_get_leave_requests_by_status(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -333,16 +278,16 @@ public class LeaveRequestDAO {
      * Helper method to map ResultSet to LeaveRequest object
      */
     private static LeaveRequest mapResultSetToLeaveRequest(ResultSet rs) throws SQLException {
-        LeaveRequest leaveRequest = new LeaveRequest(rs.getString("employee_num"));
+        LeaveRequest leaveRequest = new LeaveRequest(rs.getString("employee_number"));
         
-        leaveRequest.setId(rs.getString("id"));
+        leaveRequest.setId(rs.getString("request_number"));
         leaveRequest.setFirstName(rs.getString("first_name"));
         leaveRequest.setLastName(rs.getString("last_name"));
         leaveRequest.setStartDate(rs.getString("start_date"));
         leaveRequest.setEndDate(rs.getString("end_date"));
-        leaveRequest.setNotes(rs.getString("notes"));
+        leaveRequest.setNotes(rs.getString("reason"));
         leaveRequest.setLeaveType(rs.getString("leave_type"));
-        leaveRequest.setApproved(rs.getString("approved"));
+        leaveRequest.setApproved(rs.getString("status"));
         
         return leaveRequest;
     }

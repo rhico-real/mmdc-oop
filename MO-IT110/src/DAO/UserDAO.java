@@ -1,10 +1,11 @@
 package DAO;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,18 +21,8 @@ public class UserDAO {
      * @return User object with roles if authentication successful, null otherwise
      */
     public static User authenticateUser(String username, String password) {
-        String sql = """
-            SELECT u.user_id, u.username, u.password, u.email, u.is_active,
-                   e.employee_id, e.employee_number,
-                   STRING_AGG(r.role_name, ',') as roles
-            FROM users u
-            LEFT JOIN employees e ON u.user_id = e.user_id
-            LEFT JOIN user_roles ur ON u.user_id = ur.user_id AND ur.is_active = TRUE
-            LEFT JOIN roles r ON ur.role_id = r.role_id
-            WHERE u.username = ? AND u.password = ? AND u.is_active = TRUE
-            GROUP BY u.user_id, u.username, u.password, u.email, u.is_active, 
-                     e.employee_id, e.employee_number
-        """;
+        // Using the stored procedure sp_authenticate_user
+        String sql = "SELECT * FROM sp_authenticate_user(?, ?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -50,10 +41,10 @@ public class UserDAO {
                     // Set roles based on new structure
                     String roles = rs.getString("roles");
                     if (roles != null) {
-                    user.setIsAdmin(roles.contains("ADMIN"));
-                    user.setIsHR(roles.contains("HR"));
-                     user.setIsFinance(roles.contains("FINANCE"));
-					}
+                        user.setIsAdmin(roles.contains("ADMIN"));
+                        user.setIsHR(roles.contains("HR"));
+                        user.setIsFinance(roles.contains("FINANCE"));
+                    }
                     
                     return user;
                 }
@@ -74,75 +65,38 @@ public class UserDAO {
      * @return User ID if creation successful, -1 otherwise
      */
     public static int createUserWithRole(String username, String password, String email, String roleName) {
-        Connection conn = null;
-        try {
-            conn = DatabaseConnection.getConnection();
-            conn.setAutoCommit(false);
+        // Using the stored procedure sp_create_user_with_role
+        String sql = "{CALL sp_create_user_with_role(?, ?, ?, ?, ?, ?, ?)}";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            // Create user
-            String insertUserSql = """
-                INSERT INTO users (username, password, email, is_active) 
-                VALUES (?, ?, ?, TRUE)
-            """;
+            // Set input parameters
+            cstmt.setString(1, username);
+            cstmt.setString(2, password);
+            cstmt.setString(3, email);
+            cstmt.setString(4, roleName);
             
-            int userId;
-            try (PreparedStatement pstmt = conn.prepareStatement(insertUserSql, Statement.RETURN_GENERATED_KEYS)) {
-                pstmt.setString(1, username);
-                pstmt.setString(2, password);
-                pstmt.setString(3, email);
-                pstmt.executeUpdate();
-                
-                try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        userId = rs.getInt(1);
-                    } else {
-                        throw new SQLException("Failed to get generated user ID");
-                    }
-                }
+            // Register output parameters
+            cstmt.registerOutParameter(5, Types.INTEGER); // user_id
+            cstmt.registerOutParameter(6, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(7, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(6);
+            if (success) {
+                return cstmt.getInt(5); // Return the user ID
+            } else {
+                String errorMessage = cstmt.getString(7);
+                System.err.println("Error creating user with role: " + errorMessage);
+                return -1;
             }
-            
-            // Assign role
-            String assignRoleSql = """
-                INSERT INTO user_roles (user_id, role_id) 
-                SELECT ?, role_id FROM roles WHERE role_name = ?
-            """;
-            try (PreparedStatement pstmt = conn.prepareStatement(assignRoleSql)) {
-                pstmt.setInt(1, userId);
-                pstmt.setString(2, roleName);
-                pstmt.executeUpdate();
-            }
-            
-            // Create specific role record if needed
-            if ("ADMIN".equals(roleName)) {
-            createAdminRecord(conn, userId);
-            } else if ("HR".equals(roleName)) {
-            createHRRecord(conn, userId);
-            } else if ("FINANCE".equals(roleName)) {
-				createFinanceRecord(conn, userId);
-			}
-            
-            conn.commit();
-            return userId;
             
         } catch (SQLException e) {
             System.err.println("Error creating user with role: " + e.getMessage());
             e.printStackTrace();
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
             return -1;
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
     
@@ -152,17 +106,8 @@ public class UserDAO {
      * @return User object if found, null otherwise
      */
     public static User getUserByEmployeeNumber(String employeeNum) {
-        String sql = """
-            SELECT u.user_id, u.username, u.password, u.email, u.is_active,
-                   e.employee_number,
-                   STRING_AGG(r.role_name, ',') as roles
-            FROM users u
-            JOIN employees e ON u.user_id = e.user_id
-            LEFT JOIN user_roles ur ON u.user_id = ur.user_id AND ur.is_active = TRUE
-            LEFT JOIN roles r ON ur.role_id = r.role_id
-            WHERE e.employee_number = ? AND u.is_active = TRUE
-            GROUP BY u.user_id, u.username, u.password, u.email, u.is_active, e.employee_number
-        """;
+        // Using the stored procedure sp_get_user_by_employee_number
+        String sql = "SELECT * FROM sp_get_user_by_employee_number(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -178,10 +123,10 @@ public class UserDAO {
                     // Set roles
                     String roles = rs.getString("roles");
                     if (roles != null) {
-                    user.setIsAdmin(roles.contains("ADMIN"));
-                    user.setIsHR(roles.contains("HR"));
-                     user.setIsFinance(roles.contains("FINANCE"));
-				}
+                        user.setIsAdmin(roles.contains("ADMIN"));
+                        user.setIsHR(roles.contains("HR"));
+                        user.setIsFinance(roles.contains("FINANCE"));
+                    }
                     
                     return user;
                 }
@@ -199,17 +144,8 @@ public class UserDAO {
      * @return User object if found, null otherwise
      */
     public static User getUserByUsername(String username) {
-        String sql = """
-            SELECT u.user_id, u.username, u.password, u.email, u.is_active,
-                   e.employee_number,
-                   STRING_AGG(r.role_name, ',') as roles
-            FROM users u
-            LEFT JOIN employees e ON u.user_id = e.user_id
-            LEFT JOIN user_roles ur ON u.user_id = ur.user_id AND ur.is_active = TRUE
-            LEFT JOIN roles r ON ur.role_id = r.role_id
-            WHERE u.username = ? AND u.is_active = TRUE
-            GROUP BY u.user_id, u.username, u.password, u.email, u.is_active, e.employee_number
-        """;
+        // Using the stored procedure sp_get_user_by_username
+        String sql = "SELECT * FROM sp_get_user_by_username(?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -226,10 +162,10 @@ public class UserDAO {
                     // Set roles
                     String roles = rs.getString("roles");
                     if (roles != null) {
-                    user.setIsAdmin(roles.contains("ADMIN"));
-                    user.setIsHR(roles.contains("HR"));
-                     user.setIsFinance(roles.contains("FINANCE"));
-				}
+                        user.setIsAdmin(roles.contains("ADMIN"));
+                        user.setIsHR(roles.contains("HR"));
+                        user.setIsFinance(roles.contains("FINANCE"));
+                    }
                     
                     return user;
                 }
@@ -247,27 +183,30 @@ public class UserDAO {
      * @return true if update successful, false otherwise
      */
     public static boolean updateUser(User user) {
-        // For compatibility, we need to get the user_id first
-        User existingUser = getUserByEmployeeNumber(user.getEmployeeNumber());
-        if (existingUser == null) {
-            return false;
-        }
-        
-        String sql = """
-            UPDATE users SET 
-                username = ?, password = ?, updated_at = CURRENT_TIMESTAMP 
-            WHERE username = ?
-        """;
+        // Using the stored procedure sp_update_user
+        String sql = "{CALL sp_update_user(?, ?, ?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, user.getUserId());
-            pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, existingUser.getUserId()); // Use existing username as identifier
+            // Set input parameters
+            cstmt.setString(1, user.getUserId()); // old username
+            cstmt.setString(2, user.getUserId()); // new username (same for updating password only)
+            cstmt.setString(3, user.getPassword());
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(4, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(5, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(4);
+            if (!success) {
+                String errorMessage = cstmt.getString(5);
+                System.err.println("Error updating user: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error updating user: " + e.getMessage());
@@ -283,22 +222,29 @@ public class UserDAO {
      * @return true if assignment successful, false otherwise
      */
     public static boolean assignRoleToUser(String username, String roleName) {
-        String sql = """
-            INSERT INTO user_roles (user_id, role_id) 
-            SELECT u.user_id, r.role_id 
-            FROM users u, roles r 
-            WHERE u.username = ? AND r.role_name = ?
-            ON CONFLICT (user_id, role_id) DO UPDATE SET is_active = TRUE
-        """;
+        // Using the stored procedure sp_assign_role_to_user
+        String sql = "{CALL sp_assign_role_to_user(?, ?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, username);
-            pstmt.setString(2, roleName);
+            // Set input parameters
+            cstmt.setString(1, username);
+            cstmt.setString(2, roleName);
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(3, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(4, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(3);
+            if (!success) {
+                String errorMessage = cstmt.getString(4);
+                System.err.println("Error assigning role to user: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error assigning role to user: " + e.getMessage());
@@ -314,20 +260,29 @@ public class UserDAO {
      * @return true if removal successful, false otherwise
      */
     public static boolean removeRoleFromUser(String username, String roleName) {
-        String sql = """
-            UPDATE user_roles SET is_active = FALSE 
-            WHERE user_id = (SELECT user_id FROM users WHERE username = ?) 
-            AND role_id = (SELECT role_id FROM roles WHERE role_name = ?)
-        """;
+        // Using the stored procedure sp_remove_role_from_user
+        String sql = "{CALL sp_remove_role_from_user(?, ?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, username);
-            pstmt.setString(2, roleName);
+            // Set input parameters
+            cstmt.setString(1, username);
+            cstmt.setString(2, roleName);
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(3, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(4, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(3);
+            if (!success) {
+                String errorMessage = cstmt.getString(4);
+                System.err.println("Error removing role from user: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error removing role from user: " + e.getMessage());
@@ -342,18 +297,9 @@ public class UserDAO {
      */
     public static List<User> getAllUsers() {
         List<User> users = new ArrayList<>();
-        String sql = """
-            SELECT u.user_id, u.username, u.password, u.email, u.is_active,
-                   e.employee_number,
-                   STRING_AGG(r.role_name, ',') as roles
-            FROM users u
-            LEFT JOIN employees e ON u.user_id = e.user_id
-            LEFT JOIN user_roles ur ON u.user_id = ur.user_id AND ur.is_active = TRUE
-            LEFT JOIN roles r ON ur.role_id = r.role_id
-            WHERE u.is_active = TRUE
-            GROUP BY u.user_id, u.username, u.password, u.email, u.is_active, e.employee_number
-            ORDER BY u.username
-        """;
+        
+        // Using the stored procedure sp_get_all_users
+        String sql = "SELECT * FROM sp_get_all_users()";
         
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -368,10 +314,10 @@ public class UserDAO {
                 // Set roles
                 String roles = rs.getString("roles");
                 if (roles != null) {
-                user.setIsAdmin(roles.contains("ADMIN"));
-                user.setIsHR(roles.contains("HR"));
-                 user.setIsFinance(roles.contains("FINANCE"));
-				}
+                    user.setIsAdmin(roles.contains("ADMIN"));
+                    user.setIsHR(roles.contains("HR"));
+                    user.setIsFinance(roles.contains("FINANCE"));
+                }
                 
                 users.add(user);
             }
@@ -389,18 +335,28 @@ public class UserDAO {
      * @return true if deletion successful, false otherwise
      */
     public static boolean deleteUser(String employeeNum) {
-        String sql = """
-            UPDATE users SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP 
-            WHERE user_id = (SELECT user_id FROM employees WHERE employee_number = ?)
-        """;
+        // Using the stored procedure sp_delete_user
+        String sql = "{CALL sp_delete_user(?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, employeeNum);
+            // Set input parameters
+            cstmt.setString(1, employeeNum);
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(2, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(3, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(2);
+            if (!success) {
+                String errorMessage = cstmt.getString(3);
+                System.err.println("Error deleting user: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error deleting user: " + e.getMessage());
@@ -409,7 +365,6 @@ public class UserDAO {
         }
     }
     
-    
     /**
      * Update username for a user based on employee number
      * @param employeeNumber Employee number to identify the user
@@ -417,60 +372,34 @@ public class UserDAO {
      * @return true if update successful, false otherwise
      */
     public static boolean updateUsername(String employeeNumber, String newUsername) {
-        String sql = """
-            UPDATE users SET 
-                username = ?, updated_at = CURRENT_TIMESTAMP 
-            WHERE user_id = (
-                SELECT user_id FROM employees WHERE employee_number = ?
-            )
-        """;
+        // Using the stored procedure sp_update_username
+        String sql = "{CALL sp_update_username(?, ?, ?, ?)}";
         
         try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             CallableStatement cstmt = conn.prepareCall(sql)) {
             
-            pstmt.setString(1, newUsername);
-            pstmt.setString(2, employeeNumber);
+            // Set input parameters
+            cstmt.setString(1, employeeNumber);
+            cstmt.setString(2, newUsername);
             
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            // Register output parameters
+            cstmt.registerOutParameter(3, Types.BOOLEAN); // success
+            cstmt.registerOutParameter(4, Types.VARCHAR); // error_message
+            
+            cstmt.execute();
+            
+            boolean success = cstmt.getBoolean(3);
+            if (!success) {
+                String errorMessage = cstmt.getString(4);
+                System.err.println("Error updating username: " + errorMessage);
+            }
+            
+            return success;
             
         } catch (SQLException e) {
             System.err.println("Error updating username: " + e.getMessage());
             e.printStackTrace();
             return false;
-        }
-    }
-    
-    /**
-     * Helper method to create admin record
-     */
-    private static void createAdminRecord(Connection conn, int userId) throws SQLException {
-        String sql = "INSERT INTO admins (user_id, admin_level, permissions) VALUES (?, 1, 'BASIC')";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.executeUpdate();
-        }
-    }
-    
-    /**
-     * Helper method to create HR record
-     */
-    private static void createHRRecord(Connection conn, int userId) throws SQLException {
-        String sql = "INSERT INTO hr_personnel (user_id, hr_level) VALUES (?, 'Junior')";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.executeUpdate();
-        }
-    }
-    
-    /**
-     * Helper method to create Finance record
-     */
-    private static void createFinanceRecord(Connection conn, int userId) throws SQLException {
-        String sql = "INSERT INTO finance_personnel (user_id, finance_level) VALUES (?, 'Junior')";
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, userId);
-            pstmt.executeUpdate();
         }
     }
 }

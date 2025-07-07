@@ -14,6 +14,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import Database.DatabaseConnection;
+import Database.DatabaseObjectsInstaller;
+import Database.DirectDatabaseInstaller;
 import GUI.LoginPage;
 import UtilityClasses.JsonToDatabaseImporter;
 
@@ -46,6 +48,23 @@ public class Main {
                             JOptionPane.ERROR_MESSAGE
                         );
                         System.exit(1);
+                    });
+                    return;
+                }
+                
+                // Install database views and stored procedures directly
+                System.out.println("Using direct installer for database objects...");
+                if (!DirectDatabaseInstaller.installDatabaseObjects()) {
+                    SwingUtilities.invokeLater(() -> {
+                        loadingDialog.dispose();
+                        JOptionPane.showMessageDialog(
+                            null,
+                            "Failed to install database objects. The application may not function correctly.",
+                            "Database Warning",
+                            JOptionPane.WARNING_MESSAGE
+                        );
+                        // Continue anyway, as the application might still work with direct SQL queries
+                        new LoginPage().setVisible(true);
                     });
                     return;
                 }
