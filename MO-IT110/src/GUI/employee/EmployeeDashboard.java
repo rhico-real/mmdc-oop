@@ -13,11 +13,10 @@ import java.awt.GraphicsEnvironment;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.AdjustmentEvent;
-import java.awt.event.AdjustmentListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -36,12 +35,13 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.LayoutStyle;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicComboBoxUI;
+import javax.swing.plaf.basic.BasicComboPopup;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.plaf.basic.ComboPopup;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -54,7 +54,6 @@ import GUI.LoginPage;
 import UtilityClasses.JsonFileHandler;
 import UtilityClasses.SalaryCalculator;
 import DAO.AttendanceDAO;
-import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.time.YearMonth;
 
@@ -296,29 +295,30 @@ public class EmployeeDashboard extends JFrame {
 		mainPanel.add(menuBar, BorderLayout.WEST);
 		
 		// motorph logo
-		ImageIcon companyLogo = new ImageIcon("resources/images/motorph-employee-gui-logo.png");
+		ImageIcon companyLogo = new ImageIcon("resources/images/motorph-logo-navyblue.png");
 		JLabel companyLogoLabel = new JLabel(companyLogo);
 		GridBagConstraints companyLogoLabelGBC = new GridBagConstraints();
 		companyLogoLabelGBC.gridx = 0;
 		companyLogoLabelGBC.gridy = 0;
 		companyLogoLabelGBC.anchor = GridBagConstraints.WEST;
-		companyLogoLabelGBC.insets = new Insets (-370,-65,-50,0);
+		companyLogoLabelGBC.insets = new Insets (-350,-65,-120,0);
 		menuBar.add(companyLogoLabel, companyLogoLabelGBC);
 		
 		// compute button
 		computeButton.setFont(FontLoader.poppinsRegular14f);
-		computeButton.setForeground(Color.decode(navyBlue));
-		computeButton.setBackground(Color.decode(lightGray));
-		computeButton.setPreferredSize(new Dimension(80,25));
+		computeButton.setForeground(Color.WHITE);
+		computeButton.setBackground(Color.decode("#FF9B45"));
+		computeButton.setPreferredSize(new Dimension(85,30));
+		computeButton.setBorder(new EmptyBorder(0,-4,0,-4));
 		computeButton.setBorder(null);
 		computeButton.setFocusPainted(false);
-		computeButton.setContentAreaFilled(false); 
+		//computeButton.setContentAreaFilled(false); 
 		
 		GridBagConstraints computeButtonGBC = new GridBagConstraints();
 		computeButtonGBC.gridx = 0;
 		computeButtonGBC.gridy = 1;
 		computeButtonGBC.anchor= GridBagConstraints.WEST;
-		computeButtonGBC.insets = new Insets (0,-5,5,0);
+		computeButtonGBC.insets = new Insets (0,0,5,0);
 		menuBar.add(computeButton, computeButtonGBC);
 		
 		// month dropdown
@@ -328,6 +328,7 @@ public class EmployeeDashboard extends JFrame {
 		monthDropdown.setBorder(null);
 		monthDropdown.setFocusable(false);
 		monthDropdown.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		monthDropdown.setUI(new ModernComboBoxUI());
 		
 		GridBagConstraints monthDropdownGBC = new GridBagConstraints();
 		monthDropdownGBC.gridx = 0;
@@ -343,6 +344,7 @@ public class EmployeeDashboard extends JFrame {
 		yearDropdown.setBorder(null);
 		yearDropdown.setFocusable(false);
 		yearDropdown.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		yearDropdown.setUI(new ModernComboBoxUI());
 		
 		GridBagConstraints yearDropdownGBC = new GridBagConstraints();
 		yearDropdownGBC.gridx = 0;
@@ -350,21 +352,9 @@ public class EmployeeDashboard extends JFrame {
 		yearDropdownGBC.anchor = GridBagConstraints.EAST;
 		menuBar.add(yearDropdown, yearDropdownGBC);
 		
-		// menu label
-		JLabel menuLabel = new JLabel ("<html><b>Menu</b></html>");
-		menuLabel.setForeground(Color.decode(navyBlue));
-		menuLabel.setFont(FontLoader.poppinsRegular20f);
-		GridBagConstraints menuLabelGBC = new GridBagConstraints();
-		menuLabelGBC.gridx = 0;
-		menuLabelGBC.gridy = 4;
-		menuLabelGBC.anchor = GridBagConstraints.WEST;
-		menuLabelGBC.insets = new Insets (70,-15,20,0);
-		menuBar.add(menuLabel, menuLabelGBC);
-		
 		//submit leave button
-		submitLeaveRequestButton.setFont(FontLoader.poppinsRegular18f);
-		submitLeaveRequestButton.setForeground(Color.decode(navyBlue));
-		submitLeaveRequestButton.setSize(new Dimension(120,25));
+		ImageIcon leaveRequestIcon = new ImageIcon("resources/images/employee/leave-request-button.png");
+		JButton submitLeaveRequestButton = new JButton(leaveRequestIcon);
 		submitLeaveRequestButton.setFocusPainted(false);
 		submitLeaveRequestButton.setBorder(null);
 		submitLeaveRequestButton.setContentAreaFilled(false); 
@@ -373,13 +363,12 @@ public class EmployeeDashboard extends JFrame {
 		submitLeaveRequestButtonGBC.gridx = 0;
 		submitLeaveRequestButtonGBC.gridy = 5;
 		submitLeaveRequestButtonGBC.anchor = GridBagConstraints.WEST;
-		submitLeaveRequestButtonGBC.insets = new Insets (5,-15,0,0);
+		submitLeaveRequestButtonGBC.insets = new Insets (70,-15,0,0);
 		menuBar.add(submitLeaveRequestButton, submitLeaveRequestButtonGBC);
 		
 		// overtime button
-		submitOvertimeButton.setFont(FontLoader.poppinsRegular18f);
-		submitOvertimeButton.setForeground(Color.decode(navyBlue));
-		submitOvertimeButton.setText("My Overtime");
+		ImageIcon submitOvertimeIcon = new ImageIcon("resources/images/employee/overtime-button.png");
+		JButton submitOvertimeButton = new JButton(submitOvertimeIcon);
 		submitOvertimeButton.setSize(new Dimension(120,25));
 		submitOvertimeButton.setFocusPainted(false);
 		submitOvertimeButton.setBorder(null);
@@ -389,13 +378,12 @@ public class EmployeeDashboard extends JFrame {
 		submitOvertimeButtonGBC.gridx = 0;
 		submitOvertimeButtonGBC.gridy = 6;
 		submitOvertimeButtonGBC.anchor = GridBagConstraints.WEST;
-		submitOvertimeButtonGBC.insets = new Insets (5,-15,0,0);
+		submitOvertimeButtonGBC.insets = new Insets (15,-15,0,0);
 		menuBar.add(submitOvertimeButton, submitOvertimeButtonGBC);
 		
 		// payslip button
-		submitPayslipButton.setFont(FontLoader.poppinsRegular18f);
-		submitPayslipButton.setForeground(Color.decode(navyBlue));
-		submitPayslipButton.setSize(new Dimension(120,25));
+		ImageIcon payslipIcon = new ImageIcon("resources/images/employee/payslip-button.png");
+		JButton submitPayslipButton = new JButton(payslipIcon);
 		submitPayslipButton.setFocusPainted(false);
 		submitPayslipButton.setBorder(null);
 		submitPayslipButton.setContentAreaFilled(false); 
@@ -404,13 +392,12 @@ public class EmployeeDashboard extends JFrame {
 		submitPayslipButtonGBC.gridx = 0;
 		submitPayslipButtonGBC.gridy = 7;
 		submitPayslipButtonGBC.anchor = GridBagConstraints.WEST;
-		submitPayslipButtonGBC.insets = new Insets (5,-15,0,0);
+		submitPayslipButtonGBC.insets = new Insets (15,-15,0,0);
 		menuBar.add(submitPayslipButton, submitPayslipButtonGBC);
 		
 		// update information
-		editInfoButton.setFont(FontLoader.poppinsRegular18f);
-		editInfoButton.setForeground(Color.decode(navyBlue));
-		editInfoButton.setSize(new Dimension(120,25));
+		ImageIcon informationIcon = new ImageIcon("resources/images/employee/my-information-button.png");
+		JButton editInfoButton = new JButton(informationIcon);
 		editInfoButton.setFocusPainted(false);
 		editInfoButton.setBorder(null);
 		editInfoButton.setContentAreaFilled(false); 
@@ -419,21 +406,20 @@ public class EmployeeDashboard extends JFrame {
 		editInfoButtonGBC.gridx = 0;
 		editInfoButtonGBC.gridy = 8;
 		editInfoButtonGBC.anchor = GridBagConstraints.WEST;
-		editInfoButtonGBC.insets = new Insets (5,-15,0,0);
+		editInfoButtonGBC.insets = new Insets (15,-15,0,0);
 		menuBar.add(editInfoButton, editInfoButtonGBC);
 		
 		// logout button
-		logoutButton.setFont(FontLoader.poppinsRegular18f);
-		logoutButton.setForeground(Color.WHITE);
-		logoutButton.setBackground(Color.decode(lightRed));
-		Border outerBorder = new LineBorder(Color.decode(lightRed), 2, true); // outer border
-		Border innerPadding = new EmptyBorder(5, 9, 5, 10); // inner border
-		logoutButton.setBorder(new CompoundBorder(outerBorder, innerPadding));
+		ImageIcon logoutIcon = new ImageIcon("resources/images/employee/employee-logout-button.png");
+		JButton logoutButton = new JButton(logoutIcon);
+		logoutButton.setFocusPainted(false);
+		logoutButton.setBorder(null);
+		logoutButton.setContentAreaFilled(false); 
 		GridBagConstraints logoutButtonGBC = new GridBagConstraints();
 		logoutButtonGBC.gridx = 0;
 		logoutButtonGBC.gridy = 9;
 		logoutButtonGBC.anchor = GridBagConstraints.WEST;
-		logoutButtonGBC.insets = new Insets (0,-15,-230,0);
+		logoutButtonGBC.insets = new Insets (-40,-30,-200,0);
 		menuBar.add(logoutButton, logoutButtonGBC);
 		
 		//-----------------------------------------------------------------------------
@@ -1142,29 +1128,24 @@ public class EmployeeDashboard extends JFrame {
 			}
 		});
 
-		submitLeaveRequestButton.setText("My Leave Request");
 		submitLeaveRequestButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				backToEmployeeListButtonActionPerformed(evt);
 			}
 		});
 		
-		submitOvertimeButton = new javax.swing.JButton();
-		submitOvertimeButton.setText("My Overtime");
 		submitOvertimeButton.addActionListener(new java.awt.event.ActionListener() {
 		    public void actionPerformed(java.awt.event.ActionEvent evt) {
 		        submitOvertimeButtonActionPerformed(evt);
 		    }
 		});
 		
-		submitPayslipButton.setText("My Payslip");
 		submitPayslipButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				viewPayslipButtonActionPerformed(evt);
 			}
 		});
 		
-		editInfoButton.setText("Edit Information");
 		editInfoButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				editInfoButtonActionPerformed(evt);
@@ -1175,7 +1156,6 @@ public class EmployeeDashboard extends JFrame {
 		welcomeLabel.setFont(new java.awt.Font("Arial", 0, 18)); // NOI18N
 		welcomeLabel.setText("Welcome, " + employeeGI.getLastName() + ".");
 
-		logoutButton.setText("Log Out");
 		logoutButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				logoutButtonActionPerformed(evt);
@@ -1665,11 +1645,10 @@ public class EmployeeDashboard extends JFrame {
         }
     }
 	
-	
 	// rounded panel
 	static class RoundedPanel extends JPanel {
 	    private int cornerRadius;
-	    private Color borderColor = Color.BLACK; // Default border color
+	    private Color borderColor = Color.WHITE; // Default border color
 	    private int borderThickness = 2;         // Border thickness
 
 	    public RoundedPanel(int radius) {
@@ -1692,8 +1671,6 @@ public class EmployeeDashboard extends JFrame {
 
 	    @Override
 	    protected void paintComponent(Graphics g) {
-	        // Do NOT call super.paintComponent if setOpaque(false)
-	        // It can interfere with custom painting
 	        Graphics2D g2 = (Graphics2D) g.create();
 	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
@@ -1719,4 +1696,84 @@ public class EmployeeDashboard extends JFrame {
 	        g2.dispose();
 	    }
 	}
+	
+    // custom dropdown user interface
+    static class ModernComboBoxUI extends BasicComboBoxUI {
+
+        @Override
+        protected JButton createArrowButton() {
+            return new ArrowButton();
+        }
+
+        @Override
+        protected ComboPopup createPopup() {
+            BasicComboPopup popup = new BasicComboPopup(comboBox);
+
+            JScrollPane scrollPane = (JScrollPane) popup.getComponents()[0];
+            JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+
+            // modern scroll bar
+            scrollBar.setUI(new BasicScrollBarUI() {
+                @Override
+                protected void configureScrollBarColors() {
+                    thumbColor = new Color(180, 180, 180);
+                    trackColor = new Color(240, 240, 240);
+                }
+
+                @Override
+                protected JButton createDecreaseButton(int orientation) {
+                    return createZeroButton();
+                }
+
+                @Override
+                protected JButton createIncreaseButton(int orientation) {
+                    return createZeroButton();
+                }
+
+                private JButton createZeroButton() {
+                    JButton button = new JButton();
+                    button.setPreferredSize(new Dimension(0, 0));
+                    button.setMinimumSize(new Dimension(0, 0));
+                    button.setMaximumSize(new Dimension(0, 0));
+                    return button;
+                }
+            });
+
+            return popup;
+        }
+    }
+
+    // custom arrow button
+    static class ArrowButton extends JButton {
+        public ArrowButton() {
+            setContentAreaFilled(false);
+            setFocusPainted(false);
+            setBorderPainted(false);
+            setOpaque(false);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int w = getWidth();
+            int h = getHeight();
+
+            // down ward arrow button for dropdown
+            int size = 8;
+            int x = (w - size) / 2;
+            int y = (h - size) / 2;
+
+            Polygon arrow = new Polygon();
+            arrow.addPoint(x, y);
+            arrow.addPoint(x + size, y);
+            arrow.addPoint(x + size / 2, y + size);
+
+            g2.setColor(new Color(100, 100, 100));
+            g2.fill(arrow);
+            g2.dispose();
+        }
+    }
 }

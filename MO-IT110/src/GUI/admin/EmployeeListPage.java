@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 @SuppressWarnings("serial")
@@ -77,31 +78,33 @@ public class EmployeeListPage extends JFrame {
 	    Font poppinsSemiBold18f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
 
 	    // Top Navigation Bar with LEFT and RIGHT sections
-	    JPanel navBar = new JPanel(new GridBagLayout());
+	    JPanel navBar = new JPanel(new BorderLayout());
 	    navBar.setBackground(Color.decode("#153969"));
 	    
-	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
-        JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
-        
-        GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
-        motorPHLogoGBC.insets = new Insets(-20, 0, 0, 790);
-        navBar.add(motorPHLogo, motorPHLogoGBC);
-        
-        // back to dashboard button
-        JButton navBackButton = new JButton("Dashboard");
-	    navBackButton.setFocusPainted(false);
-	    navBackButton.setFont(poppinsRegular16f);
-	    navBackButton.setForeground(Color.WHITE);
-	    navBackButton.setBackground(Color.decode("#547792"));
-	    navBackButton.setPreferredSize(new Dimension(120, 40));
-	    navBackButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
-	    navBackButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+	    // panel for back button and company logo
+	    JPanel leftNavBar = new JPanel(new GridBagLayout());
+	    leftNavBar.setBackground(Color.decode("#153969"));
+	    navBar.add(leftNavBar, BorderLayout.WEST);
+	    
+	    // back to dashboard button
+	    ImageIcon backButtonIcon = new ImageIcon("resources/images/back-button-navbar.png");
+        JButton navBackButton = new JButton(backButtonIcon);
+        navBackButton.setBorder(null);
+        navBackButton.setFocusPainted(false);
+        navBackButton.setContentAreaFilled(false); 
 	    navBackButton.addActionListener(evt -> jButton1ActionPerformed(evt));
-	    navBar.add(navBackButton);
 	    
 	    GridBagConstraints navBackButtonGBC = new GridBagConstraints();
 	    navBackButtonGBC.insets = new Insets(0,0,0,0);
-        navBar.add(navBackButton, navBackButtonGBC);
+	    leftNavBar.add(navBackButton, navBackButtonGBC);
+	    
+        // company logo
+	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/motorph-logo-white.png");
+        JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
+        
+        GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
+        motorPHLogoGBC.insets = new Insets(-45,-30,0,0);
+        leftNavBar.add(motorPHLogo, motorPHLogoGBC);
         
 	    // search button
 	    JButton addEmployeeButton = new JButton("Add Employee");
@@ -109,18 +112,12 @@ public class EmployeeListPage extends JFrame {
 	    addEmployeeButton.setFont(poppinsRegular16f);
 	    addEmployeeButton.setForeground(Color.WHITE);
 	    addEmployeeButton.setBackground(Color.decode("#547792"));
-	    addEmployeeButton.setPreferredSize(new Dimension(160, 40));
-	    addEmployeeButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
+	    addEmployeeButton.setBorder(new EmptyBorder(0,15,0,15));
 	    addEmployeeButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 	    addEmployeeButton.addActionListener(evt -> addEmployeeButtonActionPerformed(evt));
-	    navBar.add(addEmployeeButton);
+	    navBar.add(addEmployeeButton, BorderLayout.EAST);
 	    
-	    GridBagConstraints addEmployeeButtonGBC = new GridBagConstraints();
-        addEmployeeButtonGBC.insets = new Insets(0,10,0,0);
-        navBar.add(addEmployeeButton, addEmployeeButtonGBC);
-	    
-
-	    // 🔹 Table Model
+	    // Table Model
 	    DefaultTableModel model = new DefaultTableModel(new Object[][] {},
 	        new String[] { "Employee Number", "Last Name", "First Name", "SSS No.", "PhilHealth No.", "TIN", "Pagibig No.", "", "", "" }) {
 	        @Override
@@ -198,6 +195,9 @@ public class EmployeeListPage extends JFrame {
 	            .addGap(0)
 	            .addComponent(jScrollPane1, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 	    );
+	    
+		ImageIcon taskbarImage = new ImageIcon("resources/images/motorph-taskbar-image.png");
+		setIconImage(taskbarImage.getImage());
 
 	    pack();
 	    setSize(1366,768);
