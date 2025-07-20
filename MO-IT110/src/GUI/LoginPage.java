@@ -48,6 +48,9 @@ private static Font loadCustomFont(String fontPath, float size) {
 		setSize(1366, 768); setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
+		
+		ImageIcon taskbarImage = new ImageIcon("resources/images/motorph-taskbar-image.png");
+		setIconImage(taskbarImage.getImage());
 
 		// custom font
 		Font poppinsHeader = loadCustomFont("resources/fonts/Poppins-Bold.ttf", 60f);

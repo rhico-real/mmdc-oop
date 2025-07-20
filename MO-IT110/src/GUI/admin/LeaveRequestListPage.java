@@ -7,6 +7,7 @@ import Classes.GovernmentIdentification;
 import Classes.LeaveRequest;
 import DAO.LeaveRequestDAO;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -82,29 +83,34 @@ public class LeaveRequestListPage extends JFrame {
 	    Font poppinsSemiBold18f = loadCustomFont("resources/fonts/Poppins-SemiBold.ttf", 18f);
 
 	    // 🔹 Top Navigation Bar
-	    JPanel navBar = new JPanel(new GridBagLayout());
+	    JPanel navBar = new JPanel(new BorderLayout());
 	    navBar.setBackground(Color.decode("#153969"));
 	    
-	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+	    // panel for back button and company logo
+	    JPanel leftNavBar = new JPanel(new GridBagLayout());
+	    leftNavBar.setBackground(Color.decode("#153969"));
+	    navBar.add(leftNavBar, BorderLayout.WEST);
+	    
+	    // back to dashboard button
+	    ImageIcon backButtonIcon = new ImageIcon("resources/images/back-button-navbar.png");
+        JButton navBackButton = new JButton(backButtonIcon);
+        navBackButton.setBorder(null);
+        navBackButton.setFocusPainted(false);
+        navBackButton.setContentAreaFilled(false); 
+	    navBackButton.addActionListener(evt -> goBackButtonActionPerformed(evt));
+	    
+	    GridBagConstraints navBackButtonGBC = new GridBagConstraints();
+	    navBackButtonGBC.insets = new Insets(0,0,0,0);
+	    leftNavBar.add(navBackButton, navBackButtonGBC);
+	    
+        // company logo
+	    ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/motorph-logo-white.png");
         JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
         
         GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
-        motorPHLogoGBC.gridx = 0;
-        motorPHLogoGBC.gridy = 0;
-        motorPHLogoGBC.insets = new Insets(-20, 0, 0, 950);
-        navBar.add(motorPHLogo, motorPHLogoGBC);
+        motorPHLogoGBC.insets = new Insets(-45,-30,0,0);
+        leftNavBar.add(motorPHLogo, motorPHLogoGBC);
 
-
-	    JButton navBackButton = new JButton("Dashboard");
-	    navBackButton.setFocusPainted(false);
-	    navBackButton.setFont(poppinsRegular16f);
-	    navBackButton.setForeground(Color.WHITE);
-	    navBackButton.setBackground(Color.decode("#547792"));
-	    navBackButton.setPreferredSize(new Dimension(120, 40));
-	    navBackButton.setBorder(new LineBorder(Color.decode("#153969"),3, true));
-	    navBackButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-	    navBackButton.addActionListener(evt -> goBackButtonActionPerformed(evt));
-	    navBar.add(navBackButton);
 
 	    // 🔹 Table Model
 	    DefaultTableModel model = new DefaultTableModel(new Object[][] {}, new String[] {

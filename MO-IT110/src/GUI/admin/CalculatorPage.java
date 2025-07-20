@@ -172,7 +172,8 @@ public class CalculatorPage extends JFrame {
 	    }
 	}
 	
-	// BORDER THICKNESS OF ROUNDED PANEL
+
+	// rounded panel
 	static class RoundedPanel extends JPanel {
 	    private int cornerRadius;
 	    private Color borderColor = Color.BLACK; // Default border color
@@ -398,7 +399,7 @@ public class CalculatorPage extends JFrame {
 		// MENUBAR LAYOUT
 		
 		// add the logos
-		ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+		ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/motorph-logo-white.png");
         JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
         ImageIcon admindisplayLogo = new ImageIcon("resources/images/Admin-Logo.png");
         JLabel adminLogo = new JLabel(admindisplayLogo);
@@ -406,13 +407,13 @@ public class CalculatorPage extends JFrame {
         GridBagConstraints gbc_motorPHLogo = new GridBagConstraints();
         gbc_motorPHLogo.gridx = 0;
         gbc_motorPHLogo.gridy = 0;
-        gbc_motorPHLogo.insets = new Insets(0, 0, 0, 460);
+        gbc_motorPHLogo.insets = new Insets(-30, -50, 0, 500);
 		menubarPanel.add(motorPHLogo, gbc_motorPHLogo);
 		
 		GridBagConstraints gbc_adminLogo = new GridBagConstraints();
         gbc_adminLogo.gridx = 2;
         gbc_adminLogo.gridy = 0;
-        gbc_adminLogo.insets = new Insets(0, 460, 0, 0);
+        gbc_adminLogo.insets = new Insets(0, 500, 0, -25);
 		menubarPanel.add(adminLogo, gbc_adminLogo);
 				
 		netSalaryComputationLabel.setText("Net Salary Computation");		

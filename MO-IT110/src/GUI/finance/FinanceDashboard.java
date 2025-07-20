@@ -57,8 +57,6 @@ public class FinanceDashboard extends JFrame {
     	
     	// custom colors
     	String navyBlue = "#153969";
-        String lightGray = "#f5f5f5";
-        String lightRed ="#ff5757";
 
     	// Main panel
     	JPanel mainPanel = new JPanel(new BorderLayout(10, 10));

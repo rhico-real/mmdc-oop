@@ -34,7 +34,7 @@ public class Main {
                 
                 // Wait until initialization is complete
                 while (JsonToDatabaseImporter.isImportInProgress()) {
-                    Thread.sleep(500);
+                   Thread.sleep(500);
                 }
                 
                 // Test database connection

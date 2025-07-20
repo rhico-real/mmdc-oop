@@ -45,12 +45,12 @@ public class HRDashboard extends JFrame {
         mainPanel.add(navBarPanel, navBarPanelGBC);
         
         // motorph logo
-        ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/MotorPH-Logo.png");
+        ImageIcon motorphlogoAdmin = new ImageIcon("resources/images/motorph-logo-white.png");
         JLabel motorPHLogo = new JLabel(motorphlogoAdmin);
         GridBagConstraints motorPHLogoGBC = new GridBagConstraints();
         motorPHLogoGBC.gridx = 0;
         motorPHLogoGBC.gridy = 0;
-        motorPHLogoGBC.insets = new Insets(0, 0, 0, 850);
+        motorPHLogoGBC.insets = new Insets(-30, -100, 0, 950);
         navBarPanel.add(motorPHLogo, motorPHLogoGBC);
         
         // logout button
@@ -72,7 +72,7 @@ public class HRDashboard extends JFrame {
         GridBagConstraints financeLogoLabelGBC = new GridBagConstraints();
         financeLogoLabelGBC.gridx = 2;
         financeLogoLabelGBC.gridy = 0;
-        financeLogoLabelGBC.insets = new Insets(0, -15, 0, 0);
+        financeLogoLabelGBC.insets = new Insets(0, -15, 0, -75);
         navBarPanel.add(financeLogoLabel, financeLogoLabelGBC);
         
         // Content Panel
